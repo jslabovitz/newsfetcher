@@ -18,16 +18,17 @@ module Feeder
       end
       @command = args.shift
       @args = args
+      @profile = Profile.new
     end
 
     def run
       case @command
       when 'list'
-        Subscription.list
+        @profile.list
       when 'update'
-        Subscription.update
+        @profile.update
       when 'process'
-        Subscription.process
+        @profile.process
       else
         raise
       end

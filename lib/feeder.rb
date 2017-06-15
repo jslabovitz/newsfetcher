@@ -14,6 +14,7 @@ require 'feeder/utils'
 
 require 'feeder/extensions/date_time'
 require 'feeder/commands'
+require 'feeder/profile'
 require 'feeder/subscription'
 
 module Feeder
