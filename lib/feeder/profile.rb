@@ -15,8 +15,7 @@ module Feeder
     end
 
     def process
-      feeds = each_subscription.map { |s| s.process }
-      Feeder.save_json(feeds, Feeder.compilation_file)
+      each_subscription { |s| s.process }
     end
 
     def each_subscription(&block)

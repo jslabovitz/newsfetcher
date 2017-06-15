@@ -21,7 +21,6 @@ module Feeder
 
   FeedXMLFilename = 'feed.xml'
   ErrorsFilename = 'errors'
-  CompilationFilename = 'compilation.json'
   EntriesDirName = 'entries'
   DefaultDataDir = '~/Projects/vmsg/feeds'
   DefaultSubscriptionsFile = '~/Library/Application Support/NetNewsWire/Subscriptions.plist'
@@ -51,10 +50,6 @@ module Feeder
 
   def self.subscriptions_file
     @subscriptions_file ||= Path.new(DefaultSubscriptionsFile).expand_path
-  end
-
-  def self.compilation_file
-    data_dir / CompilationFilename
   end
 
 end
