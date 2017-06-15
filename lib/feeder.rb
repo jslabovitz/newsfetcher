@@ -20,8 +20,8 @@ module Feeder
   ErrorsFilename = 'errors'
   CompilationFilename = 'compilation.json'
   EntriesDirName = 'entries'
-  DefaultDataDir = Path.new('~/Projects/vmsg/feeds').expand_path
-  DefaultSubscriptionsFile = Path.new('~/Library/Application Support/NetNewsWire/Subscriptions.plist').expand_path
+  DefaultDataDir = '~/Projects/vmsg/feeds'
+  DefaultSubscriptionsFile = '~/Library/Application Support/NetNewsWire/Subscriptions.plist'
 
   FeedTranslationMap = [
     'title',
@@ -43,7 +43,11 @@ module Feeder
   ]
 
   def self.data_dir
-    @data_dir ||= DefaultDataDir
+    @data_dir ||= Path.new(DefaultDataDir).expand_path
+  end
+
+  def self.subscriptions_file
+    @subscriptions_file ||= Path.new(DefaultSubscriptionsFile).expand_path
   end
 
   def self.compilation_file

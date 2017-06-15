@@ -20,7 +20,8 @@ module Feeder
       Feeder.save_json(feeds, Feeder.compilation_file)
     end
 
-    def self.each_subscription(plist_file=Feeder::DefaultSubscriptionsFile, &block)
+    def self.each_subscription(plist_file=nil, &block)
+      plist_file ||= Feeder.subscriptions_file
       return to_enum(__method__) unless block_given?
       IO.popen(['plutil', '-convert', 'xml1', '-o', '-', plist_file.to_s], 'r') do |io|
         plist = Nokogiri::PList(io)
