@@ -1,3 +1,5 @@
 #!/usr/bin/env ruby
 
 require 'feeder'
+
+Feeder::CommandProcessor.run(ARGV)
