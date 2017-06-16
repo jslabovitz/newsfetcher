@@ -22,13 +22,14 @@ module Feeder
     end
 
     def run
+      ids = @args.empty? ? nil : @args
       case @command
       when 'list'
-        @profile.list
+        @profile.list(ids)
       when 'update'
-        @profile.update
+        @profile.update(ids)
       when 'process'
-        @profile.process
+        @profile.process(ids)
       else
         raise
       end

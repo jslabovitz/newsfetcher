@@ -20,8 +20,8 @@ require 'feeder/subscription'
 module Feeder
 
   FeedXMLFilename = 'feed.xml'
-  ErrorsFilename = 'errors'
-  EntriesDirName = 'entries'
+  NewFeedXMLFilename = 'feed.new.xml'
+  FeedInfoFilename = 'info.json'
   DefaultDataDir = '~/Projects/vmsg/feeds'
   DefaultSubscriptionsFile = '~/Library/Application Support/NetNewsWire/Subscriptions.plist'
 

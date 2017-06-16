@@ -2,44 +2,52 @@ module Feeder
 
   class Profile
 
-    attr_accessor :subscriptions
-
     def initialize(plist_file=nil)
-      @subscriptions = read_plist_file(plist_file || Feeder.subscriptions_file)
+      read_plist_file(plist_file || Feeder.subscriptions_file)
     end
 
-    def list
-      @subscriptions.each { |s| p(s) }
+    def list(ids=nil)
+      subscriptions(ids).each { |s| p(s) }
     end
 
-    def update
-      @subscriptions.each { |s| s.update }
+    def update(ids=nil)
+      subscriptions(ids).each { |s| s.update }
     end
 
-    def process
-      @subscriptions.each { |s| s.process }
+    def process(ids=nil)
+      subscriptions(ids).each { |s| s.process }
     end
+
+    def subscriptions(ids=nil)
+      if ids
+        ids.map { |id| @subscriptions[id] }
+      else
+        @subscriptions.values
+      end
+    end
+
+    private
 
     def read_plist_file(file)
+      @subscriptions = {}
       io = IO.popen(['plutil', '-convert', 'xml1', '-o', '-', file.to_s], 'r')
       plist = Nokogiri::PList(io)
       recurse_plist(plist)
     end
 
-    private
-
     def recurse_plist(items, path=[])
-      items.map do |item|
+      items.each do |item|
         if item['isContainer']
           recurse_plist(item['childrenArray'], path + [item['name']])
         else
-          Subscription.new(
-            id: item['id'],
+          id = item['id']
+          @subscriptions[id] = Subscription.new(
+            id: id,
             title: item['name'],
             feed_link: item['rss'],
             path: path)
         end
-      end.flatten
+      end
     end
 
   end

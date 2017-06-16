@@ -19,40 +19,72 @@ module Feeder
       @feed_xml_file ||= feed_dir / FeedXMLFilename
     end
 
-    def errors_file
-      @errors_file ||= feed_dir / ErrorsFilename
+    def new_feed_xml_file
+      @new_feed_xml_file ||= feed_dir / NewFeedXMLFilename
+    end
+
+    def feed_info_file
+      @feed_info_file ||= feed_dir / FeedInfoFilename
     end
 
     def update
-      puts "downloading #{@feed_link} to #{feed_xml_file}"
+      puts; puts "---"
+      puts "#{@feed_link}"
       feed_dir.mkpath unless feed_dir.exist?
       errors_file.unlink if errors_file.exist?
-      pid = Process.spawn(
-        'download-if-modified',
+      args = [
+        'curl',
         @feed_link.to_s,
-        feed_xml_file.to_s,
-        err: errors_file.to_s)
+        '--verbose',
+        '--silent',
+        '--location',
+        '--time-cond', feed_xml_file.to_s,
+        '--output', new_feed_xml_file.to_s,
+      ]
+      pid = Process.spawn(*args.map(&:to_s))
       pid, status = Process.wait2(pid)
-      if status.success?
-        errors_file.unlink
-      else
-        ;;pp(status: status, error: errors_file.read)
-      end
+      ;;pp status unless status.success?
     end
 
+    EntryWhitewashedKeys = %w{title author summary content}
+
     def process
-      return unless feed_xml_file.exist?
-      begin
-        jira_feed = Feedjira::Feed.parse(feed_xml_file.read)
-      rescue Feedjira::NoParserAvailable => e
-        warn "Can't parse feed file #{feed_xml_file}: #{e}"
-        return
+      old_feed, new_feed = [feed_xml_file, new_feed_xml_file].map { |f| read_feed(f) }
+      return unless new_feed
+
+      new_entry_ids = new_feed.entries.map(&:entry_id)
+      old_entry_ids = old_feed ? old_feed.entries.map(&:entry_id) : []
+      ids = (new_entry_ids - old_entry_ids)
+
+      feed = Feeder.object_to_hash(new_feed, FeedTranslationMap).merge('type' => 'feed')
+      Feeder.save_json(feed, feed_info_file)
+
+      unless ids.empty?
+        ;;puts; puts "* #{feed.to_json}"
+        new_feed.entries.select { |e| ids.include?(e.entry_id) }.each do |jira_entry|
+          entry = Feeder.object_to_hash(jira_entry, EntryTranslationMap).merge('type' => 'entry')
+          EntryWhitewashedKeys.each do |key|
+            entry[key] = Loofah.scrub_fragment(entry[key], :whitewash).to_s if entry[key]
+          end
+          ;;puts "** #{entry.to_json}"
+        end
       end
-      jira_feed.sanitize_entries!
-      entries = jira_feed.entries.map do |jira_entry|
-        Feeder.object_to_hash(jira_entry, EntryTranslationMap).merge('type' => 'entry')
+
+      # feed_xml_file.unlink
+      # new_feed_xml_file.rename(feed_xml_file)
+    end
+
+    private
+
+    def read_feed(xml_file)
+      if xml_file.exist?
+        begin
+          return Feedjira::Feed.parse(xml_file.read)
+        rescue Feedjira::NoParserAvailable => e
+          warn "Can't parse feed file #{xml_file}: #{e}"
+        end
       end
-      Feeder.object_to_hash(jira_feed, FeedTranslationMap).merge('type' => 'feed', 'entries' => entries)
+      nil
     end
 
   end
