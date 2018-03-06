@@ -24,7 +24,7 @@ module Feeder
   FeedXMLFile = 'feed.xml'
   FeedInfoFile = 'info.json'
   FeedHistoryFile = 'history.json'
-  DataDir = '~/Projects/vmsg/feeds'
+  DataDir = '~/.feeds'
   SubscriptionsFile = '~/Library/Application Support/NetNewsWire/Subscriptions.plist'
 
   FeedTranslationMap = [
