@@ -34,16 +34,17 @@ module Feeder
       feed_dir.mkpath unless feed_dir.exist?
       args = [
         'curl',
-        @feed_link.to_s,
+        @feed_link,
         # '--verbose',
-        '--silent',
+        # '--silent',
+        '--progress-bar',
         '--fail',
         '--location',
         '--user-agent', UserAgent,
-        '--time-cond', feed_xml_file.to_s,
-        '--output', feed_xml_file.to_s,
-      ]
-      pid = Process.spawn(*args.map(&:to_s))
+        feed_xml_file.exist? ? ['--time-cond', feed_xml_file] : [],
+        '--output', feed_xml_file,
+      ].flatten.compact.map(&:to_s)
+      pid = Process.spawn(*args)
       pid, status = Process.wait2(pid)
       raise "Couldn't download feed: #{status}" unless status.success?
     end
