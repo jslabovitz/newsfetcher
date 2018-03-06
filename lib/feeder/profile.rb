@@ -7,22 +7,25 @@ module Feeder
     end
 
     def list(ids=nil)
-      subscriptions(ids).each { |s| p(s) }
+      subscriptions(:list, ids)
     end
 
     def update(ids=nil)
-      subscriptions(ids).each { |s| s.update }
+      subscriptions(:update, ids)
     end
 
     def process(ids=nil)
-      subscriptions(ids).each { |s| s.process }
+      subscriptions(:process, ids)
     end
 
-    def subscriptions(ids=nil)
-      if ids
-        ids.map { |id| @subscriptions[id] }
-      else
-        @subscriptions.values
+    def subscriptions(method, ids=nil)
+      subscriptions = ids ? ids.map { |id| @subscriptions[id] } : @subscriptions.values
+      subscriptions.each do |subscription|
+        begin
+          subscription.send(method)
+        rescue => e
+          warn "Failed to #{method} #{subscription.title.inspect} (#{subscription.id}): #{e}"
+        end
       end
     end
 

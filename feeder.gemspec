@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'feedjira'
   spec.add_dependency 'hashstruct'
+  spec.add_dependency 'maildir'
   spec.add_dependency 'nokogiri'
   spec.add_dependency 'nokogiri-plist'
   spec.add_dependency 'path'

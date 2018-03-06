@@ -16,62 +16,71 @@ module Feeder
     end
 
     def feed_xml_file
-      @feed_xml_file ||= feed_dir / FeedXMLFilename
-    end
-
-    def new_feed_xml_file
-      @new_feed_xml_file ||= feed_dir / NewFeedXMLFilename
+      @feed_xml_file ||= feed_dir / FeedXMLFile
     end
 
     def feed_info_file
-      @feed_info_file ||= feed_dir / FeedInfoFilename
+      @feed_info_file ||= feed_dir / FeedInfoFile
     end
 
+    def history_file
+      @history_file ||= feed_dir / FeedHistoryFile
+    end
+
+    UserAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/604.1.25 (KHTML, like Gecko) Version/11.0 Safari/604.1.25'
+
     def update
-      puts; puts "---"
-      puts "#{@feed_link}"
+      puts "#{@title.inspect} (#{@id}) <#{@feed_link}>"
       feed_dir.mkpath unless feed_dir.exist?
-      errors_file.unlink if errors_file.exist?
       args = [
         'curl',
         @feed_link.to_s,
-        '--verbose',
+        # '--verbose',
         '--silent',
+        '--fail',
         '--location',
+        '--user-agent', UserAgent,
         '--time-cond', feed_xml_file.to_s,
-        '--output', new_feed_xml_file.to_s,
+        '--output', feed_xml_file.to_s,
       ]
       pid = Process.spawn(*args.map(&:to_s))
       pid, status = Process.wait2(pid)
-      ;;pp status unless status.success?
+      raise "Couldn't download feed: #{status}" unless status.success?
     end
 
-    EntryWhitewashedKeys = %w{title author summary content}
-
     def process
-      old_feed, new_feed = [feed_xml_file, new_feed_xml_file].map { |f| read_feed(f) }
-      return unless new_feed
-
-      new_entry_ids = new_feed.entries.map(&:entry_id)
-      old_entry_ids = old_feed ? old_feed.entries.map(&:entry_id) : []
-      ids = (new_entry_ids - old_entry_ids)
-
-      feed = Feeder.object_to_hash(new_feed, FeedTranslationMap).merge('type' => 'feed')
+      raise "Feed file not found" unless feed_xml_file.exist?
+      begin
+        jira_feed = Feedjira::Feed.parse(feed_xml_file.read)
+      rescue Feedjira::NoParserAvailable => e
+        raise "Can't parse feed file: #{e}"
+      end
+      feed = Feeder.object_to_hash(jira_feed, 'feed', FeedTranslationMap, FeedWhitewashKeys)
       Feeder.save_json(feed, feed_info_file)
-
-      unless ids.empty?
-        ;;puts; puts "* #{feed.to_json}"
-        new_feed.entries.select { |e| ids.include?(e.entry_id) }.each do |jira_entry|
-          entry = Feeder.object_to_hash(jira_entry, EntryTranslationMap).merge('type' => 'entry')
-          EntryWhitewashedKeys.each do |key|
-            entry[key] = Loofah.scrub_fragment(entry[key], :whitewash).to_s if entry[key]
+      history = history_file.exist? ? Feeder.load_json(history_file) : {}
+      maildir = Maildir.new(feed_dir)
+      maildir.serializer = Maildir::Serializer::JSON.new
+      ;;puts
+      jira_feed.entries.each do |jira_entry|
+        id = jira_entry.entry_id || jira_entry.url
+        unless history[id]
+          entry = Feeder.object_to_hash(jira_entry, 'entry', EntryTranslationMap, EntryWhitewashKeys)
+          unless entry['link'] =~ /^http/
+            entry['link'] = (URI.parse(feed['home_link']) + URI.parse(entry['link'])).to_s
           end
-          ;;puts "** #{entry.to_json}"
+          ;;pp(subscription: @id, entry: entry['title'], link: entry['link'])
+          maildir.add(entry)
+          history[id] = DateTime.now
         end
       end
+      Feeder.save_json(history, history_file)
+    end
 
-      # feed_xml_file.unlink
-      # new_feed_xml_file.rename(feed_xml_file)
+    def list
+      puts @title
+      puts @feed_link
+      puts (@path + [@id]).join(' / ')
+      puts
     end
 
     private

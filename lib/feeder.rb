@@ -1,11 +1,12 @@
-require 'json'
 require 'date'
+require 'json'
 require 'path'
 require 'uri'
 require 'pp'
 
 require 'feedjira'
 require 'hashstruct'
+require 'maildir'
 require 'nokogiri'
 require 'nokogiri-plist'
 
@@ -19,11 +20,11 @@ require 'feeder/subscription'
 
 module Feeder
 
-  FeedXMLFilename = 'feed.xml'
-  NewFeedXMLFilename = 'feed.new.xml'
-  FeedInfoFilename = 'info.json'
-  DefaultDataDir = '~/Projects/vmsg/feeds'
-  DefaultSubscriptionsFile = '~/Library/Application Support/NetNewsWire/Subscriptions.plist'
+  FeedXMLFile = 'feed.xml'
+  FeedInfoFile = 'info.json'
+  FeedHistoryFile = 'history.json'
+  DataDir = '~/Projects/vmsg/feeds'
+  SubscriptionsFile = '~/Library/Application Support/NetNewsWire/Subscriptions.plist'
 
   FeedTranslationMap = [
     'title',
@@ -31,6 +32,10 @@ module Feeder
     { 'url' => 'home_link' },
     { 'feed_url' => 'feed_link' },
     { 'last_modified' => 'published' },
+  ]
+  FeedWhitewashKeys = [
+    'title',
+    'description',
   ]
   EntryTranslationMap = [
     'title',
@@ -43,13 +48,19 @@ module Feeder
     'summary',
     'content',
   ]
+  EntryWhitewashKeys = [
+    'title',
+    'author',
+    'summary',
+    'content',
+  ]
 
   def self.data_dir
-    @data_dir ||= Path.new(DefaultDataDir).expand_path
+    @data_dir ||= Path.new(DataDir).expand_path
   end
 
   def self.subscriptions_file
-    @subscriptions_file ||= Path.new(DefaultSubscriptionsFile).expand_path
+    @subscriptions_file ||= Path.new(SubscriptionsFile).expand_path
   end
 
 end

@@ -9,8 +9,8 @@ module Feeder
     JSON.parse(file.read)
   end
 
-  def self.object_to_hash(from_obj, translation_map)
-    hash = {}
+  def self.object_to_hash(from_obj, type, translation_map, whitewash_keys=[])
+    hash = { 'type' => type }
     translation_map.each do |item|
       from_method, to_method = case item
       when Hash
@@ -30,6 +30,9 @@ module Feeder
         end
         hash[to_method] = value if value
       end
+    end
+    whitewash_keys.each do |key|
+      hash[key] = Loofah.scrub_fragment(hash[key], :whitewash).to_s if hash[key]
     end
     hash
   end
