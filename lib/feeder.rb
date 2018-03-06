@@ -9,6 +9,7 @@ require 'hashstruct'
 require 'maildir'
 require 'nokogiri'
 require 'nokogiri-plist'
+require 'simple_option_parser'
 
 require 'feeder/version'
 require 'feeder/utils'

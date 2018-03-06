@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'nokogiri', '~> 0'
   s.add_dependency 'nokogiri-plist', '~> 0'
   s.add_dependency 'path', '~> 0'
+  s.add_dependency 'simple_option_parser', '~> 0'
 
   s.add_development_dependency 'rake', '~> 12.3'
   s.add_development_dependency 'rubygems-tasks', '~> 0.2'

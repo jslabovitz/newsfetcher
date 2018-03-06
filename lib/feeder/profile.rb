@@ -2,24 +2,24 @@ module Feeder
 
   class Profile
 
-    def initialize(plist_file=nil)
-      read_plist_file(plist_file || Feeder.subscriptions_file)
+    def initialize(plist_file)
+      read_plist_file(plist_file)
     end
 
-    def list(ids=nil)
+    def list(ids)
       subscriptions(:list, ids)
     end
 
-    def update(ids=nil)
+    def update(ids)
       subscriptions(:update, ids)
     end
 
-    def process(ids=nil)
+    def process(ids)
       subscriptions(:process, ids)
     end
 
-    def subscriptions(method, ids=nil)
-      subscriptions = ids ? ids.map { |id| @subscriptions[id] } : @subscriptions.values
+    def subscriptions(method, ids)
+      subscriptions = ids.empty? ? @subscriptions.values : ids.map { |id| @subscriptions[id] }
       subscriptions.each do |subscription|
         begin
           subscription.send(method)

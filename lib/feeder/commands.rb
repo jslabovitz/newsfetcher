@@ -7,29 +7,21 @@ module Feeder
     end
 
     def initialize(args)
-      parse_arguments(args)
-    end
-
-    def parse_arguments(args)
-      @options = HashStruct.new
-      while args.first =~ /^--(\w+)=(.*)$/
-        @options[$1.to_sym] = $2
-        args.shift
-      end
-      @command = args.shift
+      @options = HashStruct.new(SimpleOptionParser.parse(args,
+        subscriptions_file: Feeder.subscriptions_file))
+      @subcommand = args.shift or raise "No subcommand specified"
       @args = args
-      @profile = Profile.new
     end
 
     def run
-      ids = @args.empty? ? nil : @args
-      case @command
+      @profile = Profile.new(@options.subscriptions_file)
+      case @subcommand
       when 'list'
-        @profile.list(ids)
+        @profile.list(@args)
       when 'update'
-        @profile.update(ids)
+        @profile.update(@args)
       when 'process'
-        @profile.process(ids)
+        @profile.process(@args)
       else
         raise
       end
