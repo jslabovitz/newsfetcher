@@ -1,34 +1,28 @@
-# coding: utf-8
-lib = File.expand_path("../lib", __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'feeder/version'
+require_relative 'lib/feeder/version'
 
-Gem::Specification.new do |spec|
-  spec.name          = 'feeder'
-  spec.version       = Feeder::VERSION
-  spec.authors       = ["John Labovitz"]
-  spec.email         = ['johnl@johnlabovitz.com']
+Gem::Specification.new do |s|
+  s.name          = 'feeder'
+  s.version       = Feeder::VERSION
+  s.summary       = 'Handles feeds.'
+  s.author        = 'John Labovitz'
+  s.email         = 'johnl@johnlabovitz.com'
+  s.description   = %q{
+    Feeder handles feeds
+  }
+  s.license       = 'MIT'
+  s.homepage      = 'http://github.com/jslabovitz/feeder'
+  s.files         = `git ls-files`.split("\n")
+  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
+  s.require_path  = 'lib'
 
-  spec.summary       = %q{Handles feeds.}
-  spec.description   = %q{Feeder handles feeds}
-  # spec.homepage      = "TODO: Put your gem's website or public repo URL here."
-  spec.license       = 'MIT'
-  # spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
-  spec.files         = `git ls-files -z`.split("\x0").reject do |f|
-    f.match(%r{^(test|spec|features)/})
-  end
-  spec.bindir        = 'bin'
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.require_paths = ['lib']
+  s.add_dependency 'feedjira', '~> 0'
+  s.add_dependency 'hashstruct', '~> 0'
+  s.add_dependency 'maildir', '~> 0'
+  s.add_dependency 'nokogiri', '~> 0'
+  s.add_dependency 'nokogiri-plist', '~> 0'
+  s.add_dependency 'path', '~> 0'
 
-  spec.add_dependency 'feedjira'
-  spec.add_dependency 'hashstruct'
-  spec.add_dependency 'maildir'
-  spec.add_dependency 'nokogiri'
-  spec.add_dependency 'nokogiri-plist'
-  spec.add_dependency 'path'
-
-  spec.add_development_dependency 'bundler'
-  spec.add_development_dependency 'rake'
-  spec.add_development_dependency 'minitest'
+  s.add_development_dependency 'rake', '~> 12.3'
+  s.add_development_dependency 'rubygems-tasks', '~> 0.2'
 end
