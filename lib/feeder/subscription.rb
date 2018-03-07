@@ -68,7 +68,7 @@ module Feeder
           end
           ;;pp(subscription: @id, entry: entry['title'], link: entry['link'])
           maildir.add(entry)
-          history[id] = DateTime.now
+          history[id] = entry['published']
         end
       end
       Feeder.save_json(history, history_file)
