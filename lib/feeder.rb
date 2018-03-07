@@ -56,6 +56,8 @@ module Feeder
     'content',
   ]
 
+  class Error < Exception; end
+
   def self.data_dir
     @data_dir ||= Path.new(DataDir).expand_path
   end

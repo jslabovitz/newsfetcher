@@ -18,7 +18,7 @@ module Feeder
       when String, Symbol
         [item, item]
       else
-        raise "Bad element in translation map: #{item.inspect}"
+        raise Error, "Bad element in translation map: #{item.inspect}"
       end
       from_method = from_method.to_sym
       to_method = to_method.to_s

@@ -9,7 +9,7 @@ module Feeder
     def initialize(args)
       @options = HashStruct.new(SimpleOptionParser.parse(args,
         subscriptions_file: Feeder.subscriptions_file))
-      @subcommand = args.shift or raise "No subcommand specified"
+      @subcommand = args.shift or raise Error, "No subcommand specified"
       @args = args
     end
 
@@ -23,7 +23,7 @@ module Feeder
       when 'process'
         @profile.process(@args)
       else
-        raise
+        raise Error, "Unknown subcommand: #{@subcommand.inspect}"
       end
     end
 
