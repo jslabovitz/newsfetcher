@@ -50,12 +50,7 @@ module Feeder
     end
 
     def process
-      raise "Feed file not found" unless feed_xml_file.exist?
-      begin
-        jira_feed = Feedjira::Feed.parse(feed_xml_file.read)
-      rescue Feedjira::NoParserAvailable => e
-        raise "Can't parse feed file: #{e}"
-      end
+      jira_feed = read_jira_feed(feed_xml_file)
       feed = Feeder.object_to_hash(jira_feed, 'feed', FeedTranslationMap, FeedWhitewashKeys)
       Feeder.save_json(feed, feed_info_file)
       history = history_file.exist? ? Feeder.load_json(history_file) : {}
@@ -88,15 +83,12 @@ module Feeder
 
     private
 
-    def read_feed(xml_file)
-      if xml_file.exist?
-        begin
-          return Feedjira::Feed.parse(xml_file.read)
-        rescue Feedjira::NoParserAvailable => e
-          warn "Can't parse feed file #{xml_file}: #{e}"
-        end
+    def read_jira_feed(xml_file)
+      begin
+        Feedjira::Feed.parse(xml_file.read)
+      rescue Feedjira::NoParserAvailable => e
+        raise Error, "Can't parse feed file #{xml_file}: #{e}"
       end
-      nil
     end
 
   end
