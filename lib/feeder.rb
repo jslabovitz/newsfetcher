@@ -2,7 +2,7 @@ require 'date'
 require 'json'
 require 'path'
 require 'uri'
-require 'pp'
+require 'yaml'
 
 require 'feedjira'
 require 'hashstruct'

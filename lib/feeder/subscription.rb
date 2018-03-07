@@ -67,7 +67,9 @@ module Feeder
         unless history[id]
           entry = Feeder.object_to_hash(jira_entry, 'entry', EntryTranslationMap, EntryWhitewashKeys)
           unless entry['link'] =~ /^http/
-            entry['link'] = (URI.parse(feed['home_link']) + URI.parse(entry['link'])).to_s
+            home_link = URI.parse((feed['home_link'] =~ /^http/) ? feed['home_link'] : @feed_link)
+            entry_link = URI.parse(entry['link'])
+            entry['link'] = (home + entry_link).to_s
           end
           ;;pp(subscription: @id, entry: entry['title'], link: entry['link'])
           maildir.add(entry)
