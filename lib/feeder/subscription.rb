@@ -46,7 +46,7 @@ module Feeder
       ].flatten.compact.map(&:to_s)
       pid = Process.spawn(*args)
       pid, status = Process.wait2(pid)
-      raise "Couldn't download feed: #{status}" unless status.success?
+      raise Error, "Couldn't download feed: #{status}" unless status.success?
     end
 
     def process
