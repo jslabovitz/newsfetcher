@@ -112,7 +112,6 @@ Content-Type: text/html; charset=UTF-8
     end
 
     def make_content(entry)
-      content = entry.content || entry.summary
       doc = Nokogiri::HTML::Document.new
       doc.encoding = 'UTF-8'
       doc.internal_subset.remove
@@ -129,13 +128,9 @@ Content-Type: text/html; charset=UTF-8
             if entry.image
               html.p { html.img(src: entry.image) }
             end
-            if html?(content)
-              content_html = Nokogiri::HTML::DocumentFragment.parse(content)
-              #FIXME: modify content as needed
-              html << content_html.to_html
-            else
-              content.split("\n").each { |p| html.p(p) }
-            end
+            content_html = Nokogiri::HTML::DocumentFragment.parse(entry.content || entry.summary)
+            #FIXME: modify content as needed
+            html << content_html.to_html
             html.hr
             html.h3 do
               html.a(href: @feed.url) { html << @feed.title }
@@ -147,10 +142,6 @@ Content-Type: text/html; charset=UTF-8
         end
       end
       doc.to_s
-    end
-
-    def html?(str)
-      str =~ /<\w|\&#?\w+/
     end
 
     ListFeedKeys = %i{title description url}
