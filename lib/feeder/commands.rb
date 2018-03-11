@@ -3,27 +3,26 @@ module Feeder
   class CommandProcessor
 
     def self.run(args)
-      new(args).run
+      new.run(args)
     end
 
-    def initialize(args)
-      @options = HashStruct.new(SimpleOptionParser.parse(args,
-        subscriptions_file: Feeder.subscriptions_file))
-      @subcommand = args.shift or raise Error, "No subcommand specified"
-      @args = args
-    end
-
-    def run
-      @profile = Profile.new(@options.subscriptions_file)
-      case @subcommand
+    def run(args)
+      options = HashStruct.new(SimpleOptionParser.parse(args,
+        profile: 'default'))
+      subcommand = args.shift or raise Error, "No subcommand specified"
+      args = args
+      profile = Profile.new(name: options.delete(:profile))
+      case subcommand
+      when 'import'
+        profile.import(args, options)
       when 'list'
-        @profile.list(@args)
+        profile.list(args, options)
       when 'update'
-        @profile.update(@args)
+        profile.update(args, options)
       when 'process'
-        @profile.process(@args)
+        profile.process(args, options)
       else
-        raise Error, "Unknown subcommand: #{@subcommand.inspect}"
+        raise Error, "Unknown subcommand: #{subcommand.inspect}"
       end
     end
 

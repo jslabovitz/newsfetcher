@@ -1,69 +1,47 @@
 require 'date'
-require 'json'
 require 'path'
 require 'uri'
 require 'yaml'
-
+require 'maildir'
 require 'feedjira'
 require 'hashstruct'
-require 'maildir'
-require 'nokogiri'
 require 'nokogiri-plist'
 require 'simple_option_parser'
 
-require 'feeder/version'
-require 'feeder/utils'
-
-require 'feeder/extensions/date_time'
 require 'feeder/commands'
 require 'feeder/profile'
 require 'feeder/subscription'
 
 module Feeder
 
-  FeedXMLFile = 'feed.xml'
-  FeedInfoFile = 'info.json'
-  FeedHistoryFile = 'history.json'
-  DataDir = '~/.feeds'
+  FeedFile = 'feed.xml'
+  InfoFile = 'info.yaml'
+  SubscriptionsDir = '~/.feeds'
   SubscriptionsFile = '~/Library/Application Support/NetNewsWire/Subscriptions.plist'
-
-  FeedTranslationMap = [
-    'title',
-    'description',
-    { 'url' => 'home_link' },
-    { 'feed_url' => 'feed_link' },
-    { 'last_modified' => 'published' },
-  ]
-  FeedWhitewashKeys = [
-    'title',
-    'description',
-  ]
-  EntryTranslationMap = [
-    'title',
-    'author',
-    'id',
-    { 'url' => 'link' },
-    'image',
-    'modified',
-    'published',
-    'summary',
-    'content',
-  ]
-  EntryWhitewashKeys = [
-    'title',
-    'author',
-    'summary',
-    'content',
-  ]
+  MailDir = '~/Mail/jlabovitz'
 
   class Error < Exception; end
 
-  def self.data_dir
-    @data_dir ||= Path.new(DataDir).expand_path
+  def self.subscriptions_dir
+    @subscriptions_dir ||= Path.new(SubscriptionsDir).expand_path
   end
 
   def self.subscriptions_file
     @subscriptions_file ||= Path.new(SubscriptionsFile).expand_path
   end
+
+  def self.uri_to_key(uri)
+    uri = URI.parse(uri)
+    [
+      uri.host.to_s.sub(/^(www|ssl|en|feeds|blogs?|news).*?\./i, '').sub(/\.(com|org|net|info|edu|co\.uk)$/, ''),
+      uri.path.to_s.gsub(/\b(feed|atom|rss2|xml)\b/i, ''),
+      uri.query.to_s.gsub(/(format|feed|type|q)=(atom|rss2?|xml|rss\.xml)/i, ''),
+    ].reject { |s| s.empty? }.join('-').
+      downcase.
+      gsub(//, '').
+      gsub(/[^a-z0-9]+/, ' ').  # non-alphanumeric
+      strip.
+      gsub(/\s+/, '-')
+    end
 
 end
