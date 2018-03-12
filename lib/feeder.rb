@@ -25,7 +25,7 @@ module Feeder
   class Error < Exception; end
 
   def self.uri_to_key(uri)
-    uri = URI.parse(uri)
+    uri = URI.parse(uri)  unless uri.kind_of?(URI)
     [
       uri.host.to_s.sub(/^(www|ssl|en|feeds|blogs?|news).*?\./i, '').sub(/\.(com|org|net|info|edu|co\.uk)$/, ''),
       uri.path.to_s.gsub(/\b(feed|atom|rss2|xml)\b/i, ''),
