@@ -15,7 +15,6 @@ require 'feeder/subscription'
 
 module Feeder
 
-  UserAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/604.1.25 (KHTML, like Gecko) Version/11.0 Safari/604.1.25'
   FeedDownloadTimeout = 30
   FeedDownloadFollowRedirectLimit = 5
 
@@ -40,15 +39,15 @@ module Feeder
   end
 
   def self.get(uri, if_modified_since: nil)
-    headers = {
-      user_agent: UserAgent,
-    }
-    headers.update(if_modified_since: if_modified_since.rfc2822) if if_modified_since
-    request_options = {
-      timeout: FeedDownloadTimeout,
-    }
+    headers = {}
+    headers[:if_modified_since] = if_modified_since.rfc2822 if if_modified_since
     begin
-      connection = Faraday.new(url: uri, headers: headers, request: request_options) do |conn|
+      connection = Faraday.new(
+        url: uri,
+        headers: headers,
+        request: { timeout: FeedDownloadTimeout },
+        ssl: { verify: false },
+      ) do |conn|
         conn.use(FaradayMiddleware::FollowRedirects, limit: FeedDownloadFollowRedirectLimit)
         conn.adapter(*Faraday.default_adapter)
       end
