@@ -77,7 +77,6 @@ module Feeder
       id = [path, Feeder.uri_to_key(feed_link)].compact.join('/')
       subscription = Subscription.new(
         id: id,
-        # title: feed.title,
         feed_link: feed_link,
         profile: self)
       subscription.save
