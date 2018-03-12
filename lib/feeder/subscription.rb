@@ -46,7 +46,12 @@ module Feeder
       load_feed
       if @feed_data
         maildir = Maildir.new(Path.new(@profile.mail_dir, id).dirname.to_s)
-        parse_feed
+        begin
+          @feed = Feedjira::Feed.parse(@feed_data)
+        rescue Feedjira::NoParserAvailable => e
+          raise Error, "Can't parse feed: #{e}"
+        end
+        @last_modified = @feed.last_modified
         @feed.entries.each do |entry|
           entry_id = entry.entry_id || entry.url or raise Error, "#{id}: Can't determine entry ID"
           if ignore_history || !@history[entry_id]
@@ -96,15 +101,6 @@ module Feeder
           nil
         end
       end
-    end
-
-    def parse_feed
-      begin
-        @feed = Feedjira::Feed.parse(@feed_data)
-      rescue Feedjira::NoParserAvailable => e
-        raise Error, "Can't parse feed: #{e}"
-      end
-      @feed.last_modified ||= @last_modified
     end
 
     def make_message(date:, from:, to:, subject:, content:)
