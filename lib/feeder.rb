@@ -3,6 +3,7 @@ require 'path'
 require 'uri'
 require 'yaml'
 require 'maildir'
+require 'faraday'
 require 'feedjira'
 require 'hashstruct'
 require 'nokogiri-plist'
@@ -14,21 +15,15 @@ require 'feeder/subscription'
 
 module Feeder
 
-  FeedFile = 'feed.xml'
-  InfoFile = 'info.yaml'
-  SubscriptionsDir = '~/.feeds'
-  SubscriptionsFile = '~/Library/Application Support/NetNewsWire/Subscriptions.plist'
-  MailDir = '~/Mail/jlabovitz'
+  UserAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/604.1.25 (KHTML, like Gecko) Version/11.0 Safari/604.1.25'
+  FeedDownloadTimeout = 30
+  FeedDownloadFollowRedirectLimit = 5
+
+  Feedjira.configure do |config|
+    config.strip_whitespace = true
+  end
 
   class Error < Exception; end
-
-  def self.subscriptions_dir
-    @subscriptions_dir ||= Path.new(SubscriptionsDir).expand_path
-  end
-
-  def self.subscriptions_file
-    @subscriptions_file ||= Path.new(SubscriptionsFile).expand_path
-  end
 
   def self.uri_to_key(uri)
     uri = URI.parse(uri)
@@ -42,6 +37,25 @@ module Feeder
       gsub(/[^a-z0-9]+/, ' ').  # non-alphanumeric
       strip.
       gsub(/\s+/, '-')
+  end
+
+  def self.get(uri, if_modified_since: nil)
+    headers = {
+      user_agent: UserAgent,
+    }
+    headers.update(if_modified_since: if_modified_since.rfc2822) if if_modified_since
+    request_options = {
+      timeout: FeedDownloadTimeout,
+    }
+    begin
+      connection = Faraday.new(url: uri, headers: headers, request: request_options) do |conn|
+        conn.use(FaradayMiddleware::FollowRedirects, limit: FeedDownloadFollowRedirectLimit)
+        conn.adapter(*Faraday.default_adapter)
+      end
+      connection.get
+    rescue Faraday::Error, Zlib::BufError => e
+      raise Error, "Failed to download resource from #{uri}: #{e}"
     end
+  end
 
 end

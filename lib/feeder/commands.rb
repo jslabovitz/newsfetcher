@@ -7,20 +7,22 @@ module Feeder
     end
 
     def run(args)
-      options = HashStruct.new(SimpleOptionParser.parse(args,
-        profile: 'default'))
+      options = HashStruct.new(
+        SimpleOptionParser.parse(args,
+        profile: 'default')
+      )
       subcommand = args.shift or raise Error, "No subcommand specified"
       args = args
       profile = Profile.new(name: options.delete(:profile))
       case subcommand
       when 'import'
         profile.import(args, options)
+      when 'add'
+        profile.add(args, options)
       when 'list'
         profile.list(args, options)
       when 'update'
         profile.update(args, options)
-      when 'process'
-        profile.process(args, options)
       else
         raise Error, "Unknown subcommand: #{subcommand.inspect}"
       end

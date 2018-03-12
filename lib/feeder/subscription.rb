@@ -2,16 +2,21 @@ module Feeder
 
   class Subscription
 
+    attr_accessor :id
     attr_accessor :title
     attr_accessor :feed_link
+    attr_accessor :last_modified
     attr_accessor :history
-    attr_accessor :dir
     attr_accessor :profile
 
-    def self.load(dir:, profile:)
-      dir = Path.new(dir)
-      info = YAML.load((dir / InfoFile).read)
-      new(info.merge(dir: dir, profile: profile))
+    def self.load(info_file:, profile:)
+      id = info_file.relative_to(profile.dir).without_extension
+      info = YAML.load(info_file.read)
+      new(
+        info.merge(
+          id: id,
+          profile: profile)
+      )
     end
 
     def initialize(params={})
@@ -19,96 +24,99 @@ module Feeder
       params.each { |k, v| send("#{k}=", v) }
     end
 
-    def id
-      @dir.relative_to(@profile.dir).to_s
-    end
-
-    def feed_file
-      @dir / FeedFile
-    end
-
     def info_file
-      @dir / InfoFile
+      Path.new(@profile.dir, id).add_extension('.yaml')
     end
 
     def to_yaml
       {
         'title' => @title,
         'feed_link' => @feed_link.to_s,
+        'last_modified' => @last_modified,
         'history' => @history,
       }.to_yaml
     end
 
     def save
-      @dir.mkpath unless @dir.exist?
+      info_file.dirname.mkpath unless info_file.dirname.exist?
       info_file.write(to_yaml)
     end
 
-    def summary
-      "#{@dir.relative_to(Feeder.subscriptions_dir)}: #{@title.inspect} <#{@feed_link}>"
-    end
-
-    UserAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/604.1.25 (KHTML, like Gecko) Version/11.0 Safari/604.1.25'
-
-    def update(options)
-      puts "updating #{id} (#{@feed_link})"
-      command = [
-        'curl',
-        @feed_link,
-        # '--verbose',
-        # '--silent',
-        '--progress-bar',
-        '--fail',
-        '--location',
-        '--user-agent', UserAgent,
-        feed_file.exist? ? ['--time-cond', feed_file] : [],
-        '--output', feed_file,
-      ].flatten.compact.map(&:to_s)
-      system(*command)
-      raise Error, "Couldn't download feed: #{$?}" unless $?.success?
-    end
-
-    def process(force: false)
-      puts "processing #{id} (#{@feed_link})"
+    def update(ignore_history: false)
       load_feed
-      @feed.entries.each do |entry|
-        entry_id = entry.entry_id || entry.url or raise Error, "#{id}: Can't determine entry ID"
-        if force || !@history[entry_id]
-          process_msg(entry)
-          @history[entry_id] = entry.published || DateTime.now
+      if @feed_data
+        maildir = Maildir.new(Path.new(@profile.mail_dir, id).dirname.to_s)
+        parse_feed
+        @feed.entries.each do |entry|
+          entry_id = entry.entry_id || entry.url or raise Error, "#{id}: Can't determine entry ID"
+          if ignore_history || !@history[entry_id]
+            ;;warn "#{id}: adding entry #{entry_id}"
+            maildir.add(
+              make_message(
+                date: entry.published,
+                from: @title || @feed.title,
+                to: @title || @feed.title,
+                subject: entry.title,
+                content: make_content(entry),
+              )
+            )
+            @history[entry_id] = entry.published || DateTime.now
+          end
         end
+        save
       end
-      save
     end
 
     def load_feed
-      raise Error, "No feed file" unless feed_file.exist?
-      begin
-        @feed = Feedjira::Feed.parse(feed_file.read)
-      rescue Feedjira::NoParserAvailable => e
-        raise Error, "Can't parse feed: #{e}"
+      # ;;warn "#{id}: loading feed from #{@feed_link}"
+      @feed_data = nil
+      if @feed_link =~ %r{^file://localhost(/.*)}
+        load_local_feed($1)
+      else
+        load_remote_feed
       end
     end
 
-    def folder_paths
-      @dir.relative_to(@profile.dir).each_filename.to_a[0..-2]
+    def load_local_feed(file)
+      file = Path.new(file)
+      @feed_data = file.read
+      @last_modified = file.mtime
     end
 
-    def process_msg(entry)
-      subaddress = ['News', *folder_paths].join('.')
-      address = "jlabovitz+#{subaddress}@fastmail.fm"
-      display_name = @feed.title
-      msg = %Q{
-Date: #{entry.published.rfc2822}
-From: #{display_name} <#{address}>
-To: #{display_name} <#{address}>
-Subject: #{entry.title}
+    def load_remote_feed
+      response = Feeder.get(@feed_link, if_modified_since: @last_modified)
+      return if response.status == 304
+      raise Error, "Failed to get feed: #{response.status}" unless response.success?
+      @feed_data = response.body
+      if (timestamp = response.headers['last-modified'])
+        @last_modified = begin
+          DateTime.parse(timestamp)
+        rescue StandardError => e
+          warn "Failed to parse Last-Modified date: #{timestamp.inspect}"
+          nil
+        end
+      end
+    end
+
+    def parse_feed
+      begin
+        @feed = Feedjira::Feed.parse(@feed_data)
+      rescue Feedjira::NoParserAvailable => e
+        raise Error, "Can't parse feed: #{e}"
+      end
+      @feed.last_modified ||= @last_modified
+    end
+
+    def make_message(date:, from:, to:, subject:, content:)
+      %Q{
+Date: #{date.rfc2822}
+From: #{from} <#{@profile.email}>
+To: #{to} <#{@profile.email}>
+Subject: #{subject}
 Content-Type: text/html; charset=UTF-8
 
-#{make_content(entry)}
+#{content}
 }.strip
-      maildir = Maildir.new([MailDir, 'News', *folder_paths].join('/'))
-      maildir.add(msg)
     end
 
     def make_content(entry)
@@ -118,6 +126,18 @@ Content-Type: text/html; charset=UTF-8
       doc.create_internal_subset('html', nil, nil)
       Nokogiri::HTML::Builder.with(doc) do |html|
         html.html do
+          html.head do
+            html.style %Q{
+              a {
+                text-decoration: none;
+              }
+              img {
+                  max-width: 100%;
+                  /*max-height: 100%;*/
+                  height: auto;
+              }
+            }.strip
+          end
           html.body do
             html.h2 do
               html.a(href: entry.url) { html << entry.title }
@@ -133,7 +153,7 @@ Content-Type: text/html; charset=UTF-8
             html << content_html.to_html
             html.hr
             html.h3 do
-              html.a(href: @feed.url) { html << @feed.title }
+              html.a(href: @feed.url) { html << @title || @feed.title }
             end
             if @feed.description
               html.h3 { html << @feed.description }
@@ -142,33 +162,6 @@ Content-Type: text/html; charset=UTF-8
         end
       end
       doc.to_s
-    end
-
-    ListFeedKeys = %i{title description url}
-    ListFeedKeysMax = ListFeedKeys.map(&:to_s).map(&:length).max
-
-    ListEntryKeys = %i{title image published updated last_modified author url}
-    ListEntryKeysMax = ListEntryKeys.map(&:to_s).map(&:length).max
-
-    def list(entries: false)
-      load_feed
-      ListFeedKeys.each do |key|
-        if @feed.respond_to?(key) && (value = @feed.send(key))
-          puts "%*s: %s" % [ListFeedKeysMax, key, value]
-        end
-      end
-      if entries
-        puts "%*s:" % [ListFeedKeysMax, 'entries']
-        @feed.entries.each do |entry|
-          ListEntryKeys.each do |key|
-            if entry.respond_to?(key) && (value = entry.send(key))
-              puts "\t%*s: %s" % [ListEntryKeysMax, key, value]
-            end
-          end
-          puts
-        end
-      end
-      puts
     end
 
   end
