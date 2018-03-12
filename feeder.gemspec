@@ -16,13 +16,13 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
   s.require_path  = 'lib'
 
-  s.add_dependency 'faraday', '~> 0'
-  s.add_dependency 'feedjira', '~> 0'
+  s.add_dependency 'faraday', '~> 0.14'
+  s.add_dependency 'feedjira', '~> 2.1'
   s.add_dependency 'hashstruct', '~> 1.3'
-  s.add_dependency 'maildir', '~> 0'
-  s.add_dependency 'nokogiri-plist', '~> 0'
+  s.add_dependency 'maildir', '~> 2.2'
+  s.add_dependency 'nokogiri-plist', '~> 0.5'
   s.add_dependency 'path', '~> 2.0'
-  s.add_dependency 'simple_option_parser', '~> 0'
+  s.add_dependency 'simple_option_parser', '~> 0.3'
 
   s.add_development_dependency 'rake', '~> 12.3'
   s.add_development_dependency 'rubygems-tasks', '~> 0.2'
