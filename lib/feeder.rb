@@ -17,6 +17,7 @@ module Feeder
 
   FeedDownloadTimeout = 30
   FeedDownloadFollowRedirectLimit = 5
+  DefaultDataDir = '~/.feeder'
 
   Feedjira.configure do |config|
     config.strip_whitespace = true

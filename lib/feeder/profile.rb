@@ -2,30 +2,55 @@ module Feeder
 
   class Profile
 
-    attr_accessor :dir
+    attr_accessor :root_dir
+    attr_accessor :feeds_dir
     attr_accessor :email
-    attr_accessor :mail_dir
+    attr_accessor :maildir
 
-    def initialize(name:)
-      ##FIXME: configure all below
-      @dir = Path.new('~/.feeds').expand_path / name
-      @email = "jlabovitz+News@fastmail.fm"
-      @mail_dir = Path.new('~/Mail/jlabovitz/News')
+    def self.load(dir)
+      info_file = dir / 'info.yaml'
+      new(YAML.load(info_file.read).merge(root_dir: dir))
     end
 
-    DefaultSubscriptionsFileSubscriptionsFile = '~/Library/Application Support/NetNewsWire/Subscriptions.plist'
+    def initialize(params={})
+      params.each { |k, v| send("#{k}=", v) }
+    end
+
+    def to_yaml
+      {
+        email: @email,
+        maildir: @maildir,
+      }.to_yaml
+    end
+
+    def feeds_dir
+      @root_dir / 'feeds'
+    end
 
     def import(args, options)
-      plist_file = Path.new(args.shift || DefaultSubscriptionsFile).expand_path
-      read_plist_file(plist_file) do |item, path|
+      plist_file = args.shift or raise Error, "Must specify plist file"
+      io = IO.popen(['plutil', '-convert', 'xml1', '-o', '-', plist_file], 'r')
+      plist = Nokogiri::PList(io)
+      recurse_plist(plist) do |item, path|
         key = Feeder.uri_to_key(item['rss'])
         puts "importing %-60s => %s" % [item['rss'], key]
         subscription = Subscription.new(
-          id: path.join('/'),
-          title: item['name'],
-          feed_link: item['rss'])
+          id: [path, key].join('/'),
+          feed_link: item['rss'],
+          profile: self)
         raise "Subscription exists: #{subscription.info_file}" if subscription.info_file.exist?
         subscription.save
+        ;;warn "saved new subscription to #{subscription.info_file}"
+      end
+    end
+
+    def recurse_plist(items, path=[], &block)
+      items.each do |item|
+        if item['isContainer']
+          recurse_plist(item['childrenArray'], path + [item['name']], &block)
+        else
+          yield(item, path)
+        end
       end
     end
 
@@ -61,7 +86,7 @@ module Feeder
 
     def update(args, options)
       if args.empty?
-        info_files = @dir.glob("**/*.yaml")
+        info_files = feeds_dir.glob("**/*.yaml")
       else
         info_files = args.map { |a| Path.new(a) }
       end
@@ -79,24 +104,6 @@ module Feeder
         end
       end
       threads.map(&:join)
-    end
-
-    private
-
-    def read_plist_file(file, &block)
-      io = IO.popen(['plutil', '-convert', 'xml1', '-o', '-', file.to_s], 'r')
-      plist = Nokogiri::PList(io)
-      recurse_plist(plist, &block)
-    end
-
-    def recurse_plist(items, path=[], &block)
-      items.each do |item|
-        if item['isContainer']
-          recurse_plist(item['childrenArray'], path + [item['name']], &block)
-        else
-          yield(item, path)
-        end
-      end
     end
 
   end

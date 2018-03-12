@@ -10,7 +10,7 @@ module Feeder
     attr_accessor :profile
 
     def self.load(info_file:, profile:)
-      id = info_file.relative_to(profile.dir).without_extension
+      id = info_file.relative_to(profile.feeds_dir).without_extension
       info = YAML.load(info_file.read)
       new(
         info.merge(
@@ -25,7 +25,7 @@ module Feeder
     end
 
     def info_file
-      Path.new(@profile.dir, id).add_extension('.yaml')
+      Path.new(@profile.feeds_dir, id).add_extension('.yaml')
     end
 
     def to_yaml
@@ -45,7 +45,7 @@ module Feeder
     def update(ignore_history: false)
       load_feed
       if @feed_data
-        maildir = Maildir.new(Path.new(@profile.mail_dir, id).dirname.to_s)
+        maildir = Maildir.new(Path.new(@profile.maildir, id).dirname.to_s)
         begin
           @feed = Feedjira::Feed.parse(@feed_data)
         rescue Feedjira::NoParserAvailable => e

@@ -7,20 +7,16 @@ module Feeder
     end
 
     def run(args)
-      options = HashStruct.new(
-        SimpleOptionParser.parse(args,
-        profile: 'default')
-      )
+      options = HashStruct.new(SimpleOptionParser.parse(args))
       subcommand = args.shift or raise Error, "No subcommand specified"
-      args = args
-      profile = Profile.new(name: options.delete(:profile))
+      profile_name = options.delete(:profile) or raise Error, "No profile specified"
+      profile_dir = Path.new(DefaultDataDir, profile_name).expand_path
+      profile = Profile.load(profile_dir)
       case subcommand
       when 'import'
         profile.import(args, options)
       when 'add'
         profile.add(args, options)
-      when 'list'
-        profile.list(args, options)
       when 'update'
         profile.update(args, options)
       else
