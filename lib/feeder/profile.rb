@@ -31,16 +31,32 @@ module Feeder
 
     def add(args, options)
       feed_link, path = *args
-      response = get(feed_link)
+      feed_link = URI.parse(feed_link)
+      response = Feeder.get(feed_link)
       raise Error, "Failed to get URI #{feed_link}: #{response.status}" unless response.success?
-      if response.body !~ /^<?xml/
-        # find link
+      begin
+        feed = Feedjira::Feed.parse(response.body)
+      rescue Feedjira::NoParserAvailable => e
+        html = Nokogiri::HTML::Document.parse(response.body)
+        link_elems = html.xpath('//link[@rel="alternate"]')
+        raise Error, "No alternate links in URI: #{feed_link}" if link_elems.empty?
+        link_elems.each do |link_elem|
+          puts "%s (%s): %s" % [
+            link_elem['title'] || '-',
+            link_elem['type'],
+            feed_link + URI.parse(link_elem['href'])
+          ]
+        end
+        return
       end
+      id = [path, Feeder.uri_to_key(feed_link)].compact.join('/')
       subscription = Subscription.new(
         id: id,
-        title: feed.title,
-        feed_link: feed_link)
+        # title: feed.title,
+        feed_link: feed_link,
+        profile: self)
       subscription.save
+      ;;warn "saved new subscription to #{subscription.info_file}"
     end
 
     def update(args, options)
