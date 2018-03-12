@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'hashstruct', '~> 0'
   s.add_dependency 'maildir', '~> 0'
   s.add_dependency 'nokogiri-plist', '~> 0'
-  s.add_dependency 'path', '~> 0'
+  s.add_dependency 'path', '~> 2.0'
   s.add_dependency 'simple_option_parser', '~> 0'
 
   s.add_development_dependency 'rake', '~> 12.3'
