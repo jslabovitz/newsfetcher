@@ -152,9 +152,11 @@ Content-Type: text/html; charset=UTF-8
             }.strip
           end
           html.body do
-            html.h4 do
-              html << @title || @feed.title
-              html << ": #{@feed.description}" if @feed.description
+            html.p do
+              html.em do
+                html << @title || @feed.title
+                html << ": #{@feed.description}" if @feed.description
+              end
             end
             html.h2 do
               html.a(href: entry.url) { html << entry.title }
