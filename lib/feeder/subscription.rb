@@ -134,24 +134,23 @@ Content-Type: text/html; charset=UTF-8
             }.strip
           end
           html.body do
-            html.h2 do
-              html.a(href: entry.url) { html << entry.title }
+            html.div do
+              html.h2 { html << entry.title }
+              html.h4("by #{entry.author.sub(/^by\s+/i, '')}") if entry.author
+              html.p { html.img(src: entry.image) } if entry.image
+              content_html = Nokogiri::HTML::DocumentFragment.parse(entry.content || entry.summary)
+              #FIXME: modify content as needed
+              html << content_html.to_html
             end
-            if entry.author
-              html.h4("by #{entry.author.sub(/^by\s+/i, '')}")
-            end
-            if entry.image
-              html.p { html.img(src: entry.image) }
-            end
-            content_html = Nokogiri::HTML::DocumentFragment.parse(entry.content || entry.summary)
-            #FIXME: modify content as needed
-            html << content_html.to_html
             html.hr
-            html.h3 do
-              html.a(href: @feed.url) { html << @title || @feed.title }
-            end
-            if @feed.description
-              html.h3 { html << @feed.description }
+            html.div do
+              html.h4 do
+                html.a(href: entry.url) { html << entry.title }
+              end
+              html.h4 do
+                html.a(href: @feed.url) { html << @title || @feed.title }
+              end
+              html.h4 { html << @feed.description } if @feed.description
             end
           end
         end
