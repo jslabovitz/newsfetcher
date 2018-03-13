@@ -127,16 +127,18 @@ module Feeder
         subscription.fix(options)
         subscription.save
       end
-      info_files.each do |info_file|
-        raise "Subscription info file does not exist: #{info_file}" unless info_file.exist?
-        subscription = Subscription.load(info_file: info_file, profile: self)
-        begin
-          subscription.fix(options)
-        rescue Error => e
-          warn "#{subscription.id}: #{e}"
-          exit 1
+    end
+
+    DormantPeriod = 30
+
+    def dormant(args, options)
+      each_subscription(args) do |subscription|
+        days = subscription.dormant_days
+        if days.nil?
+          warn "#{subscription.id}: never modified"
+        elsif days > DormantPeriod
+          warn "#{subscription.id}: not modified for over #{days.to_i} days"
         end
-        subscription.save
       end
     end
 

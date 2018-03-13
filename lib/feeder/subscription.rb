@@ -43,6 +43,20 @@ module Feeder
       info_file.write(to_yaml)
     end
 
+    def dormant_time
+      if @last_modified
+        Time.now - @last_modified
+      else
+        nil
+      end
+    end
+
+    DaySeconds = (24*60*60).to_f
+
+    def dormant_days
+      (t = dormant_time) ? (t / DaySeconds) : t
+    end
+
     def update(ignore_history: false, limit: nil)
       load_feed
       if @feed_data

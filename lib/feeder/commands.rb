@@ -21,6 +21,8 @@ module Feeder
         profile.update(args, options)
       when 'fix'
         profile.fix(args, options)
+      when 'dormant'
+        profile.dormant(args, options)
       else
         raise Error, "Unknown subcommand: #{subcommand.inspect}"
       end
