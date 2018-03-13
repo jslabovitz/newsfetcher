@@ -38,3 +38,7 @@
 - Add option to use msmtp/sendmail instead of Maildir delivery.
 
 - Try using Mail again to compose messages.
+
+- Import from OPML instead of NNW plist.
+  - Existing gem for OPML?
+  - Remove nokogiri-plist dependency.
