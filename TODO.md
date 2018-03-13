@@ -1,4 +1,5 @@
 - Fix subscriptions:
+  - Save feed title as @feed_title.
   - Unset @title if @feed_title == @title.
 
 - Add check/validate command:
