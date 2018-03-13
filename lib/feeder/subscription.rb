@@ -151,9 +151,11 @@ Content-Type: text/html; charset=UTF-8
                   height: auto;
               }
 
+              /* FIXME: doesn't work */
               iframe {
-                display: block;
-                width: 100%;
+                max-width: 100% !important;
+                width: auto !important;
+                height: auto !important;
               }
             }.strip
           end
