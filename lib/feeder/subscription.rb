@@ -42,7 +42,7 @@ module Feeder
       info_file.write(to_yaml)
     end
 
-    def update(ignore_history: false)
+    def update(ignore_history: false, limit: nil)
       load_feed
       if @feed_data
         maildir = Maildir.new(Path.new(@profile.maildir, id).dirname.to_s)
@@ -52,6 +52,7 @@ module Feeder
           raise Error, "Can't parse feed: #{e}"
         end
         @last_modified = @feed.last_modified
+        count = 0
         @feed.entries.each do |entry|
           entry_id = entry.entry_id || entry.url or raise Error, "#{id}: Can't determine entry ID"
           if ignore_history || !@history[entry_id]
@@ -66,6 +67,8 @@ module Feeder
               )
             )
             @history[entry_id] = entry.published || Time.now
+            count += 1
+            break if limit && count >= limit
           end
         end
         save
