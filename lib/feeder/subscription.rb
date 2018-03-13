@@ -65,7 +65,7 @@ module Feeder
                 content: make_content(entry),
               )
             )
-            @history[entry_id] = entry.published || DateTime.now
+            @history[entry_id] = entry.published || Time.now
           end
         end
         save
@@ -95,7 +95,7 @@ module Feeder
       @feed_data = response.body
       if (timestamp = response.headers['last-modified'])
         @last_modified = begin
-          DateTime.parse(timestamp)
+          Time.parse(timestamp)
         rescue StandardError => e
           warn "Failed to parse Last-Modified date: #{timestamp.inspect}"
           nil
