@@ -130,7 +130,7 @@ module Feeder
       end
     end
 
-    DormantPeriod = 30
+    DormantPeriod = 90    ##FIXME: configure in profile/subscription
 
     def dormant(args, options)
       each_subscription(args) do |subscription|
