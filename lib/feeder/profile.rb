@@ -109,21 +109,13 @@ module Feeder
     end
 
     def update(args, options)
-      if args.empty?
-        info_files = feeds_dir.glob("**/*.yaml")
-      else
-        info_files = args.map { |a| Path.new(a) }
-      end
       threads = []
-      info_files.each do |info_file|
-        raise "Subscription info file does not exist: #{info_file}" unless info_file.exist?
-        subscription = Subscription.load(info_file: info_file, profile: self)
+      each_subscription(args) do |subscription|
         threads << Thread.new do
           begin
             subscription.update(options)
           rescue Error => e
-            warn "#{subscription.id}: #{e}"
-            Thread.exit
+            raise Error, "#{subscription.id}: #{e}"
           end
         end
       end
@@ -131,10 +123,9 @@ module Feeder
     end
 
     def fix(args, options)
-      if args.empty?
-        info_files = feeds_dir.glob("**/*.yaml")
-      else
-        info_files = args.map { |a| Path.new(a) }
+      each_subscription(args) do |subscription|
+        subscription.fix(options)
+        subscription.save
       end
       info_files.each do |info_file|
         raise "Subscription info file does not exist: #{info_file}" unless info_file.exist?
