@@ -27,6 +27,31 @@ module Feeder
       @root_dir / 'feeds'
     end
 
+    def info_files(args)
+      if args.empty?
+        feeds_dir.glob("**/*.yaml")
+      else
+        args.map do |arg|
+          if arg =~ /\.yaml$/
+            Path.new(arg)
+          else
+            (@feeds_dir / arg).add_extension('.yaml')
+          end
+        end
+      end
+    end
+
+    def each_subscription(args, &block)
+      info_files(args).each do |info_file|
+        subscription = Subscription.load(info_file: info_file, profile: self)
+        begin
+          yield(subscription)
+        rescue Error => e
+          raise Error, "#{subscription.id}: #{e}"
+        end
+      end
+    end
+
     def import(args, options)
       plist_file = args.shift or raise Error, "Must specify plist file"
       io = IO.popen(['plutil', '-convert', 'xml1', '-o', '-', plist_file], 'r')
