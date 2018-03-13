@@ -20,7 +20,7 @@ module Feeder
       {
         email: @email,
         maildir: @maildir,
-      }.to_yaml
+      }.to_yaml(line_width: -1)
     end
 
     def feeds_dir

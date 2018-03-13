@@ -34,7 +34,7 @@ module Feeder
         'feed_link' => @feed_link.to_s,
         'last_modified' => @last_modified,
         'history' => @history,
-      }.to_yaml
+      }.to_yaml(line_width: -1)
     end
 
     def save
