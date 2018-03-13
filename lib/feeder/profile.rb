@@ -115,7 +115,8 @@ module Feeder
           begin
             subscription.update(options)
           rescue Error => e
-            raise Error, "#{subscription.id}: #{e}"
+            warn "#{subscription.id}: #{e}"
+            Thread.exit
           end
         end
       end
