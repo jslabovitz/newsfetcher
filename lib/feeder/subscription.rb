@@ -129,7 +129,6 @@ Content-Type: text/html; charset=UTF-8
               }
               img {
                   max-width: 100%;
-                  /*max-height: 100%;*/
                   height: auto;
               }
             }.strip
