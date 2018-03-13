@@ -33,7 +33,7 @@ module Feeder
       {
         'title' => @title,
         'feed_link' => @feed_link.to_s,
-        'last_modified' => @last_modified,
+        'last_modified' => @last_modified.dup,    # to avoid YAML references
         'history' => @history,
       }.to_yaml(line_width: -1)
     end
