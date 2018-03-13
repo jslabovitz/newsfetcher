@@ -136,9 +136,9 @@ module Feeder
       each_subscription(args) do |subscription|
         days = subscription.dormant_days
         if days.nil?
-          warn "#{subscription.id}: never modified"
+          puts "#{subscription.id}: never modified"
         elsif days > DormantPeriod
-          warn "#{subscription.id}: not modified for over #{days.to_i} days"
+          puts "#{subscription.id}: not modified for over #{days.to_i} days"
         end
       end
     end
