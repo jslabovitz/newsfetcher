@@ -169,13 +169,20 @@ Content-Type: text/html; charset=UTF-8
             end
             html.h4("by #{entry.author.sub(/^by\s+/i, '')}") if entry.author
             html.p { html.img(src: entry.image) } if entry.image
-            content_html = Nokogiri::HTML::DocumentFragment.parse(entry.content || entry.summary)
-            #FIXME: modify content as needed
-            html << content_html.to_html
+            html << parse_content(entry).to_html
           end
         end
       end
       doc.to_s
+    end
+
+    def parse_content(entry)
+      html = Nokogiri::HTML::DocumentFragment.parse(entry.content || entry.summary)
+      html.xpath('div[@class="feedflare"]').each(&:remove)
+      html.xpath('img[@height="1" and @width="1"]').each(&:remove)
+      #FIXME: doesn't work
+      html.search('iframe').each { |e| e.delete('width'); e.delete('height') }
+      html
     end
 
     def fix(options={})
