@@ -105,6 +105,25 @@ module Feeder
       threads.map(&:join)
     end
 
+    def fix(args, options)
+      if args.empty?
+        info_files = feeds_dir.glob("**/*.yaml")
+      else
+        info_files = args.map { |a| Path.new(a) }
+      end
+      info_files.each do |info_file|
+        raise "Subscription info file does not exist: #{info_file}" unless info_file.exist?
+        subscription = Subscription.load(info_file: info_file, profile: self)
+        begin
+          subscription.fix(options)
+        rescue Error => e
+          warn "#{subscription.id}: #{e}"
+          exit 1
+        end
+        subscription.save
+      end
+    end
+
   end
 
 end

@@ -160,6 +160,11 @@ Content-Type: text/html; charset=UTF-8
       doc.to_s
     end
 
+    def fix(options={})
+      @last_modified = @last_modified.to_time if @last_modified
+      @history = Hash[ @history.map { |k, v| [k, v.to_time] } ]
+    end
+
   end
 
 end

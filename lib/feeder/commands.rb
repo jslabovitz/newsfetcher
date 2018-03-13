@@ -19,6 +19,8 @@ module Feeder
         profile.add(args, options)
       when 'update'
         profile.update(args, options)
+      when 'fix'
+        profile.fix(args, options)
       else
         raise Error, "Unknown subcommand: #{subcommand.inspect}"
       end
