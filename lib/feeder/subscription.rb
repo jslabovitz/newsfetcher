@@ -145,9 +145,15 @@ Content-Type: text/html; charset=UTF-8
               a {
                 text-decoration: none;
               }
+
               img {
                   max-width: 100%;
                   height: auto;
+              }
+
+              iframe {
+                display: block;
+                width: 100%;
               }
             }.strip
           end
