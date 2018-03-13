@@ -35,7 +35,7 @@ module Feeder
           if arg =~ /\.yaml$/
             Path.new(arg)
           else
-            (@feeds_dir / arg).add_extension('.yaml')
+            (feeds_dir / arg).add_extension('.yaml')
           end
         end
       end
