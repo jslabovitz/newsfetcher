@@ -141,58 +141,7 @@ Content-Type: text/html; charset=UTF-8
       Nokogiri::HTML::Builder.with(doc) do |html|
         html.html do
           html.head do
-            html.style %Q{
-              a {
-                text-decoration: none;
-              }
-
-              img {
-                  max-width: 100%;
-                  height: auto;
-              }
-
-              /* FIXME: doesn't work */
-              iframe {
-                max-width: 100% !important;
-                width: auto !important;
-                height: auto !important;
-              }
-
-              body {
-                font-size: 100%;
-              }
-
-              .header {
-                padding: 0.5em;
-                background-color: LightGray;
-              }
-
-              .author {
-                margin-bottom: 1em;
-                font-style: italic;
-              }
-
-              .author:before {
-                content: '» ';
-              }
-
-              .image {}
-
-              .content {}
-
-              h1 {
-                font-size: 150%;
-              }
-
-              h2 {
-                font-size: 125%;
-              }
-
-              h3 {
-                font-size: 100%;
-              }
-
-            }.strip
+            html.style(@profile.style)
           end
           html.body do
             html.div(class: 'header') do

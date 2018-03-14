@@ -27,6 +27,10 @@ module Feeder
       @root_dir / 'feeds'
     end
 
+    def style
+      @style ||= Feeder::StylesheetFile.read
+    end
+
     def info_files(args)
       if args.empty?
         feeds_dir.glob("**/*.yaml")

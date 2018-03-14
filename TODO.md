@@ -14,11 +14,6 @@
 
 - Add dormancy period as class default (constant), per-profile, and per-feed.
 
-- HTML formatting:
-  - Use external stylesheet (SASS), and embed compressed version.
-  - Use classes for formatting headings/etc.
-  - Tidy HTML?
-
 - Add option to use msmtp/sendmail instead of Maildir delivery.
 
 - Try using Mail again to compose messages.
