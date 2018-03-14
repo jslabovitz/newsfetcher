@@ -157,21 +157,58 @@ Content-Type: text/html; charset=UTF-8
                 width: auto !important;
                 height: auto !important;
               }
+
+              body {
+                font-size: 100%;
+              }
+
+              .header {
+                padding: 0.5em;
+                background-color: LightGray;
+              }
+
+              .author {
+                margin-bottom: 1em;
+                font-style: italic;
+              }
+
+              .author:before {
+                content: '» ';
+              }
+
+              .image {}
+
+              .content {}
+
+              h1 {
+                font-size: 150%;
+              }
+
+              h2 {
+                font-size: 125%;
+              }
+
+              h3 {
+                font-size: 100%;
+              }
+
             }.strip
           end
           html.body do
-            html.p do
-              html.em do
-                html << @title || @feed.title
-                html << ": #{@feed.description}" if @feed.description
-              end
+            html.div(class: 'header') do
+              html << @title || @feed.title
+              html << ": #{@feed.description}" if @feed.description
             end
-            html.h2 do
+            html.h1 do
               html.a(href: entry.url) { html << entry.title }
             end
-            html.h4("by #{entry.author.sub(/^by\s+/i, '')}") if entry.author
-            html.p { html.img(src: entry.image) } if entry.image
-            html << parse_content(entry).to_html
+            if entry.author
+              html.div(class: 'author') { html << entry.author.sub(/^by\s+/i, '') }
+            end
+            if entry.image
+              html.div(class: 'image') { html.img(src: entry.image) }
+            end
+            html.div(class: 'content') { html << parse_content(entry).to_html }
           end
         end
       end
