@@ -19,12 +19,6 @@
   - Use classes for formatting headings/etc.
   - Tidy HTML?
 
-- Use Logger instead of #warn.
-
-- Write README documentation.
-
-- Release to rubygems (reset git history first).
-
 - Add option to use msmtp/sendmail instead of Maildir delivery.
 
 - Try using Mail again to compose messages.
@@ -32,3 +26,10 @@
 - Import from OPML instead of NNW plist.
   - Existing gem for OPML?
   - Remove nokogiri-plist dependency.
+
+- Use Logger instead of #warn.
+
+- Release to rubygems.
+  - Reset git history.
+  - Write README documentation.
+  - Bump version to 1.0.
