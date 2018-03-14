@@ -8,8 +8,6 @@
 
 - If --profile not specified, then run update/dormant/etc. on all profiles.
 
-- Install on server as LaunchDaemon.
-
 - Move command processing into separate classes.
 
 - Add dormancy period as class default (constant), per-profile, and per-feed.
@@ -23,6 +21,8 @@
   - Remove nokogiri-plist dependency.
 
 - Use Logger instead of #warn.
+
+- Install on server as LaunchDaemon.
 
 - Release to rubygems.
   - Reset git history.
