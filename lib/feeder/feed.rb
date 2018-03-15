@@ -72,15 +72,18 @@ module Feeder
           entry_id = entry.entry_id || entry.url or raise Error, "#{id}: Can't determine entry ID"
           if ignore_history || !@history[entry_id]
             ;;warn "#{id}: adding entry #{entry_id}"
-            maildir.add(
-              make_message(
-                date: entry.published,
-                from: @title || @feed.title,
-                to: @title || @feed.title,
-                subject: entry.title,
-                content: make_content(entry),
-              )
-            )
+            to_address = from_address = "#{title} <#{@profile.email}>"
+            subject = @title || @feed.title
+            content = make_content(entry)
+            mail = Mail.new do
+              date          entry.published
+              from          from_address
+              to            to_address
+              subject       subject
+              content_type  'text/html; charset=UTF-8'
+              body          content
+            end
+            maildir.add(mail)
             @history[entry_id] = entry.published || Time.now
             count += 1
             break if limit && count >= limit
@@ -119,18 +122,6 @@ module Feeder
           nil
         end
       end
-    end
-
-    def make_message(date:, from:, to:, subject:, content:)
-      %Q{
-Date: #{date.rfc2822}
-From: #{from} <#{@profile.email}>
-To: #{to} <#{@profile.email}>
-Subject: #{subject}
-Content-Type: text/html; charset=UTF-8
-
-#{content}
-}.strip
     end
 
     def make_content(entry)

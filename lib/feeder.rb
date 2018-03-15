@@ -2,6 +2,7 @@ require 'date'
 require 'path'
 require 'uri'
 require 'yaml'
+require 'mail'
 require 'maildir'
 require 'faraday'
 require 'feedjira'
@@ -23,6 +24,8 @@ module Feeder
   Feedjira.configure do |config|
     config.strip_whitespace = true
   end
+
+  Maildir.serializer = Maildir::Serializer::Mail.new
 
   class Error < Exception; end
 

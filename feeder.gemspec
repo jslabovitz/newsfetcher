@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'faraday', '~> 0.14'
   s.add_dependency 'feedjira', '~> 2.1'
   s.add_dependency 'hashstruct', '~> 1.3'
+  s.add_dependency 'mail', '~> 2.7'
   s.add_dependency 'maildir', '~> 2.2'
   s.add_dependency 'nokogiri-plist', '~> 0.5'
   s.add_dependency 'path', '~> 2.0'
