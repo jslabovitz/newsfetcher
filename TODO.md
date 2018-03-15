@@ -2,7 +2,7 @@
 
 - Allow stylesheets to be added/changed.
 
-- Fix subscriptions:
+- Fix feeds:
   - Save feed title as @feed_title.
   - Unset @title if @feed_title == @title.
 

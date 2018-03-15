@@ -45,13 +45,13 @@ module Feeder
       end
     end
 
-    def each_subscription(args, &block)
+    def each_feed(args, &block)
       info_files(args).each do |info_file|
-        subscription = Subscription.load(info_file: info_file, profile: self)
+        feed = Feed.load(info_file: info_file, profile: self)
         begin
-          yield(subscription)
+          yield(feed)
         rescue Error => e
-          raise Error, "#{subscription.id}: #{e}"
+          raise Error, "#{feed.id}: #{e}"
         end
       end
     end
@@ -63,13 +63,13 @@ module Feeder
       recurse_plist(plist) do |item, path|
         key = Feeder.uri_to_key(item['rss'])
         puts "importing %-60s => %s" % [item['rss'], key]
-        subscription = Subscription.new(
+        feed = Feed.new(
           id: [path, key].join('/'),
           feed_link: item['rss'],
           profile: self)
-        raise "Subscription exists: #{subscription.info_file}" if subscription.info_file.exist?
-        subscription.save
-        ;;warn "saved new subscription to #{subscription.info_file}"
+        raise "Feed exists: #{feed.info_file}" if feed.info_file.exist?
+        feed.save
+        ;;warn "saved new feed to #{feed.info_file}"
       end
     end
 
@@ -104,22 +104,22 @@ module Feeder
         return
       end
       id = [path, Feeder.uri_to_key(feed_link)].compact.join('/')
-      subscription = Subscription.new(
+      feed = Feed.new(
         id: id,
         feed_link: feed_link,
         profile: self)
-      subscription.save
-      ;;warn "saved new subscription to #{subscription.info_file}"
+      feed.save
+      ;;warn "saved new feed to #{feed.info_file}"
     end
 
     def update(args, options)
       threads = []
-      each_subscription(args) do |subscription|
+      each_feed(args) do |feed|
         threads << Thread.new do
           begin
-            subscription.update(options)
+            feed.update(options)
           rescue Error => e
-            warn "#{subscription.id}: #{e}"
+            warn "#{feed.id}: #{e}"
             Thread.exit
           end
         end
@@ -128,21 +128,21 @@ module Feeder
     end
 
     def fix(args, options)
-      each_subscription(args) do |subscription|
-        subscription.fix(options)
-        subscription.save
+      each_feed(args) do |feed|
+        feed.fix(options)
+        feed.save
       end
     end
 
-    DormantPeriod = 90    ##FIXME: configure in profile/subscription
+    DormantPeriod = 90    ##FIXME: configure in profile/feed
 
     def dormant(args, options)
-      each_subscription(args) do |subscription|
-        days = subscription.dormant_days
+      each_feed(args) do |feed|
+        days = feed.dormant_days
         if days.nil?
-          puts "#{subscription.id}: never modified"
+          puts "#{feed.id}: never modified"
         elsif days > DormantPeriod
-          puts "#{subscription.id}: not modified for over #{days.to_i} days"
+          puts "#{feed.id}: not modified for over #{days.to_i} days"
         end
       end
     end

@@ -11,7 +11,7 @@ require 'simple_option_parser'
 
 require 'feeder/commands'
 require 'feeder/profile'
-require 'feeder/subscription'
+require 'feeder/feed'
 
 module Feeder
 

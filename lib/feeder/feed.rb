@@ -1,6 +1,6 @@
 module Feeder
 
-  class Subscription
+  class Feed
 
     attr_accessor :id
     attr_accessor :title
@@ -10,7 +10,7 @@ module Feeder
     attr_accessor :profile
 
     def self.load(info_file:, profile:)
-      raise Error, "Subscription info file does not exist: #{info_file}" unless info_file.exist?
+      raise Error, "Feed info file does not exist: #{info_file}" unless info_file.exist?
       id = info_file.relative_to(profile.feeds_dir).without_extension
       info = YAML.load(info_file.read)
       new(
