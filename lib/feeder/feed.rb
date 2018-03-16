@@ -137,7 +137,7 @@ module Feeder
           html.body do
             html.div(class: 'header') do
               html << @title || @feed.title
-              html << ": #{@feed.description}" if @feed.respond.to?(:description) && @feed.description
+              html << ": #{@feed.description}" if @feed.respond_to?(:description) && @feed.description
             end
             html.h1 do
               html.a(href: entry.url) { html << entry.title }
