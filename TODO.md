@@ -1,3 +1,14 @@
+- Split #update into #fetch and #process.
+  - Add subcommands: update/fetch/process.
+
+- Move entry-specific code into Entry class.
+
+- Copy Feedjira data into Feed/Entry objects.
+
+- Cache XML files (.feeder/PROFILE/.cache/ID.xml)
+
+- Move command processing into separate classes.
+
 - Move HTML generation to ERB template?
 
 - Allow stylesheets to be added/changed.
@@ -11,8 +22,6 @@
   - Verify that feed matches <link> element.
 
 - If --profile not specified, then run update/dormant/etc. on all profiles.
-
-- Move command processing into separate classes.
 
 - Add dormancy period as class default (constant), per-profile, and per-feed.
 
