@@ -142,10 +142,10 @@ module Feeder
             html.h1 do
               html.a(href: entry.url) { html << entry.title }
             end
-            if entry.author
-              html.div(class: 'author') { html << entry.author.sub(/^by\s+/i, '') }
+            if entry.respond_to?(:author) && entry.author
+              html.div(class: 'author') { html << entry.author }
             end
-            if entry.image
+            if entry.respond_to?(:image) && entry.image
               html.div(class: 'image') { html.img(src: entry.image) }
             end
             html.div(class: 'content') { html << parse_content(entry).to_html }
