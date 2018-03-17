@@ -134,9 +134,8 @@ module Feeder
             html.style(@profile.style)
           end
           html.body do
-            html.div(class: 'header') do
+            html.div(class: 'bar') do
               html << @title || @feed.title
-              html << ": #{@feed.description}" if @feed.respond_to?(:description) && @feed.description
             end
             html.h1 do
               html.a(href: entry.url) { html << entry.title }
@@ -148,6 +147,11 @@ module Feeder
               html.div(class: 'image') { html.img(src: entry.image) }
             end
             html.div(class: 'content') { html << parse_content(entry).to_html }
+            if @feed.respond_to?(:description) && @feed.description
+              html.div(class: 'bar') do
+                html << @feed.description
+              end
+            end
           end
         end
       end
