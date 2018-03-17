@@ -72,15 +72,13 @@ module Feeder
           entry_id = entry.entry_id || entry.url or raise Error, "#{id}: Can't determine entry ID"
           if ignore_history || !@history[entry_id]
             ;;warn "#{id}: adding entry #{entry_id}"
-            from_address = "#{title} <#{@profile.email}>"
-            to_address = "#{entry.title} <#{@profile.email}>"
-            subject = @title || @feed.title
+            to_address = from_address = "#{title} <#{@profile.email}>"
             content = make_content(entry)
             mail = Mail.new do
               date          entry.published
               from          from_address
               to            to_address
-              subject       subject
+              subject       entry.title.strip
               content_type  'text/html; charset=UTF-8'
               body          content
             end
