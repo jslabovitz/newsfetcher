@@ -19,12 +19,13 @@ body {
 }
 
 .bar {
+  margin: 1em 0 1em 0;
   padding: 0.5em;
   background-color: LightGray;
 }
 
 .author {
-  margin-bottom: 1em;
+  margin: 1em 0 1em 0;
   font-style: italic;
 }
 
