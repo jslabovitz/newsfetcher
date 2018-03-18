@@ -6,13 +6,18 @@ require 'mail'
 require 'maildir'
 require 'faraday'
 require 'feedjira'
-require 'hashstruct'
 require 'nokogiri-plist'
-require 'simple_option_parser'
+require 'simple-command'
 
-require 'feeder/commands'
 require 'feeder/profile'
 require 'feeder/feed'
+
+require 'feeder/command'
+require 'feeder/commands/add'
+require 'feeder/commands/dormant'
+require 'feeder/commands/fix'
+require 'feeder/commands/import'
+require 'feeder/commands/update'
 
 module Feeder
 

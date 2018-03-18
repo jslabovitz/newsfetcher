@@ -1,0 +1,27 @@
+module Feeder
+
+  module Commands
+
+    class Dormant < Command
+
+      register_command 'dormant',
+        period: 30
+
+      attr_accessor :period
+
+      def run(args)
+        @profile.each_feed(args) do |feed|
+          days = feed.dormant_days
+          if days.nil?
+            puts "#{feed.id}: never modified"
+          elsif days > @period
+            puts "#{feed.id}: not modified for over #{days.to_i} days"
+          end
+        end
+      end
+
+    end
+
+  end
+
+end
