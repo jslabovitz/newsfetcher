@@ -9,7 +9,7 @@ module Feeder
       def run(args)
         raise Error, "No profile specified" unless @profile
         feed_link = args.shift or raise "No feed URI specified"
-        path = args.shift or raise "No path specified"
+        path = args.shift
         feed_link = URI.parse(feed_link)
         response = Feeder.get(feed_link)
         raise Error, "Failed to get URI #{feed_link}: #{response.status}" unless response.success?
