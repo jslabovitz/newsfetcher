@@ -10,18 +10,7 @@ module Feeder
       attr_accessor :limit
 
       def run(args)
-        threads = []
-        @profile.select_feeds(args).each do |feed|
-          threads << Thread.new do
-            begin
-              feed.update(ignore_history: @ignore_history, limit: @limit)
-            rescue Error => e
-              warn "#{feed.id}: #{e}"
-              Thread.exit
-            end
-          end
-        end
-        threads.map(&:join)
+        @profile.update_feeds(@profile.select_feeds(args), ignore_history: @ignore_history, limit: @limit)
       end
 
     end

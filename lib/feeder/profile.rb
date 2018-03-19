@@ -46,6 +46,21 @@ module Feeder
       dirs.map { |d| Feed.load(dir: d, profile: self) }
     end
 
+    def update_feeds(feeds, **options)
+      threads = []
+      feeds.each do |feed|
+        threads << Thread.new do
+          begin
+            feed.update(options)
+          rescue Error => e
+            warn "#{feed.id}: #{e}"
+            Thread.exit
+          end
+        end
+      end
+      threads.map(&:join)
+    end
+
   end
 
 end
