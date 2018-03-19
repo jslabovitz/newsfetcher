@@ -8,8 +8,7 @@ module Feeder
 
       def run(args)
         @profile.each_feed(args) do |feed|
-          feed.fix(options)
-          feed.save
+          feed.fix
         end
       end
 

@@ -167,7 +167,7 @@ module Feeder
       html
     end
 
-    def fix(options={})
+    def fix
     end
 
   end
