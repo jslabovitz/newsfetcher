@@ -35,13 +35,7 @@ module Feeder
       if args.empty?
         dirs = feeds_dir.glob("**/#{FeedInfoFileName}").map(&:dirname)
       else
-        dirs = args.map do |arg|
-          if arg =~ %r{^[/~]}
-            Path.new(arg)
-          else
-            feeds_dir / arg
-          end
-        end
+        dirs = args.map { |a| (a =~ %r{^[/~]}) ? Path.new(a) : (feeds_dir / a) }
       end
       dirs.map { |d| Feed.load(dir: d, profile: self) }
     end
