@@ -105,20 +105,6 @@ module Feeder
     def load_feed
       # ;;warn "#{id}: loading feed from #{@feed_link}"
       @feed_data = nil
-      if @feed_link =~ %r{^file://localhost(/.*)}
-        load_local_feed($1)
-      else
-        load_remote_feed
-      end
-    end
-
-    def load_local_feed(file)
-      file = Path.new(file)
-      @feed_data = file.read
-      @last_modified = file.mtime
-    end
-
-    def load_remote_feed
       response = Feeder.get(@feed_link, if_modified_since: @last_modified)
       return if response.status == 304
       raise Error, "Failed to get feed: #{response.status}" unless response.success?
