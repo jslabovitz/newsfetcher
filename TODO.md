@@ -7,8 +7,6 @@
 
 - Cache XML files (.feeder/PROFILE/.cache/ID.xml)
 
-- Move command processing into separate classes.
-
 - Move HTML generation to ERB template?
 
 - Allow stylesheets to be added/changed.
