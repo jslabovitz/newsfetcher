@@ -81,7 +81,7 @@ module Feeder
         @feed.entries.each do |entry|
           entry_id = entry.entry_id || entry.url or raise Error, "#{id}: Can't determine entry ID"
           if ignore_history || !@history[entry_id]
-            ;;warn "#{id}: adding entry #{entry_id}"
+            ;;warn "#{id}: adding entry #{entry_id} to #{maildir.path}"
             to_address = from_address = "#{title} <#{@profile.email}>"
             content = make_content(entry)
             mail = Mail.new do
