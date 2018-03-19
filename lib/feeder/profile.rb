@@ -31,27 +31,27 @@ module Feeder
       @style ||= Feeder::StylesheetFile.read
     end
 
-    def info_files(args)
-      if args.empty?
-        feeds_dir.glob("**/*.yaml")
-      else
-        args.map do |arg|
-          if arg =~ /\.yaml$/
-            Path.new(arg)
-          else
-            (feeds_dir / arg).add_extension('.yaml')
-          end
-        end
-      end
-    end
-
     def each_feed(args, &block)
-      info_files(args).each do |info_file|
-        feed = Feed.load(info_file: info_file, profile: self)
+      feed_dirs(args).each do |feed_dir|
+        feed = Feed.load(dir: feed_dir, profile: self)
         begin
           yield(feed)
         rescue Error => e
           raise Error, "#{feed.id}: #{e}"
+        end
+      end
+    end
+
+    def feed_dirs(args)
+      if args.empty?
+        feeds_dir.glob("**/#{FeedInfoFileName}").map(&:dirname)
+      else
+        args.map do |arg|
+          if arg =~ %r{^[/~]}
+            Path.new(arg)
+          else
+            feeds_dir / arg
+          end
         end
       end
     end

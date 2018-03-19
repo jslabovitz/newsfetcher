@@ -9,9 +9,11 @@ module Feeder
     attr_accessor :history
     attr_accessor :profile
 
-    def self.load(info_file:, profile:)
+    def self.load(dir:, profile:)
+      dir = Path.new(dir)
+      id = dir.relative_to(profile.feeds_dir).to_s
+      info_file = dir / FeedInfoFileName
       raise Error, "Feed info file does not exist: #{info_file}" unless info_file.exist?
-      id = info_file.relative_to(profile.feeds_dir).without_extension
       info = YAML.load(info_file.read)
       new(
         info.merge(
@@ -26,7 +28,7 @@ module Feeder
     end
 
     def info_file
-      Path.new(@profile.feeds_dir, id).add_extension('.yaml')
+      Path.new(@profile.feeds_dir, id, FeedInfoFileName)
     end
 
     def to_yaml
