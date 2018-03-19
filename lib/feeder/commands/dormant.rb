@@ -15,7 +15,7 @@ module Feeder
           if days.nil?
             puts "#{feed.id}: never modified"
           elsif days > @period
-            puts "#{feed.id}: not modified for over #{days.to_i} days"
+            puts "#{feed.id}: last modified #{days.to_i} days ago"
           end
         end
       end
