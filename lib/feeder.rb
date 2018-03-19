@@ -22,6 +22,7 @@ require 'feeder/commands/update'
 module Feeder
 
   FeedInfoFileName = 'info.yaml'
+  FeedXMLFileName = 'feed.xml'
   FeedDownloadTimeout = 30
   FeedDownloadFollowRedirectLimit = 5
   DefaultDataDir = '~/.feeder'

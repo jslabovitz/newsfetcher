@@ -27,8 +27,16 @@ module Feeder
       params.each { |k, v| send("#{k}=", v) }
     end
 
+    def dir
+      Path.new(@profile.feeds_dir, @id)
+    end
+
     def info_file
-      Path.new(@profile.feeds_dir, id, FeedInfoFileName)
+      dir / FeedInfoFileName
+    end
+
+    def xml_file
+      dir / FeedXMLFileName
     end
 
     def to_yaml
@@ -41,7 +49,7 @@ module Feeder
     end
 
     def save
-      info_file.dirname.mkpath unless info_file.dirname.exist?
+      dir.mkpath unless dir.exist?
       info_file.write(to_yaml)
     end
 
