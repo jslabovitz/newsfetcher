@@ -7,7 +7,7 @@ module Feeder
       register_command 'fix'
 
       def run(args)
-        @profile.each_feed(args) do |feed|
+        @profile.select_feeds(args).each do |feed|
           feed.fix
         end
       end

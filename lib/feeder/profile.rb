@@ -31,22 +31,11 @@ module Feeder
       @style ||= Feeder::StylesheetFile.read
     end
 
-    def each_feed(args, &block)
-      feed_dirs(args).each do |feed_dir|
-        feed = Feed.load(dir: feed_dir, profile: self)
-        begin
-          yield(feed)
-        rescue Error => e
-          raise Error, "#{feed.id}: #{e}"
-        end
-      end
-    end
-
-    def feed_dirs(args)
+    def select_feeds(args)
       if args.empty?
-        feeds_dir.glob("**/#{FeedInfoFileName}").map(&:dirname)
+        dirs = feeds_dir.glob("**/#{FeedInfoFileName}").map(&:dirname)
       else
-        args.map do |arg|
+        dirs = args.map do |arg|
           if arg =~ %r{^[/~]}
             Path.new(arg)
           else
@@ -54,6 +43,7 @@ module Feeder
           end
         end
       end
+      dirs.map { |d| Feed.load(dir: d, profile: self) }
     end
 
   end

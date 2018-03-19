@@ -11,7 +11,7 @@ module Feeder
 
       def run(args)
         threads = []
-        @profile.each_feed(args) do |feed|
+        @profile.select_feeds(args).each do |feed|
           threads << Thread.new do
             begin
               feed.update(ignore_history: @ignore_history, limit: @limit)

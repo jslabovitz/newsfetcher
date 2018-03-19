@@ -10,7 +10,7 @@ module Feeder
       attr_accessor :period
 
       def run(args)
-        @profile.each_feed(args) do |feed|
+        @profile.select_feeds(args).each do |feed|
           days = feed.dormant_days
           if days.nil?
             puts "#{feed.id}: never modified"
