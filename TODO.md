@@ -1,11 +1,15 @@
 - Split #update into #fetch and #process.
   - Add subcommands: update/fetch/process.
 
+- Save feed XML file.
+
+- Move history data into history.yaml (or history.db, if gdbm).
+
+- Get last_modified from mtime of feed XML file.
+
 - Move entry-specific code into Entry class.
 
 - Copy Feedjira data into Feed/Entry objects.
-
-- Cache XML files (.feeder/PROFILE/.cache/ID.xml)
 
 - Move HTML generation to ERB template?
 
