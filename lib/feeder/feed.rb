@@ -39,6 +39,10 @@ module Feeder
       dir / FeedXMLFileName
     end
 
+    def title
+      @title || (@feed ? @feed.title : nil)
+    end
+
     def to_yaml
       {
         'title' => @title,
@@ -131,7 +135,7 @@ module Feeder
           end
           html.body do
             html.div(class: 'bar') do
-              html << @title || @feed.title
+              html << title
             end
             html.h1 do
               html.a(href: entry.url) { html << entry.title }
