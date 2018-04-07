@@ -4,6 +4,7 @@ module Feeder
 
     attr_accessor :id
     attr_accessor :title
+    attr_accessor :maildir
     attr_accessor :feed_link
     attr_accessor :last_modified
     attr_accessor :history
@@ -18,7 +19,9 @@ module Feeder
       new(
         info.merge(
           id: id,
-          profile: profile)
+          profile: profile,
+          maildir: Maildir.new(Path.new(profile.maildir, id).to_s),
+        )
       )
     end
 
