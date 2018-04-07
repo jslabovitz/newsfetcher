@@ -83,31 +83,25 @@ module Feeder
     end
 
     def update(ignore_history: false, limit: nil)
-      load_feed
-      if @feed_data
-        maildir = Maildir.new(Path.new(@profile.maildir, id).dirname.to_s)
-        begin
-          @feed = Feedjira::Feed.parse(@feed_data)
-        rescue Feedjira::NoParserAvailable => e
-          raise Error, "Can't parse feed: #{e}"
-        end
-        @last_modified = @feed.last_modified
+      if load_feed
         count = 0
         @feed.entries.each do |entry|
           entry_id = entry.entry_id || entry.url or raise Error, "#{id}: Can't determine entry ID"
           if ignore_history || !@history[entry_id]
-            ;;warn "#{id}: adding entry #{entry_id} to #{maildir.path}"
-            to_address = from_address = "#{title} <#{@profile.email}>"
+            warn "#{id}:"
+            warn "\t%10s: %s" % ['entry ID', entry_id]
+            warn "\t%10s: %s" % ['maildir', @maildir.path]
+            warn "\t%10s: %s" % ['email', mail_address]
             content = make_content(entry)
-            mail = Mail.new do
-              date          entry.published
-              from          from_address
-              to            to_address
-              subject       entry.title.strip
-              content_type  'text/html; charset=UTF-8'
-              body          content
+            mail = Mail.new.tap do |m|
+              m.date =         entry.published
+              m.from =         mail_address
+              m.to =           mail_address
+              m.subject =      entry.title.strip
+              m.content_type = 'text/html; charset=UTF-8'
+              m.body =         content
             end
-            maildir.add(mail)
+            @maildir.add(mail)
             @history[entry_id] = entry.published || Time.now
             count += 1
             break if limit && count >= limit
@@ -121,17 +115,15 @@ module Feeder
       # ;;warn "#{id}: loading feed from #{@feed_link}"
       @feed_data = nil
       response = Feeder.get(@feed_link, if_modified_since: @last_modified)
-      return if response.status == 304
+      return false if response.status == 304 || response.body.nil? || response.body == ''
       raise Error, "Failed to get feed: #{response.status}" unless response.success?
-      @feed_data = response.body
-      if (timestamp = response.headers['last-modified'])
-        @last_modified = begin
-          Time.parse(timestamp)
-        rescue StandardError => e
-          warn "Failed to parse Last-Modified date: #{timestamp.inspect}"
-          nil
-        end
+      begin
+        @feed = Feedjira::Feed.parse(response.body)
+      rescue Feedjira::NoParserAvailable => e
+        raise Error, "Can't parse feed: #{e}"
       end
+      @last_modified = @feed.last_modified
+      true
     end
 
     def make_content(entry)
