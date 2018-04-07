@@ -46,6 +46,14 @@ module Feeder
       @title || (@feed ? @feed.title : nil)
     end
 
+    def mail_address
+      profile_address = Mail::Address.new(@profile.email)
+      Mail::Address.new.tap do |a|
+        a.display_name = title
+        a.address = "#{profile_address.local}.#{id.gsub('/', '.')}@#{profile_address.domain}"
+      end
+    end
+
     def to_yaml
       {
         'title' => @title,
