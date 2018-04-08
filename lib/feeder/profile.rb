@@ -3,9 +3,9 @@ module Feeder
   class Profile
 
     attr_accessor :root_dir
-    attr_accessor :feeds_dir
-    attr_accessor :email
     attr_accessor :maildir
+    attr_accessor :folder
+    attr_accessor :email
 
     def self.load(dir)
       info_file = dir / 'info.yaml'
@@ -16,15 +16,32 @@ module Feeder
       params.each { |k, v| send("#{k}=", v) }
     end
 
+    def root_dir=(dir)
+      @root_dir = Path.new(dir)
+    end
+
+    def maildir=(dir)
+      @maildir = Path.new(dir)
+    end
+
+    def email=(address)
+      @email = Mail::Address.new(address)
+    end
+
     def to_yaml
       {
-        email: @email,
-        maildir: @maildir,
+        email: @email.to_s,
+        maildir: @maildir.to_s,
+        folder: @folder,
       }.to_yaml(line_width: -1)
     end
 
     def feeds_dir
       @root_dir / 'feeds'
+    end
+
+    def maildir_for_feed(feed)
+      Maildir.new(Path.new(@maildir, @folder, feed.id).to_s)
     end
 
     def style

@@ -4,7 +4,6 @@ module Feeder
 
     attr_accessor :id
     attr_accessor :title
-    attr_accessor :maildir
     attr_accessor :feed_link
     attr_accessor :last_modified
     attr_accessor :history
@@ -20,7 +19,6 @@ module Feeder
         info.merge(
           id: id,
           profile: profile,
-          maildir: Maildir.new(Path.new(profile.maildir, id).to_s),
         )
       )
     end
@@ -47,10 +45,13 @@ module Feeder
     end
 
     def mail_address
-      profile_address = Mail::Address.new(@profile.email)
       Mail::Address.new.tap do |a|
         a.display_name = title
-        a.address = "#{profile_address.local}.#{id.gsub('/', '.')}@#{profile_address.domain}"
+        a.address = "%s+%s@%s" % [
+          @profile.email.local,
+          [@profile.folder, *id.split('/')].join('.'),
+          @profile.email.domain,
+        ]
       end
     end
 
@@ -84,13 +85,14 @@ module Feeder
 
     def update(ignore_history: false, limit: nil)
       if load_feed
+        maildir = @profile.maildir_for_feed(self)
         count = 0
         @feed.entries.each do |entry|
           entry_id = entry.entry_id || entry.url or raise Error, "#{id}: Can't determine entry ID"
           if ignore_history || !@history[entry_id]
             warn "#{id}:"
             warn "\t%10s: %s" % ['entry ID', entry_id]
-            warn "\t%10s: %s" % ['maildir', @maildir.path]
+            warn "\t%10s: %s" % ['maildir', maildir.path]
             warn "\t%10s: %s" % ['email', mail_address]
             content = make_content(entry)
             mail = Mail.new.tap do |m|
@@ -101,7 +103,7 @@ module Feeder
               m.content_type = 'text/html; charset=UTF-8'
               m.body =         content
             end
-            @maildir.add(mail)
+            maildir.add(mail)
             @history[entry_id] = entry.published || Time.now
             count += 1
             break if limit && count >= limit
