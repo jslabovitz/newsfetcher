@@ -103,12 +103,13 @@ module Feeder
       response = Feeder.get(uri)
       raise Error, "Failed to get URI #{uri}: #{response.status}" unless response.success?
       begin
-        jira_feed = Feedjira::Feed.parse(response.body)
+        Feedjira::Feed.parse(response.body)
       rescue Feedjira::NoParserAvailable => e
         feeds = find_feeds(response.body)
         raise Error, "No alternate links in URI: #{uri}" if feeds.empty?
+        puts "Alternate links:"
         feeds.each do |uri, type, title|
-          puts "%s (%s): %s" % [uri, type, title]
+          puts "\t%s (%s): %s" % [uri, type, title]
         end
         return
       end
