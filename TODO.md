@@ -1,3 +1,5 @@
+- Rename project from 'feeder' -- conflicts with existing gem.
+
 - Split #update into #fetch and #process.
   - Add subcommands: update/fetch/process.
 
@@ -33,9 +35,7 @@
   - Existing gem for OPML?
   - Remove nokogiri-plist dependency.
 
-- Use Logger instead of #warn.
-
-- Install on server as LaunchDaemon.
+- Use Logger instead of #warn/#puts.
 
 - Release to rubygems.
   - Reset git history.
