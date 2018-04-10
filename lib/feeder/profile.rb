@@ -79,32 +79,41 @@ module Feeder
       begin
         Feedjira::Feed.parse(response.body)
       rescue Feedjira::NoParserAvailable => e
-        feeds = find_feeds(response.body)
-        raise Error, "No alternate links in URI: #{uri}" if feeds.empty?
-        puts "Alternate links:"
-        feeds.each do |uri, type, title|
-          puts "\t%s (%s): %s" % [uri, type, title]
-        end
-        return
+        new_uri = discover_feed(response.body)
+        uri = new_uri.scheme ? new_uri : (uri + new_uri)
       end
       #FIXME: save feed
       feed = Feed.new(
         id: [path, Feeder.uri_to_key(uri)].flatten.compact.join('/'),
         feed_link: uri,
         profile: self)
+      raise Error, "Feed already exists (as #{feed.id}): #{uri}" if feed.exist?
       feed.save
       ;;warn "saved new feed to #{feed.info_file}"
     end
 
-    def find_feeds(html_str)
+    def discover_feed(html_str)
+      feeds = alternate_feeds(html_str)
+      raise Error, "No alternate links" if feeds.empty?
+      puts "Alternate links:"
+      feeds.each_with_index do |link, i|
+        puts "%2d. %s (%s): %s" % [i + 1, link[:href], link[:type], link[:title]]
+      end
+      loop do
+        print "Choice? "
+        i = gets.chomp.to_i
+        return feeds[i - 1][:href] if i >= 1 && i <= feeds.length
+      end
+    end
+
+    def alternate_feeds(html_str)
       html = Nokogiri::HTML::Document.parse(html_str)
       html.xpath('//link[@rel="alternate"]').map do |link_elem|
-        [
-          # feed_link + URI.parse(link_elem['href']),
-          link_elem['href'],
-          link_elem['type'],
-          link_elem['title'],
-        ]
+        {
+          href: URI.parse(link_elem['href']),
+          type: link_elem['type'],
+          title: link_elem['title'],
+        }
       end
     end
 
