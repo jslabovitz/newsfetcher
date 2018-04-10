@@ -93,7 +93,7 @@ module Feeder
     end
 
     def discover_feed(html_str)
-      feeds = alternate_feeds(html_str)
+      feeds = find_alternate_links(html_str)
       raise Error, "No alternate links" if feeds.empty?
       puts "Alternate links:"
       feeds.each_with_index do |link, i|
@@ -106,7 +106,7 @@ module Feeder
       end
     end
 
-    def alternate_feeds(html_str)
+    def find_alternate_links(html_str)
       html = Nokogiri::HTML::Document.parse(html_str)
       html.xpath('//link[@rel="alternate"]').map do |link_elem|
         {
