@@ -89,7 +89,7 @@ module Feeder
       end
       #FIXME: save feed
       feed = Feed.new(
-        id: [path, Feeder.uri_to_key(uri)].compact.join('/'),
+        id: [path, Feeder.uri_to_key(uri)].flatten.compact.join('/'),
         feed_link: uri,
         profile: self)
       feed.save
