@@ -8,6 +8,9 @@ module Feeder
     attr_accessor :last_modified
     attr_accessor :history
     attr_accessor :profile
+    attr_accessor :dir
+    attr_accessor :info_file
+    attr_accessor :xml_file
 
     def self.load(dir:, profile:)
       dir = Path.new(dir)
@@ -26,18 +29,9 @@ module Feeder
     def initialize(params={})
       @history = {}
       params.each { |k, v| send("#{k}=", v) }
-    end
-
-    def dir
-      Path.new(@profile.feeds_dir, @id)
-    end
-
-    def info_file
-      dir / FeedInfoFileName
-    end
-
-    def xml_file
-      dir / FeedXMLFileName
+      @dir = Path.new(@profile.feeds_dir, @id)
+      @info_file = @dir / FeedInfoFileName
+      @xml_file = @dir / FeedXMLFileName
     end
 
     def title
@@ -64,9 +58,13 @@ module Feeder
       }.to_yaml(line_width: -1)
     end
 
+    def exist?
+      @dir.exist?
+    end
+
     def save
-      dir.mkpath unless dir.exist?
-      info_file.write(to_yaml)
+      @dir.mkpath unless @dir.exist?
+      @info_file.write(to_yaml)
     end
 
     def dormant_time
