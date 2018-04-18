@@ -1,5 +1,3 @@
-- Rename project from 'feeder' -- conflicts with existing gem.
-
 - Add lock files (per profile? per feed?) to avoid multiple processes.
 
 - Split #update into #fetch and #process.

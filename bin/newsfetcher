@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'feeder'
+require 'newsfetcher'
 
 SimpleCommand::Manager.run(ARGV)

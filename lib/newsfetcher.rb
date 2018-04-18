@@ -9,23 +9,23 @@ require 'feedjira'
 require 'nokogiri-plist'
 require 'simple-command'
 
-require 'feeder/profile'
-require 'feeder/feed'
+require 'newsfetcher/profile'
+require 'newsfetcher/feed'
 
-require 'feeder/command'
-require 'feeder/commands/add'
-require 'feeder/commands/dormant'
-require 'feeder/commands/fix'
-require 'feeder/commands/import'
-require 'feeder/commands/update'
+require 'newsfetcher/command'
+require 'newsfetcher/commands/add'
+require 'newsfetcher/commands/dormant'
+require 'newsfetcher/commands/fix'
+require 'newsfetcher/commands/import'
+require 'newsfetcher/commands/update'
 
-module Feeder
+module NewsFetcher
 
   FeedInfoFileName = 'info.yaml'
   FeedXMLFileName = 'feed.xml'
   FeedDownloadTimeout = 30
   FeedDownloadFollowRedirectLimit = 5
-  DefaultDataDir = '~/.feeder'
+  DefaultDataDir = '~/.newsfetcher'
   StylesheetFile = Path.new(__FILE__).dirname / '../stylesheet.css'
 
   Feedjira.configure do |config|

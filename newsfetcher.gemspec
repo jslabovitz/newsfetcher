@@ -1,16 +1,16 @@
-require_relative 'lib/feeder/version'
+require_relative 'lib/newsfetcher/version'
 
 Gem::Specification.new do |s|
-  s.name          = 'feeder'
-  s.version       = Feeder::VERSION
-  s.summary       = 'Handles feeds.'
+  s.name          = 'newsfetcher'
+  s.version       = NewsFetcher::VERSION
+  s.summary       = 'Handles feeds'
   s.author        = 'John Labovitz'
   s.email         = 'johnl@johnlabovitz.com'
   s.description   = %q{
-    Feeder handles feeds
+    NewsFetcher handles feeds
   }
   s.license       = 'MIT'
-  s.homepage      = 'http://github.com/jslabovitz/feeder'
+  s.homepage      = 'http://github.com/jslabovitz/newsfetcher'
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }

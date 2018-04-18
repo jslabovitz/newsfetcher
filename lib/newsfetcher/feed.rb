@@ -1,4 +1,4 @@
-module Feeder
+module NewsFetcher
 
   class Feed
 
@@ -114,7 +114,7 @@ module Feeder
     def load_feed
       # ;;warn "#{id}: loading feed from #{@feed_link}"
       @feed_data = nil
-      response = Feeder.get(@feed_link, if_modified_since: @last_modified)
+      response = NewsFetcher.get(@feed_link, if_modified_since: @last_modified)
       return false if response.status == 304 || response.body.nil? || response.body == ''
       raise Error, "Failed to get feed: #{response.status}" unless response.success?
       begin

@@ -1,4 +1,4 @@
-module Feeder
+module NewsFetcher
 
   class Profile
 
@@ -45,7 +45,7 @@ module Feeder
     end
 
     def style
-      @style ||= Feeder::StylesheetFile.read
+      @style ||= NewsFetcher::StylesheetFile.read
     end
 
     def select_feeds(args)
@@ -74,7 +74,7 @@ module Feeder
 
     def add_feed(uri:, path: nil)
       uri = URI.parse(uri)
-      response = Feeder.get(uri)
+      response = NewsFetcher.get(uri)
       raise Error, "Failed to get URI #{uri}: #{response.status}" unless response.success?
       begin
         Feedjira::Feed.parse(response.body)
@@ -84,7 +84,7 @@ module Feeder
       end
       #FIXME: save feed
       feed = Feed.new(
-        id: [path, Feeder.uri_to_key(uri)].flatten.compact.join('/'),
+        id: [path, NewsFetcher.uri_to_key(uri)].flatten.compact.join('/'),
         feed_link: uri,
         profile: self)
       raise Error, "Feed already exists (as #{feed.id}): #{uri}" if feed.exist?

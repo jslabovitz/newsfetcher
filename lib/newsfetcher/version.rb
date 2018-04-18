@@ -1,4 +1,4 @@
-module Feeder
+module NewsFetcher
 
   VERSION = '0.1'
 

@@ -1,4 +1,4 @@
-module Feeder
+module NewsFetcher
 
   class Command < SimpleCommand
 
