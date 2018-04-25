@@ -41,7 +41,7 @@ module NewsFetcher
     end
 
     def maildir_for_feed(feed)
-      Maildir.new(Path.new(@maildir, @folder, feed.id).to_s)
+      Maildir.new((@maildir / @folder / feed.path.dirname).to_s)
     end
 
     def style
@@ -54,7 +54,7 @@ module NewsFetcher
       else
         dirs = args.map { |a| (a =~ %r{^[/~]}) ? Path.new(a) : (feeds_dir / a) }
       end
-      dirs.map { |d| Feed.load(dir: d, profile: self) }
+      dirs.map { |d| Feed.load(profile: self, path: d.relative_to(feeds_dir)) }
     end
 
     def update_feeds(feeds, **options)
@@ -64,7 +64,7 @@ module NewsFetcher
           begin
             feed.update(options)
           rescue Error => e
-            warn "#{feed.id}: #{e}"
+            warn "#{feed.path}: #{e}"
             Thread.exit
           end
         end
@@ -82,12 +82,11 @@ module NewsFetcher
         new_uri = discover_feed(response.body)
         uri = new_uri.scheme ? new_uri : (uri + new_uri)
       end
+      key = NewsFetcher.uri_to_key(uri)
+      path = Path.new(path ? "#{path}/#{key}" : key)
       #FIXME: save feed
-      feed = Feed.new(
-        id: [path, NewsFetcher.uri_to_key(uri)].flatten.compact.join('/'),
-        feed_link: uri,
-        profile: self)
-      raise Error, "Feed already exists (as #{feed.id}): #{uri}" if feed.exist?
+      feed = Feed.new(path: path, feed_link: uri, profile: self)
+      raise Error, "Feed already exists (as #{feed.path}): #{uri}" if feed.exist?
       feed.save
       ;;warn "saved new feed to #{feed.info_file}"
     end
