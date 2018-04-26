@@ -22,7 +22,8 @@ require 'newsfetcher/commands/update'
 module NewsFetcher
 
   FeedInfoFileName = 'info.yaml'
-  FeedXMLFileName = 'feed.xml'
+  FeedDataFileName = 'feed'
+  FeedHistoryFileName = 'history.db'
   FeedDownloadTimeout = 30
   FeedDownloadFollowRedirectLimit = 5
   DefaultDataDir = '~/.newsfetcher'

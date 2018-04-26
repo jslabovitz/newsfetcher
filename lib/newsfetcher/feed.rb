@@ -34,8 +34,12 @@ module NewsFetcher
       dir / FeedInfoFileName
     end
 
-    def xml_file
-      dir / FeedXMLFileName
+    def data_file
+      dir / FeedDataFileName
+    end
+
+    def history_file
+      dir / FeedHistoryFileName
     end
 
     def title
