@@ -118,7 +118,6 @@ module NewsFetcher
 
     def load_feed
       # ;;warn "#{@path}: loading feed from #{@feed_link}"
-      @feed_data = nil
       response = NewsFetcher.get(@feed_link, if_modified_since: @last_modified)
       return false if response.status == 304 || response.body.nil? || response.body == ''
       raise Error, "Failed to get feed: #{response.status}" unless response.success?
