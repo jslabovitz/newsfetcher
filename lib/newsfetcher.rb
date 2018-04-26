@@ -23,7 +23,7 @@ module NewsFetcher
 
   FeedInfoFileName = 'info.yaml'
   FeedDataFileName = 'feed'
-  FeedHistoryFileName = 'history.db'
+  FeedHistoryFileName = 'history'
   FeedDownloadTimeout = 30
   FeedDownloadFollowRedirectLimit = 5
   DefaultDataDir = '~/.newsfetcher'
