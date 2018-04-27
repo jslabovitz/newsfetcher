@@ -5,7 +5,6 @@ module NewsFetcher
     attr_accessor :title
     attr_accessor :feed_link
     attr_accessor :last_modified
-    attr_accessor :history
     attr_accessor :profile
     attr_accessor :path
 
@@ -24,15 +23,6 @@ module NewsFetcher
 
     def initialize(params={})
       params.each { |k, v| send("#{k}=", v) }
-      ##FIXME: remove once converted
-      if @history
-        ;;warn "#{@path}: converting history to SDBM file"
-        old_history = @history
-        @history = nil
-        open_history
-        old_history.each { |k, v| @history[k.to_s] = v.to_s }
-        save
-      end
     end
 
     def dir
