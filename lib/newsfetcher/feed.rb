@@ -130,7 +130,7 @@ module NewsFetcher
             break if limit && count >= limit
           end
         end
-        save
+        save  ##FIXME: remove once last_modified is removed from info file
       end
     end
 
