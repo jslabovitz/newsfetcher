@@ -13,6 +13,7 @@ module NewsFetcher
       info_file = profile.feeds_dir / path / FeedInfoFileName
       raise Error, "Feed info file does not exist: #{info_file}" unless info_file.exist?
       info = YAML.load(info_file.read)
+      raise Error, "Bad info file: #{info_file}" unless info && !info.empty?
       new(
         info.merge(
           path: path,
