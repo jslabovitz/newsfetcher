@@ -1,5 +1,6 @@
 require 'date'
 require 'path'
+require 'sdbm'
 require 'uri'
 require 'yaml'
 require 'mail'

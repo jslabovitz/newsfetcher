@@ -22,8 +22,16 @@ module NewsFetcher
     end
 
     def initialize(params={})
-      @history = {}
       params.each { |k, v| send("#{k}=", v) }
+      ##FIXME: remove once converted
+      if @history
+        ;;warn "#{@path}: converting history to SDBM file"
+        old_history = @history
+        @history = nil
+        open_history
+        old_history.each { |k, v| @history[k.to_s] = v.to_s }
+        save
+      end
     end
 
     def dir
@@ -57,12 +65,15 @@ module NewsFetcher
       end
     end
 
+    def open_history
+      @history ||= SDBM.open(history_file)
+    end
+
     def to_yaml
       {
         'title' => @title,
         'feed_link' => @feed_link.to_s,
         'last_modified' => @last_modified.dup,    # to avoid YAML references
-        'history' => @history,
       }.to_yaml(line_width: -1)
     end
 
@@ -92,9 +103,11 @@ module NewsFetcher
     def update(ignore_history: false, limit: nil)
       if load_feed
         maildir = @profile.maildir_for_feed(self)
+        open_history
         count = 0
         @feed.entries.each do |entry|
           entry_id = entry.entry_id || entry.url or raise Error, "#{@path}: Can't determine entry ID"
+          entry_id = entry_id.to_s
           if ignore_history || !@history[entry_id]
             puts
             puts "#{@path}:"
@@ -111,7 +124,7 @@ module NewsFetcher
               m.body =         content
             end
             maildir.add(mail)
-            @history[entry_id] = entry.published || Time.now
+            @history[entry_id] = (entry.published || Time.now).to_s
             count += 1
             break if limit && count >= limit
           end
