@@ -114,6 +114,7 @@ module NewsFetcher
             puts "\t%10s: %s" % ['entry ID', entry_id]
             puts "\t%10s: %s" % ['maildir', maildir.path]
             puts "\t%10s: %s" % ['email', mail_address]
+            raise Error, "Bad feed entry" unless entry.published && entry.title
             content = make_content(entry)
             mail = Mail.new.tap do |m|
               m.date =         entry.published
