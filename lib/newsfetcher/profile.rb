@@ -48,23 +48,27 @@ module NewsFetcher
       @style ||= NewsFetcher::StylesheetFile.read
     end
 
-    def select_feeds(args)
-      if args.empty?
-        dirs = feeds_dir.glob("**/#{FeedInfoFileName}").map(&:dirname)
-      else
-        dirs = args.map { |a| (a =~ %r{^[/~]}) ? Path.new(a) : (feeds_dir / a) }
-      end
-      dirs.map { |d| Feed.load(profile: self, path: d.relative_to(feeds_dir)) }
+    def load_feed(dir)
+      Feed.load(profile: self, path: dir.relative_to(feeds_dir))
     end
 
-    def update_feeds(feeds, **options)
+    def feed_dirs_for_args(args)
+      if args.empty?
+        feeds_dir.glob("**/#{FeedInfoFileName}").map(&:dirname)
+      else
+        args.map { |a| (a =~ %r{^[/~]}) ? Path.new(a) : (feeds_dir / a) }
+      end
+    end
+
+    def update_feeds(feed_dirs, **options)
       threads = []
-      feeds.each do |feed|
+      feed_dirs.each do |feed_dir|
         threads << Thread.new do
           begin
+            feed = load_feed(feed_dir)
             feed.update(options)
           rescue Error => e
-            warn "#{feed.path}: #{e}"
+            warn "#{feed_dir}: #{e}"
             Thread.exit
           end
         end
