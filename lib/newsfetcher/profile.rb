@@ -61,19 +61,19 @@ module NewsFetcher
     end
 
     def update_feeds(feed_dirs, **options)
-      threads = []
+      # threads = []
       feed_dirs.each do |feed_dir|
-        threads << Thread.new do
+        # threads << Thread.new do
           begin
             feed = load_feed(feed_dir)
             feed.update(options)
           rescue Error => e
             warn "#{feed_dir}: #{e}"
-            Thread.exit
+            # Thread.exit
           end
-        end
+        # end
       end
-      threads.map(&:join)
+      # threads.map(&:join)
     end
 
     def add_feed(uri:, path: nil)
