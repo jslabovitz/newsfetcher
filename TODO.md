@@ -5,8 +5,6 @@
 
 - Save feed XML file.
 
-- Move history data into history.yaml (or history.db, if gdbm).
-
 - Get last_modified from mtime of feed XML file.
 
 - Move entry-specific code into Entry class.
