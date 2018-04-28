@@ -3,10 +3,6 @@
 - Split #update into #fetch and #process.
   - Add subcommands: update/fetch/process.
 
-- Save feed XML file.
-
-- Get last_modified from mtime of feed XML file.
-
 - Move entry-specific code into Entry class.
 
 - Copy Feedjira data into Feed/Entry objects.
