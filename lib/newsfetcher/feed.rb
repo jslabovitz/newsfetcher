@@ -91,10 +91,10 @@ module NewsFetcher
       end
     end
 
-    DaySeconds = (24*60*60).to_f
+    DaySeconds = 24 * 60 * 60
 
     def dormant_days
-      (t = dormant_time) ? (t / DaySeconds) : t
+      (t = dormant_time.to_f) ? (t / DaySeconds) : t
     end
 
     def update(ignore_history: false, limit: nil)
