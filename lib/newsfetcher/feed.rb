@@ -56,6 +56,10 @@ module NewsFetcher
       end
     end
 
+    def maildir
+      @maildir ||= @profile.maildir_for_feed(self)
+    end
+
     def open_history
       @history ||= SDBM.open(history_file)
     end
@@ -93,7 +97,6 @@ module NewsFetcher
 
     def update(ignore_history: false, limit: nil)
       if load_feed
-        maildir = @profile.maildir_for_feed(self)
         open_history
         count = 0
         @feed.entries.each do |entry|
