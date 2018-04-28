@@ -102,7 +102,6 @@ module NewsFetcher
         @feed.entries.each do |entry|
           entry_id = entry.entry_id || entry.url or raise Error, "#{@path}: Can't determine entry ID"
           entry_id = entry_id.to_s
-          raise Error, "#{@path}: Bad feed entry: #{entry_id.inspect}" unless entry.title
           if ignore_history || !@history[entry_id]
             send_entry(entry)
             @history[entry_id] = (entry.published || Time.now).to_s
@@ -115,12 +114,14 @@ module NewsFetcher
     end
 
     def send_entry(entry)
-      ;;puts "#{@path}: #{entry.title.strip.inspect} => #{maildir.path}"
+      entry_title = entry.title.to_s.strip
+      entry_title = 'untitled' if entry_title.empty?
+      ;;puts "#{@path}: #{entry_title.inspect} => #{maildir.path}"
       mail = Mail.new.tap do |m|
         m.date =         entry.published
         m.from =         mail_address
         m.to =           mail_address
-        m.subject =      entry.title.strip
+        m.subject =      entry_title
         m.content_type = 'text/html; charset=UTF-8'
         m.body =         make_content(entry)
       end
