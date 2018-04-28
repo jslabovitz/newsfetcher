@@ -14,9 +14,9 @@ module NewsFetcher
           feed = @profile.load_feed(feed_dir)
           days = feed.dormant_days
           if days.nil?
-            puts "#{feed.id}: never modified"
+            puts "#{feed.path}: never modified"
           elsif days > @period
-            puts "#{feed.id}: last modified #{days.to_i} days ago"
+            puts "#{feed.path}: last modified %.1f days ago" % days
           end
         end
       end
