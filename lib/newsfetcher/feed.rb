@@ -99,13 +99,13 @@ module NewsFetcher
         @feed.entries.each do |entry|
           entry_id = entry.entry_id || entry.url or raise Error, "#{@path}: Can't determine entry ID"
           entry_id = entry_id.to_s
+          raise Error, "#{@path}: Bad feed entry: #{entry_id.inspect}" unless entry.title
           if ignore_history || !@history[entry_id]
             puts
             puts "#{@path}:"
             puts "\t%10s: %s" % ['entry ID', entry_id]
             puts "\t%10s: %s" % ['maildir', maildir.path]
             puts "\t%10s: %s" % ['email', mail_address]
-            raise Error, "Bad feed entry: #{entry.inspect}" unless entry.title
             content = make_content(entry)
             mail = Mail.new.tap do |m|
               m.date =         entry.published
