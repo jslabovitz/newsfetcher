@@ -104,21 +104,7 @@ module NewsFetcher
           entry_id = entry_id.to_s
           raise Error, "#{@path}: Bad feed entry: #{entry_id.inspect}" unless entry.title
           if ignore_history || !@history[entry_id]
-            puts
-            puts "#{@path}:"
-            puts "\t%10s: %s" % ['entry ID', entry_id]
-            puts "\t%10s: %s" % ['maildir', maildir.path]
-            puts "\t%10s: %s" % ['email', mail_address]
-            content = make_content(entry)
-            mail = Mail.new.tap do |m|
-              m.date =         entry.published
-              m.from =         mail_address
-              m.to =           mail_address
-              m.subject =      entry.title.strip
-              m.content_type = 'text/html; charset=UTF-8'
-              m.body =         content
-            end
-            maildir.add(mail)
+            send_entry(entry)
             @history[entry_id] = (entry.published || Time.now).to_s
             count += 1
             break if limit && count >= limit
@@ -126,6 +112,19 @@ module NewsFetcher
         end
         save  ##FIXME: remove once last_modified is removed from info file
       end
+    end
+
+    def send_entry(entry)
+      ;;puts "#{@path}: #{entry.title.strip.inspect} => #{maildir.path}"
+      mail = Mail.new.tap do |m|
+        m.date =         entry.published
+        m.from =         mail_address
+        m.to =           mail_address
+        m.subject =      entry.title.strip
+        m.content_type = 'text/html; charset=UTF-8'
+        m.body =         make_content(entry)
+      end
+      maildir.add(mail)
     end
 
     def load_feed
