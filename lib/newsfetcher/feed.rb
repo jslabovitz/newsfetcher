@@ -4,7 +4,6 @@ module NewsFetcher
 
     attr_accessor :title
     attr_accessor :feed_link
-    attr_accessor :last_modified    ## FIXME: remove after conversion
     attr_accessor :profile
     attr_accessor :path
 
@@ -190,8 +189,6 @@ module NewsFetcher
     end
 
     def fix
-      load_feed unless data_file.exist?
-      save
     end
 
   end
