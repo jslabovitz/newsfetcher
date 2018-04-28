@@ -130,12 +130,14 @@ module NewsFetcher
       response = NewsFetcher.get(@feed_link, if_modified_since: @last_modified)
       return false if response.status == 304 || response.body.nil? || response.body == ''
       raise Error, "Failed to get feed: #{response.status}" unless response.success?
+      data_file.open('w') { |io| io.write(response.body) }
       begin
         @feed = Feedjira::Feed.parse(response.body)
       rescue Feedjira::NoParserAvailable => e
         raise Error, "Can't parse feed: #{e}"
       end
       @last_modified = @feed.last_modified
+      data_file.utime(@feed.last_modified, @feed.last_modified)
       true
     end
 
