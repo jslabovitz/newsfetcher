@@ -45,6 +45,10 @@ module NewsFetcher
       @title || (@feed ? @feed.title : nil)
     end
 
+    def last_modified
+      data_file.exist? ? data_file.mtime : nil
+    end
+
     def mail_address
       Mail::Address.new.tap do |a|
         a.display_name = title
@@ -68,7 +72,6 @@ module NewsFetcher
       {
         'title' => @title,
         'feed_link' => @feed_link.to_s,
-        'last_modified' => @last_modified.dup,    # to avoid YAML references
       }.to_yaml(line_width: -1)
     end
 
@@ -82,8 +85,8 @@ module NewsFetcher
     end
 
     def dormant_time
-      if @last_modified
-        Time.now - @last_modified
+      if last_modified
+        Time.now - last_modified
       else
         nil
       end
@@ -109,7 +112,6 @@ module NewsFetcher
             break if limit && count >= limit
           end
         end
-        save  ##FIXME: remove once last_modified is removed from info file
       end
     end
 
@@ -130,7 +132,7 @@ module NewsFetcher
 
     def load_feed
       # ;;warn "#{@path}: loading feed from #{@feed_link}"
-      response = NewsFetcher.get(@feed_link, if_modified_since: @last_modified)
+      response = NewsFetcher.get(@feed_link, if_modified_since: last_modified)
       return false if response.status == 304 || response.body.nil? || response.body == ''
       raise Error, "Failed to get feed: #{response.status}" unless response.success?
       data_file.open('w') { |io| io.write(response.body) }
@@ -139,7 +141,6 @@ module NewsFetcher
       rescue Feedjira::NoParserAvailable => e
         raise Error, "Can't parse feed: #{e}"
       end
-      @last_modified = @feed.last_modified
       data_file.utime(@feed.last_modified, @feed.last_modified)
       true
     end
