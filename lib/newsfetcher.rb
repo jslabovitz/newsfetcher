@@ -9,6 +9,7 @@ require 'faraday'
 require 'feedjira'
 require 'nokogiri-plist'
 require 'simple-command'
+require 'erb'
 
 require 'newsfetcher/profile'
 require 'newsfetcher/feed'
@@ -29,6 +30,7 @@ module NewsFetcher
   FeedDownloadFollowRedirectLimit = 5
   DefaultDataDir = '~/.newsfetcher'
   StylesheetFile = Path.new(__FILE__).dirname / '../stylesheet.css'
+  MessageTemplateFile = Path.new(__FILE__).dirname / '../message.rhtml'
 
   Feedjira.configure do |config|
     config.strip_whitespace = true

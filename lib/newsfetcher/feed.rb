@@ -145,38 +145,16 @@ module NewsFetcher
     end
 
     def make_content(entry)
-      doc = Nokogiri::HTML::Document.new
-      doc.encoding = 'UTF-8'
-      doc.internal_subset.remove
-      doc.create_internal_subset('html', nil, nil)
-      Nokogiri::HTML::Builder.with(doc) do |html|
-        html.html do
-          html.head do
-            html.style(@profile.style)
-          end
-          html.body do
-            html.div(class: 'bar') do
-              html << title
-            end
-            html.h1 do
-              html.a(href: entry.url) { html << entry.title }
-            end
-            if entry.respond_to?(:author) && entry.author
-              html.div(class: 'author') { html << entry.author }
-            end
-            if entry.respond_to?(:image) && entry.image
-              html.div(class: 'image') { html.img(src: entry.image) }
-            end
-            html.div(class: 'content') { html << parse_content(entry).to_html }
-            if @feed.respond_to?(:description) && @feed.description
-              html.div(class: 'bar') do
-                html << @feed.description
-              end
-            end
-          end
-        end
-      end
-      doc.to_s
+      ERB.new(@profile.message_template).result_with_hash(
+        style: @profile.style,
+        feed_title: @feed.title,
+        feed_description: @feed.respond_to?(:description) ? @feed.description : nil,
+        title: entry.title,
+        url: entry.url,
+        author: entry.respond_to?(:author) ? entry.author : nil,
+        image: entry.respond_to?(:image) ? entry.image : nil,
+        content: parse_content(entry).to_html,
+      )
     end
 
     def parse_content(entry)

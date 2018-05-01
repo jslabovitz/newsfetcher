@@ -7,8 +7,6 @@
 
 - Copy Feedjira data into Feed/Entry objects.
 
-- Move HTML generation to ERB template?
-
 - Allow stylesheets to be added/changed.
 
 - Fix feeds:

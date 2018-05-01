@@ -48,6 +48,10 @@ module NewsFetcher
       @style ||= NewsFetcher::StylesheetFile.read
     end
 
+    def message_template
+      @message_template ||= MessageTemplateFile.read
+    end
+
     def load_feed(dir)
       Feed.load(profile: self, path: dir.relative_to(feeds_dir))
     end
