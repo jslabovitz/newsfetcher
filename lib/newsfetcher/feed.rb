@@ -162,7 +162,7 @@ module NewsFetcher
       html.xpath('div[@class="feedflare"]').each(&:remove)
       html.xpath('img[@height="1" and @width="1"]').each(&:remove)
       #FIXME: doesn't work
-      html.search('iframe').each { |e| e.delete('width'); e.delete('height') }
+      # html.search('iframe').each { |e| e.delete('width'); e.delete('height') }
       html
     end
 
