@@ -40,10 +40,6 @@ module NewsFetcher
       dir / FeedHistoryFileName
     end
 
-    def title
-      @title || (@feed ? @feed.title : nil)
-    end
-
     def last_modified
       data_file.exist? ? data_file.mtime : nil
     end
@@ -61,10 +57,6 @@ module NewsFetcher
 
     def maildir
       @maildir ||= @profile.maildir_for_feed(self)
-    end
-
-    def open_history
-      @history ||= SDBM.open(history_file)
     end
 
     def to_yaml
@@ -102,32 +94,42 @@ module NewsFetcher
     end
 
     def process(ignore_history: false, limit: nil)
-      parse_feed
-      open_history
-      count = 0
-      @feed.entries.each do |entry|
-        entry_id = entry.entry_id || entry.url or raise Error, "#{@path}: Can't determine entry ID"
-        entry_id = entry_id.to_s
-        if ignore_history || !@history[entry_id]
-          send_entry(entry)
-          @history[entry_id] = (entry.published || Time.now).to_s
-          count += 1
-          break if limit && count >= limit
+      SDBM.open(history_file) do |history|
+        count = 0
+        jira_feed = parse_feed
+        jira_feed.entries.each do |entry|
+          entry_id = entry.entry_id || entry.url or raise Error, "#{@path}: Can't determine entry ID"
+          entry_id = entry_id.to_s
+          if ignore_history || !history[entry_id]
+            item = {
+              date: entry.published || Time.now,
+              style: @profile.style,
+              feed_title: @title || jira_feed.title || 'untitled',
+              feed_description: jira_feed.respond_to?(:description) ? jira_feed.description : nil,
+              title: (t = entry.title.to_s.strip).empty? ? 'untitled' : t,
+              url: entry.url,
+              author: entry.respond_to?(:author) ? entry.author : nil,
+              image: entry.respond_to?(:image) ? entry.image : nil,
+              content: parse_content(entry.content || entry.summary).to_html,
+            }
+            send_item(item)
+            history[entry_id] = item[:date].to_s
+            count += 1
+            break if limit && count >= limit
+          end
         end
       end
     end
 
-    def send_entry(entry)
-      entry_title = entry.title.to_s.strip
-      entry_title = 'untitled' if entry_title.empty?
-      ;;warn "#{@path}: #{entry_title.inspect} => #{maildir.path}"
+    def send_item(item)
+      ;;warn "#{@path}: #{item[:title].inspect} => #{maildir.path}"
       mail = Mail.new.tap do |m|
-        m.date =         entry.published
+        m.date =         item[:date],
         m.from =         mail_address
         m.to =           mail_address
-        m.subject =      entry_title
+        m.subject =      item[:title]
         m.content_type = 'text/html; charset=UTF-8'
-        m.body =         make_content(entry)
+        m.body         = ERB.new(@profile.message_template).result_with_hash(item)
       end
       maildir.add(mail)
     end
@@ -135,7 +137,7 @@ module NewsFetcher
     def load_feed
       ;;warn "#{@path}: loading feed from #{@feed_link}"
       headers = {}
-      headers[:if_modified_since] = data_file.mtime.rfc2822 if data_file.exist?
+      headers[:if_modified_since] = last_modified.rfc2822 if last_modified
       begin
         connection = Faraday.new(
           url: @feed_link,
@@ -166,27 +168,14 @@ module NewsFetcher
       raise Error, "No feed data file" unless data_file.exist?
       data = data_file.read
       begin
-        @feed = Feedjira::Feed.parse(data)
+        Feedjira::Feed.parse(data)
       rescue Feedjira::NoParserAvailable => e
         raise Error, "Can't parse feed: #{e}"
       end
     end
 
-    def make_content(entry)
-      ERB.new(@profile.message_template).result_with_hash(
-        style: @profile.style,
-        feed_title: @feed.title,
-        feed_description: @feed.respond_to?(:description) ? @feed.description : nil,
-        title: entry.title,
-        url: entry.url,
-        author: entry.respond_to?(:author) ? entry.author : nil,
-        image: entry.respond_to?(:image) ? entry.image : nil,
-        content: parse_content(entry).to_html,
-      )
-    end
-
-    def parse_content(entry)
-      html = Nokogiri::HTML::DocumentFragment.parse(entry.content || entry.summary)
+    def parse_content(content)
+      html = Nokogiri::HTML::DocumentFragment.parse(content)
       html.xpath('div[@class="feedflare"]').each(&:remove)
       html.xpath('img[@height="1" and @width="1"]').each(&:remove)
       #FIXME: doesn't work
