@@ -56,29 +56,32 @@ module NewsFetcher
       Feed.load(profile: self, path: dir.relative_to(feeds_dir))
     end
 
-    def feed_dirs_for_args(args)
+    def feeds(args=[])
       if args.empty?
-        feeds_dir.glob("**/#{FeedInfoFileName}").map(&:dirname)
+        dirs = feeds_dir.glob("**/#{FeedInfoFileName}").map(&:dirname)
       else
-        args.map { |a| (a =~ %r{^[/~]}) ? Path.new(a) : (feeds_dir / a) }
+        dirs = args.map { |a| (a =~ %r{^[/~]}) ? Path.new(a) : (feeds_dir / a) }
+      end
+      dirs.map do |dir|
+        Feed.load(profile: self, path: dir)
       end
     end
 
-    def update_feeds(feed_dirs, **options)
-      # threads = []
-      feed_dirs.each do |feed_dir|
-        # threads << Thread.new do
-          begin
-            feed = load_feed(feed_dir)
-            feed.update(options)
-          rescue Error => e
-            warn "#{feed_dir}: #{e}"
-            # Thread.exit
-          end
-        # end
-      end
-      # threads.map(&:join)
-    end
+    # def update_feeds(feed_dirs, **options)
+    #   # threads = []
+    #   feed_dirs.each do |feed_dir|
+    #     # threads << Thread.new do
+    #       begin
+    #         feed = load_feed(feed_dir)
+    #         feed.update(options)
+    #       rescue Error => e
+    #         warn "#{feed_dir}: #{e}"
+    #         # Thread.exit
+    #       end
+    #     # end
+    #   end
+    #   # threads.map(&:join)
+    # end
 
     def add_feed(uri:, path: nil)
       uri = URI.parse(uri)

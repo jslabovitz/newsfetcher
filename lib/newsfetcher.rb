@@ -54,23 +54,4 @@ module NewsFetcher
       gsub(/\s+/, '-')
   end
 
-  def self.get(uri, if_modified_since: nil)
-    headers = {}
-    headers[:if_modified_since] = if_modified_since.rfc2822 if if_modified_since
-    begin
-      connection = Faraday.new(
-        url: uri,
-        headers: headers,
-        request: { timeout: FeedDownloadTimeout },
-        ssl: { verify: false },
-      ) do |conn|
-        conn.use(FaradayMiddleware::FollowRedirects, limit: FeedDownloadFollowRedirectLimit)
-        conn.adapter(*Faraday.default_adapter)
-      end
-      connection.get
-    rescue Faraday::Error, Zlib::BufError => e
-      raise Error, "Failed to download resource from #{uri}: #{e}"
-    end
-  end
-
 end

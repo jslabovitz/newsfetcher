@@ -97,19 +97,22 @@ module NewsFetcher
       (t = dormant_time.to_f) ? (t / DaySeconds) : t
     end
 
-    def update(ignore_history: false, limit: nil)
-      if load_feed
-        open_history
-        count = 0
-        @feed.entries.each do |entry|
-          entry_id = entry.entry_id || entry.url or raise Error, "#{@path}: Can't determine entry ID"
-          entry_id = entry_id.to_s
-          if ignore_history || !@history[entry_id]
-            send_entry(entry)
-            @history[entry_id] = (entry.published || Time.now).to_s
-            count += 1
-            break if limit && count >= limit
-          end
+    def update
+      load_feed
+    end
+
+    def process(ignore_history: false, limit: nil)
+      parse_feed
+      open_history
+      count = 0
+      @feed.entries.each do |entry|
+        entry_id = entry.entry_id || entry.url or raise Error, "#{@path}: Can't determine entry ID"
+        entry_id = entry_id.to_s
+        if ignore_history || !@history[entry_id]
+          send_entry(entry)
+          @history[entry_id] = (entry.published || Time.now).to_s
+          count += 1
+          break if limit && count >= limit
         end
       end
     end
@@ -130,18 +133,43 @@ module NewsFetcher
     end
 
     def load_feed
-      # ;;warn "#{@path}: loading feed from #{@feed_link}"
-      response = NewsFetcher.get(@feed_link, if_modified_since: last_modified)
-      return false if response.status == 304 || response.body.nil? || response.body == ''
-      raise Error, "Failed to get feed: #{response.status}" unless response.success?
-      data_file.open('w') { |io| io.write(response.body) }
+      ;;warn "#{@path}: loading feed from #{@feed_link}"
+      headers = {}
+      headers[:if_modified_since] = data_file.mtime.rfc2822 if data_file.exist?
       begin
-        @feed = Feedjira::Feed.parse(response.body)
+        connection = Faraday.new(
+          url: @feed_link,
+          headers: headers,
+          request: { timeout: FeedDownloadTimeout },
+          ssl: { verify: false },
+        ) do |conn|
+          conn.use(FaradayMiddleware::FollowRedirects, limit: FeedDownloadFollowRedirectLimit)
+          conn.adapter(*Faraday.default_adapter)
+        end
+        response = connection.get
+        if response.status == 304
+          return
+        elsif response.success?
+          raise Error, 'empty response' if response.body.to_s.empty?
+          last_modified = Time.parse(response.headers[:last_modified] || response.headers[:date])
+          data_file.open('w') { |io| io.write(response.body) }
+          data_file.utime(last_modified, last_modified)
+        else
+          raise Error, "Failed to get feed: #{response.status}"
+        end
+      rescue Faraday::Error, Zlib::BufError => e
+        raise Error, "Failed to download resource from #{@feed_link}: #{e}"
+      end
+    end
+
+    def parse_feed
+      raise Error, "No feed data file" unless data_file.exist?
+      data = data_file.read
+      begin
+        @feed = Feedjira::Feed.parse(data)
       rescue Feedjira::NoParserAvailable => e
         raise Error, "Can't parse feed: #{e}"
       end
-      data_file.utime(@feed.last_modified, @feed.last_modified)
-      true
     end
 
     def make_content(entry)
