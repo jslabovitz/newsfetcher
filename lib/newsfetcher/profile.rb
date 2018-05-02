@@ -41,7 +41,12 @@ module NewsFetcher
     end
 
     def maildir_for_feed(feed)
-      Maildir.new((@maildir / @folder / feed.path.dirname).to_s)
+      elems = [
+        @maildir,
+        @folder,
+        feed.path.dirname.relative_to(feeds_dir),
+      ]
+      Maildir.new(Path.new(*elems).to_s)
     end
 
     def style
