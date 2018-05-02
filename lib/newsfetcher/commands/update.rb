@@ -10,7 +10,10 @@ module NewsFetcher
       attr_accessor :limit
 
       def run(args)
-        @profile.update_feeds(@profile.feed_dirs_for_args(args), ignore_history: @ignore_history, limit: @limit)
+        @profile.feeds(args).each do |feed|
+          feed.update
+          feed.process(ignore_history: @ignore_history, limit: @limit)
+        end
       end
 
     end

@@ -11,8 +11,7 @@ module NewsFetcher
 
       def run(args)
         report = Hash[
-          @profile.feed_dirs_for_args(args).map do |feed_dir|
-            feed = @profile.load_feed(feed_dir)
+          @profile.feeds(args).map do |feed|
             [feed.path, feed.dormant_days]
           end
         ]

@@ -7,8 +7,7 @@ module NewsFetcher
       register_command 'fix'
 
       def run(args)
-        @profile.feed_dirs_for_args(args).each do |feed_dir|
-          feed = @profile.load_feed(feed_dir)
+        @profile.feeds(args).each do |feed|
           feed.fix
         end
       end
