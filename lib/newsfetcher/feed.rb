@@ -120,7 +120,7 @@ module NewsFetcher
     def send_entry(entry)
       entry_title = entry.title.to_s.strip
       entry_title = 'untitled' if entry_title.empty?
-      ;;puts "#{@path}: #{entry_title.inspect} => #{maildir.path}"
+      ;;warn "#{@path}: #{entry_title.inspect} => #{maildir.path}"
       mail = Mail.new.tap do |m|
         m.date =         entry.published
         m.from =         mail_address
