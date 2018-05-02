@@ -19,6 +19,7 @@ require 'newsfetcher/commands/add'
 require 'newsfetcher/commands/dormant'
 require 'newsfetcher/commands/fix'
 require 'newsfetcher/commands/import'
+require 'newsfetcher/commands/process'
 require 'newsfetcher/commands/update'
 
 module NewsFetcher
