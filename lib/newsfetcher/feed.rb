@@ -150,9 +150,10 @@ module NewsFetcher
         end
         response = connection.get
         if response.status == 304
+          ;;warn "#{@path}: not modified: #{@feed_link}"
           return
         elsif response.success?
-          raise Error, 'empty response' if response.body.to_s.empty?
+          ;;raise Error, 'empty response' if response.body.to_s.empty?
           last_modified = Time.parse(response.headers[:last_modified] || response.headers[:date])
           data_file.open('w') { |io| io.write(response.body) }
           data_file.utime(last_modified, last_modified)
