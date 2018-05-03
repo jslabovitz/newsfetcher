@@ -135,7 +135,6 @@ module NewsFetcher
     end
 
     def load_feed
-      ;;warn "#{@path}: loading feed from #{@feed_link}"
       headers = {}
       headers[:if_modified_since] = last_modified.rfc2822 if last_modified
       begin
@@ -150,10 +149,11 @@ module NewsFetcher
         end
         response = connection.get
         if response.status == 304
-          ;;warn "#{@path}: not modified: #{@feed_link}"
+          ;;warn "#{@path}: feed not modified: #{@feed_link}"
           return
         elsif response.success?
           ;;raise Error, 'empty response' if response.body.to_s.empty?
+          ;;warn "#{@path}: loaded feed: #{@feed_link}"
           last_modified = Time.parse(response.headers[:last_modified] || response.headers[:date])
           data_file.open('w') { |io| io.write(response.body) }
           data_file.utime(last_modified, last_modified)
