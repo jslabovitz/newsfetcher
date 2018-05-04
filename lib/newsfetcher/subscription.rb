@@ -79,8 +79,9 @@ module NewsFetcher
     end
 
     def dormant_time
-      if last_modified
-        Time.now - last_modified
+      history = SDBM.open(history_file)
+      if (latest = history.values.map { |v| Time.parse(v) }.sort.last)
+        Time.now - latest
       else
         nil
       end
