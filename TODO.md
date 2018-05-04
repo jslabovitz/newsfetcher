@@ -1,11 +1,6 @@
 - Add lock files (per profile? per feed?) to avoid multiple processes.
 
-- Split #update into #fetch and #process.
-  - Add subcommands: update/fetch/process.
-
-- Move entry-specific code into Entry class.
-
-- Copy Feedjira data into Feed/Entry objects.
+- Rename Feed/Entry to Subscription/Item.
 
 - Allow stylesheets to be added/changed.
 
