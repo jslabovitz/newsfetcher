@@ -118,7 +118,7 @@ module NewsFetcher
 
     def dormancy_report(args, period: nil)
       Hash[
-        subscriptions(args).select { |s| period.nil? || subscription.dormant_days >= period }.map do |subscription|
+        subscriptions(args).select { |s| period.nil? || s.dormant_days >= period }.map do |subscription|
           [subscription.path, subscription.dormant_days]
         end
       ].sort_by { |k, v| v }.reverse
