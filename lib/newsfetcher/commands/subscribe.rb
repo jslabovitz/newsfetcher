@@ -2,9 +2,9 @@ module NewsFetcher
 
   module Commands
 
-    class Add < Command
+    class Subscribe < Command
 
-      register_command 'add'
+      register_command 'subscribe'
 
       def run(args)
         raise Error, "No profile specified" unless @profile
