@@ -188,6 +188,7 @@ module NewsFetcher
     end
 
     def fix
+      save
     end
 
   end
