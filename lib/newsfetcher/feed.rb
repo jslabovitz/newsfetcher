@@ -44,7 +44,7 @@ module NewsFetcher
       data_file.exist? ? data_file.mtime : nil
     end
 
-    def mail_address
+    def mail_address(title)
       Mail::Address.new.tap do |a|
         a.display_name = title
         a.address = "%s+%s@%s" % [
@@ -125,8 +125,7 @@ module NewsFetcher
       ;;warn "#{@path}: #{item[:title].inspect} => #{maildir.path}"
       mail = Mail.new.tap do |m|
         m.date =         item[:date],
-        m.from =         mail_address
-        m.to =           mail_address
+        m.from = m.to =  mail_address(item[:title])
         m.subject =      item[:title]
         m.content_type = 'text/html; charset=UTF-8'
         m.body         = ERB.new(@profile.message_template).result_with_hash(item)
