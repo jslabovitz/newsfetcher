@@ -15,11 +15,11 @@ require 'newsfetcher/profile'
 require 'newsfetcher/subscription'
 
 require 'newsfetcher/command'
-require 'newsfetcher/commands/add'
 require 'newsfetcher/commands/dormant'
 require 'newsfetcher/commands/fix'
 require 'newsfetcher/commands/import'
 require 'newsfetcher/commands/process'
+require 'newsfetcher/commands/subscribe'
 require 'newsfetcher/commands/update'
 
 module NewsFetcher
