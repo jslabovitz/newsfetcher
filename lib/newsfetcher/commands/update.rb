@@ -7,11 +7,11 @@ module NewsFetcher
       register_command 'update'
 
       def run(args)
-        @profile.feeds(args).each do |feed|
+        @profile.subscriptions(args).each do |subscription|
           begin
-            feed.update
+            subscription.update
           rescue Error => e
-            warn "#{feed.path}: #{e}"
+            warn "#{subscription.path}: #{e}"
           end
         end
       end

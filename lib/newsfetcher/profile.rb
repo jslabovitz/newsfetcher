@@ -8,7 +8,7 @@ module NewsFetcher
     attr_accessor :email
 
     def self.load(dir)
-      info_file = dir / 'info.yaml'
+      info_file = dir / InfoFileName
       new(YAML.load(info_file.read).merge(root_dir: dir))
     end
 
@@ -36,15 +36,15 @@ module NewsFetcher
       }.to_yaml(line_width: -1)
     end
 
-    def feeds_dir
+    def subscriptions_dir
       @root_dir / 'feeds'
     end
 
-    def maildir_for_feed(feed)
+    def maildir_for_subscription(subscription)
       elems = [
         @maildir,
         @folder,
-        feed.path.dirname.relative_to(feeds_dir),
+        subscription.path.dirname.relative_to(subscriptions_dir),
       ]
       Maildir.new(Path.new(*elems).to_s)
     end
@@ -57,38 +57,22 @@ module NewsFetcher
       @message_template ||= MessageTemplateFile.read
     end
 
-    def load_feed(dir)
-      Feed.load(profile: self, path: dir.relative_to(feeds_dir))
+    def load_subscription(dir)
+      Subscription.load(profile: self, path: dir.relative_to(subscriptions_dir))
     end
 
-    def feeds(args=[])
+    def subscriptions(args=[])
       if args.empty?
-        dirs = feeds_dir.glob("**/#{FeedInfoFileName}").map(&:dirname)
+        dirs = subscriptions_dir.glob("**/#{InfoFileName}").map(&:dirname)
       else
-        dirs = args.map { |a| (a =~ %r{^[/~]}) ? Path.new(a) : (feeds_dir / a) }
+        dirs = args.map { |a| (a =~ %r{^[/~]}) ? Path.new(a) : (subscriptions_dir / a) }
       end
       dirs.map do |dir|
-        Feed.load(profile: self, path: dir)
+        Subscription.load(profile: self, path: dir)
       end
     end
 
-    # def update_feeds(feed_dirs, **options)
-    #   # threads = []
-    #   feed_dirs.each do |feed_dir|
-    #     # threads << Thread.new do
-    #       begin
-    #         feed = load_feed(feed_dir)
-    #         feed.update(options)
-    #       rescue Error => e
-    #         warn "#{feed_dir}: #{e}"
-    #         # Thread.exit
-    #       end
-    #     # end
-    #   end
-    #   # threads.map(&:join)
-    # end
-
-    def add_feed(uri:, path: nil)
+    def subscribe(uri:, path: nil)
       uri = URI.parse(uri)
       response = NewsFetcher.get(uri)
       raise Error, "Failed to get URI #{uri}: #{response.status}" unless response.success?
@@ -100,24 +84,24 @@ module NewsFetcher
       end
       key = NewsFetcher.uri_to_key(uri)
       path = Path.new(path ? "#{path}/#{key}" : key)
-      #FIXME: save feed
-      feed = Feed.new(path: path, feed_link: uri, profile: self)
-      raise Error, "Feed already exists (as #{feed.path}): #{uri}" if feed.exist?
-      feed.save
-      ;;warn "saved new feed to #{feed.info_file}"
+      #FIXME: save feed data
+      subscription = Subscription.new(path: path, link: uri, profile: self)
+      raise Error, "Subscription already exists (as #{subscription.path}): #{uri}" if subscription.exist?
+      subscription.save
+      ;;warn "saved new subscription to #{subscription.path}"
     end
 
     def discover_feed(html_str)
-      feeds = find_alternate_links(html_str)
-      raise Error, "No alternate links" if feeds.empty?
+      links = find_alternate_links(html_str)
+      raise Error, "No alternate links" if links.empty?
       puts "Alternate links:"
-      feeds.each_with_index do |link, i|
+      links.each_with_index do |link, i|
         puts "%2d. %s (%s): %s" % [i + 1, link[:href], link[:type], link[:title]]
       end
       loop do
         print "Choice? "
         i = gets.chomp.to_i
-        return feeds[i - 1][:href] if i >= 1 && i <= feeds.length
+        return links[i - 1][:href] if i >= 1 && i <= links.length
       end
     end
 

@@ -10,11 +10,11 @@ module NewsFetcher
       attr_accessor :limit
 
       def run(args)
-        @profile.feeds(args).each do |feed|
+        @profile.subscriptions(args).each do |subscription|
           begin
-            feed.process(ignore_history: @ignore_history, limit: @limit)
+            subscription.process(ignore_history: @ignore_history, limit: @limit)
           rescue Error => e
-            warn "#{feed.path}: #{e}"
+            warn "#{subscription.path}: #{e}"
           end
         end
       end

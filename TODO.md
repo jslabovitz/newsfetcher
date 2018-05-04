@@ -1,7 +1,5 @@
 - Add lock files (per profile? per feed?) to avoid multiple processes.
 
-- Rename Feed/Entry to Subscription/Item.
-
 - Allow stylesheets to be added/changed.
 
 - Fix feeds:

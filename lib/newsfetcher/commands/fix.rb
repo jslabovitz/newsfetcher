@@ -7,8 +7,8 @@ module NewsFetcher
       register_command 'fix'
 
       def run(args)
-        @profile.feeds(args).each do |feed|
-          feed.fix
+        @profile.subscriptions(args).each do |subscription|
+          subscription.fix
         end
       end
 

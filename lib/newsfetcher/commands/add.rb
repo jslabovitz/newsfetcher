@@ -8,9 +8,9 @@ module NewsFetcher
 
       def run(args)
         raise Error, "No profile specified" unless @profile
-        uri = args.shift or raise Error, "No feed URI specified"
+        uri = args.shift or raise Error, "No URI specified"
         path = args.shift
-        @profile.add_feed(uri: uri, path: path)
+        @profile.subscribe(uri: uri, path: path)
       end
 
     end

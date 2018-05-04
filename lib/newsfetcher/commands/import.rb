@@ -18,7 +18,7 @@ module NewsFetcher
           if item['isContainer']
             recurse_plist(item['childrenArray'], path + [item['name']], &block)
           else
-            @profile.add_feed(uri: item['rss'], path: path)
+            @profile.subscribe(uri: item['rss'], path: path)
           end
         end
       end

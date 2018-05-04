@@ -12,7 +12,7 @@ require 'simple-command'
 require 'erb'
 
 require 'newsfetcher/profile'
-require 'newsfetcher/feed'
+require 'newsfetcher/subscription'
 
 require 'newsfetcher/command'
 require 'newsfetcher/commands/add'
@@ -24,11 +24,11 @@ require 'newsfetcher/commands/update'
 
 module NewsFetcher
 
-  FeedInfoFileName = 'info.yaml'
-  FeedDataFileName = 'feed'
-  FeedHistoryFileName = 'history'
-  FeedDownloadTimeout = 30
-  FeedDownloadFollowRedirectLimit = 5
+  InfoFileName = 'info.yaml'
+  DataFileName = 'feed'
+  HistoryFileName = 'history'
+  DownloadTimeout = 30
+  DownloadFollowRedirectLimit = 5
   DefaultDataDir = '~/.newsfetcher'
   StylesheetFile = Path.new(__FILE__).dirname / '../stylesheet.css'
   MessageTemplateFile = Path.new(__FILE__).dirname / '../message.rhtml'

@@ -11,8 +11,8 @@ module NewsFetcher
 
       def run(args)
         report = Hash[
-          @profile.feeds(args).map do |feed|
-            [feed.path, feed.dormant_days]
+          @profile.subscriptions(args).map do |subscription|
+            [subscription.path, subscription.dormant_days]
           end
         ]
         report.sort_by { |k, v| v }.reverse.each do |path, days|

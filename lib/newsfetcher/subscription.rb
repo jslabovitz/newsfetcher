@@ -1,15 +1,15 @@
 module NewsFetcher
 
-  class Feed
+  class Subscription
 
     attr_accessor :title
-    attr_accessor :feed_link
+    attr_accessor :link
     attr_accessor :profile
     attr_accessor :path
 
     def self.load(profile:, path:)
-      info_file = profile.feeds_dir / path / FeedInfoFileName
-      raise Error, "Feed info file does not exist: #{info_file}" unless info_file.exist?
+      info_file = profile.subscriptions_dir / path / InfoFileName
+      raise Error, "Subscription info file does not exist: #{info_file}" unless info_file.exist?
       info = YAML.load(info_file.read)
       raise Error, "Bad info file: #{info_file}" unless info && !info.empty?
       new(
@@ -24,20 +24,23 @@ module NewsFetcher
       params.each { |k, v| send("#{k}=", v) }
     end
 
+    ##FIXME: remove after conversion
+    alias_method :feed_link=, :link=
+
     def dir
-      @profile.feeds_dir / @path
+      @profile.subscriptions_dir / @path
     end
 
     def info_file
-      dir / FeedInfoFileName
+      dir / InfoFileName
     end
 
     def data_file
-      dir / FeedDataFileName
+      dir / DataFileName
     end
 
     def history_file
-      dir / FeedHistoryFileName
+      dir / HistoryFileName
     end
 
     def last_modified
@@ -56,13 +59,13 @@ module NewsFetcher
     end
 
     def maildir
-      @maildir ||= @profile.maildir_for_feed(self)
+      @maildir ||= @profile.maildir_for_subscription(self)
     end
 
     def to_yaml
       {
         'title' => @title,
-        'feed_link' => @feed_link.to_s,
+        'link' => @link.to_s,
       }.to_yaml(line_width: -1)
     end
 
@@ -96,16 +99,16 @@ module NewsFetcher
     def process(ignore_history: false, limit: nil)
       SDBM.open(history_file) do |history|
         count = 0
-        jira_feed = parse_feed
-        jira_feed.entries.each do |entry|
+        feed = parse_feed
+        feed.entries.each do |entry|
           entry_id = entry.entry_id || entry.url or raise Error, "#{@path}: Can't determine entry ID"
           entry_id = entry_id.to_s
           if ignore_history || !history[entry_id]
             item = {
               date: entry.published || Time.now,
               style: @profile.style,
-              feed_title: @title || jira_feed.title || 'untitled',
-              feed_description: jira_feed.respond_to?(:description) ? jira_feed.description : nil,
+              subscription_title: @title || feed.title || 'untitled',
+              subscription_description: feed.respond_to?(:description) ? feed.description : nil,
               title: (t = entry.title.to_s.strip).empty? ? 'untitled' : t,
               url: entry.url,
               author: entry.respond_to?(:author) ? entry.author : nil,
@@ -138,21 +141,21 @@ module NewsFetcher
       headers[:if_modified_since] = last_modified.rfc2822 if last_modified
       begin
         connection = Faraday.new(
-          url: @feed_link,
+          url: @link,
           headers: headers,
-          request: { timeout: FeedDownloadTimeout },
+          request: { timeout: DownloadTimeout },
           ssl: { verify: false },
         ) do |conn|
-          conn.use(FaradayMiddleware::FollowRedirects, limit: FeedDownloadFollowRedirectLimit)
+          conn.use(FaradayMiddleware::FollowRedirects, limit: DownloadFollowRedirectLimit)
           conn.adapter(*Faraday.default_adapter)
         end
         response = connection.get
         if response.status == 304
-          ;;warn "#{@path}: feed not modified: #{@feed_link}"
+          ;;warn "#{@path}: feed not modified: #{@link}"
           return
         elsif response.success?
           ;;raise Error, 'empty response' if response.body.to_s.empty?
-          ;;warn "#{@path}: loaded feed: #{@feed_link}"
+          ;;warn "#{@path}: loaded feed: #{@link}"
           last_modified = Time.parse(response.headers[:last_modified] || response.headers[:date])
           data_file.open('w') { |io| io.write(response.body) }
           data_file.utime(last_modified, last_modified)
@@ -160,7 +163,7 @@ module NewsFetcher
           raise Error, "Failed to get feed: #{response.status}"
         end
       rescue Faraday::Error, Zlib::BufError => e
-        raise Error, "Failed to download resource from #{@feed_link}: #{e}"
+        raise Error, "Failed to download resource from #{@link}: #{e}"
       end
     end
 
