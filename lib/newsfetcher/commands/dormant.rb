@@ -12,7 +12,7 @@ module NewsFetcher
       def run(args)
         @profile.dormancy_report(args, period: @period).each do |path, days|
           puts "%5s: %s" % [
-            days ? ('%.1f' % days) : 'never',
+            days ? days.to_i : 'never',
             path,
           ]
         end
