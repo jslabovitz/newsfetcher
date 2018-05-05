@@ -178,7 +178,7 @@ module NewsFetcher
       begin
         Feedjira::Feed.parse(data)
       rescue => e
-        raise Error, "Can't parse feed: #{e}"
+        raise Error, "Can't parse feed from #{data_file}: #{e}"
       end
     end
 
