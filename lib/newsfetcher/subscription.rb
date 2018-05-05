@@ -24,6 +24,10 @@ module NewsFetcher
       params.each { |k, v| send("#{k}=", v) }
     end
 
+    def path=(path)
+      @path = Path.new(path)
+    end
+
     ##FIXME: remove after conversion
     alias_method :feed_link=, :link=
 
