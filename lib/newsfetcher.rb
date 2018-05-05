@@ -47,7 +47,7 @@ module NewsFetcher
       uri.host.to_s.sub(/^(www|ssl|en|feeds|blogs?|news).*?\./i, '').sub(/\.(com|org|net|info|edu|co\.uk)$/i, ''),
       uri.path.to_s.gsub(/\b(feed|atom|rss2|xml)\b/i, ''),
       uri.query.to_s.gsub(/(format|feed|type|q)=(atom|rss2?|xml|rss\.xml)/i, ''),
-    ].reject { |s| s.empty? }.join('-').
+    ].reject(&:empty?).join('-').
       downcase.
       gsub(//, '').
       gsub(/[^a-z0-9]+/, ' ').  # non-alphanumeric
