@@ -49,7 +49,6 @@ module NewsFetcher
       uri.query.to_s.gsub(/(format|feed|type|q)=(atom|rss2?|xml|rss\.xml)/i, ''),
     ].reject(&:empty?).join('-').
       downcase.
-      gsub(//, '').
       gsub(/[^a-z0-9]+/, ' ').  # non-alphanumeric
       strip.
       gsub(/\s+/, '-')
