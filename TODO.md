@@ -1,26 +1,49 @@
-- Add lock files (per profile? per feed?) to avoid multiple processes.
+## Bugs (now)
 
-- Allow stylesheets to be added/changed.
+- Make 'subscribe' work again.
+
+
+## Improvements (soon)
+
+- Rename 'feeds' directory to 'subscriptions'.
+
+- Do feed fetching/parsing in only one place.
+
+- If --profile not specified, then run update/dormant/etc. on all profiles.
+
+- Move 'import' logic into Profile.
+
+- Add command sub-class for commands that take list of subscriptions.
+  - Parse subscription args.
+  - Trap errors.
+  - Show subscription path for all errors/statuses/logs.
+
+- Implement Item class to deal with item-related data & logic.
 
 - Fix feeds:
   - Save feed title as @feed_title.
   - Unset @title if @feed_title == @title.
-
-- Add check/validate command:
-  - Fetch HTML page for feed.
-  - Verify that feed matches <link> element.
-
-- If --profile not specified, then run update/dormant/etc. on all profiles.
-
-- Add dormancy period as class default (constant), per-profile, and per-feed.
-
-- Add option to use msmtp/sendmail instead of Maildir delivery.
 
 - Import from OPML instead of NNW plist.
   - Existing gem for OPML?
   - Remove nokogiri-plist dependency.
 
 - Use Logger instead of #warn/#puts.
+
+
+## Features (later)
+
+- Add lock files (per profile? per feed?) to avoid multiple processes.
+
+- Allow stylesheets to be added/changed.
+
+- Add check/validate command:
+  - Fetch HTML page for feed.
+  - Verify that feed matches <link> element.
+
+- Add dormancy period as class default (constant), per-profile, and per-feed.
+
+- Add option to use msmtp/sendmail instead of Maildir delivery.
 
 - Release to rubygems.
   - Reset git history.
