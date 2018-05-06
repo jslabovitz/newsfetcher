@@ -81,10 +81,6 @@ module NewsFetcher
       @message_template ||= MessageTemplateFile.read
     end
 
-    def load_subscription(dir)
-      Subscription.load(profile: self, path: dir.relative_to(subscriptions_dir))
-    end
-
     def subscriptions(args=[])
       if args.empty?
         dirs = subscriptions_dir.glob("**/#{InfoFileName}").map(&:dirname)
