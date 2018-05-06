@@ -32,7 +32,6 @@ module NewsFetcher
       @dir.relative_to(@profile.subscriptions_dir)
     end
 
-
     def id
       relative_dir.to_s
     end
