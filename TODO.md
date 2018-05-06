@@ -5,8 +5,6 @@
 
 ## Improvements (soon)
 
-- Reimplement parallel updating (threads).
-
 - Rename 'feeds' directory to 'subscriptions'.
 
 - Do feed fetching/parsing in only one place.
