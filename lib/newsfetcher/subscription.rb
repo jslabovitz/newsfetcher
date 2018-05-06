@@ -165,7 +165,12 @@ module NewsFetcher
     end
 
     def fix
-      save
+      feed = parse_feed
+      if @title == feed.title
+        warn "#{id}: removing unnecessary title"
+        @title = nil
+        save
+      end
     end
 
   end
