@@ -18,10 +18,6 @@
 
 - Implement Item class to deal with item-related data & logic.
 
-- Fix feeds:
-  - Save feed title as @feed_title.
-  - Unset @title if @feed_title == @title.
-
 - Use Logger instead of #warn/#puts.
 
 - Add lock files (per profile? per feed?) to avoid multiple processes.
