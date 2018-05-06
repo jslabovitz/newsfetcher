@@ -85,7 +85,7 @@ module NewsFetcher
       if args.empty?
         dirs = subscriptions_dir.glob("**/#{InfoFileName}").map(&:dirname)
       else
-        dirs = args.map { |a| (a =~ %r{^[/~]}) ? Path.new(a) : (subscriptions_dir / a) }
+        dirs = args.map { |a| (a =~ %r{^[/~.]}) ? Path.new(a) : (subscriptions_dir / a) }
       end
       dirs.map do |dir|
         Subscription.load(profile: self, dir: dir)
