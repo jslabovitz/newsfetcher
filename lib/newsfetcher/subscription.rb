@@ -56,7 +56,7 @@ module NewsFetcher
       {
         'title' => @title,
         'link' => @link.to_s,
-      }.to_yaml(line_width: -1)
+      }.reject { |k, v| v.nil? }.to_yaml(line_width: -1)
     end
 
     def exist?
