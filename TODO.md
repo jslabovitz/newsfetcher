@@ -5,6 +5,8 @@
 
 ## Improvements (soon)
 
+- Reimplement parallel updating (threads).
+
 - Rename 'feeds' directory to 'subscriptions'.
 
 - Do feed fetching/parsing in only one place.
@@ -24,16 +26,16 @@
   - Save feed title as @feed_title.
   - Unset @title if @feed_title == @title.
 
-- Import from OPML instead of NNW plist.
-  - Existing gem for OPML?
-  - Remove nokogiri-plist dependency.
-
 - Use Logger instead of #warn/#puts.
+
+- Add lock files (per profile? per feed?) to avoid multiple processes.
 
 
 ## Features (later)
 
-- Add lock files (per profile? per feed?) to avoid multiple processes.
+- Import from OPML instead of NNW plist.
+  - Existing gem for OPML?
+  - Remove nokogiri-plist dependency.
 
 - Allow stylesheets to be added/changed.
 
