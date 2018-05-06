@@ -49,6 +49,30 @@ module NewsFetcher
       Maildir.new(Path.new(*elems).to_s)
     end
 
+    def mail_address_for_subscription(subscription, title)
+      Mail::Address.new.tap do |a|
+        a.display_name = title
+        a.address = "%s+%s@%s" % [
+          @email.local,
+          [@folder, *subscription.path.each_filename.to_a].join('.'),
+          @email.domain,
+        ]
+      end
+    end
+
+    def send_item(item, subscription)
+      maildir = maildir_for_subscription(subscription)
+      ;;warn "#{subscription.path}: #{item[:title].inspect} => #{maildir.path}"
+      mail = Mail.new.tap do |m|
+        m.date =         item[:date],
+        m.from = m.to =  mail_address_for_subscription(subscription, item[:title])
+        m.subject =      item[:title]
+        m.content_type = 'text/html; charset=UTF-8'
+        m.body         = ERB.new(message_template).result_with_hash(item)
+      end
+      maildir.add(mail)
+    end
+
     def style
       @style ||= NewsFetcher::StylesheetFile.read
     end

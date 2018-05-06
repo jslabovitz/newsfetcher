@@ -48,21 +48,6 @@ module NewsFetcher
       data_file.exist? ? data_file.mtime : nil
     end
 
-    def mail_address(title)
-      Mail::Address.new.tap do |a|
-        a.display_name = title
-        a.address = "%s+%s@%s" % [
-          @profile.email.local,
-          [@profile.folder, *@path.each_filename.to_a].join('.'),
-          @profile.email.domain,
-        ]
-      end
-    end
-
-    def maildir
-      @maildir ||= @profile.maildir_for_subscription(self)
-    end
-
     def to_yaml
       {
         'title' => @title,
@@ -117,25 +102,13 @@ module NewsFetcher
               image: entry.respond_to?(:image) ? entry.image : nil,
               content: parse_content(entry.content || entry.summary).to_html,
             }
-            send_item(item)
+            @profile.send_item(item, self)
             history[entry_id] = item[:date].to_s
             count += 1
             break if limit && count >= limit
           end
         end
       end
-    end
-
-    def send_item(item)
-      ;;warn "#{@path}: #{item[:title].inspect} => #{maildir.path}"
-      mail = Mail.new.tap do |m|
-        m.date =         item[:date],
-        m.from = m.to =  mail_address(item[:title])
-        m.subject =      item[:title]
-        m.content_type = 'text/html; charset=UTF-8'
-        m.body         = ERB.new(@profile.message_template).result_with_hash(item)
-      end
-      maildir.add(mail)
     end
 
     def load_feed
