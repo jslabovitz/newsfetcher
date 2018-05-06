@@ -116,32 +116,11 @@ module NewsFetcher
     end
 
     def load_feed
-      headers = {}
-      headers[:if_modified_since] = last_modified.rfc2822 if last_modified
-      begin
-        connection = Faraday.new(
-          url: @link,
-          headers: headers,
-          request: { timeout: DownloadTimeout },
-          ssl: { verify: false },
-        ) do |conn|
-          conn.use(FaradayMiddleware::FollowRedirects, limit: DownloadFollowRedirectLimit)
-          conn.adapter(*Faraday.default_adapter)
-        end
-        response = connection.get
-        if response.status == 304
-          # ;;warn "#{id}: feed not modified: #{@link}"
-          return
-        elsif response.success?
-          # ;;warn "#{id}: loaded feed: #{@link}"
-          last_modified = Time.parse(response.headers[:last_modified] || response.headers[:date])
-          data_file.open('w') { |io| io.write(response.body) }
-          data_file.utime(last_modified, last_modified)
-        else
-          raise Error, "Failed to get feed: #{response.status}"
-        end
-      rescue Faraday::Error, Zlib::BufError => e
-        raise Error, "Failed to download resource from #{@link}: #{e}"
+      if (response = NewsFetcher.get(@link, last_modified ? { if_modified_since: last_modified.rfc2822 } : nil))
+        # ;;warn "#{id}: loaded feed: #{@link}"
+        last_modified = Time.parse(response.headers[:last_modified] || response.headers[:date])
+        data_file.write(response.body)
+        data_file.utime(last_modified, last_modified)
       end
     end
 

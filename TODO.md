@@ -1,11 +1,9 @@
 ## Bugs (now)
 
-- Make 'subscribe' work again.
+- (none)
 
 
 ## Improvements (soon)
-
-- Do feed fetching/parsing in only one place.
 
 - If --profile not specified, then run update/dormant/etc. on all profiles.
 

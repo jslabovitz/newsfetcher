@@ -55,4 +55,28 @@ module NewsFetcher
       gsub(/\s+/, '-')
   end
 
+  def self.get(uri, headers=nil)
+    begin
+      connection = Faraday.new(
+        url: uri,
+        headers: headers || {},
+        request: { timeout: DownloadTimeout },
+        ssl: { verify: false },
+      ) do |conn|
+        conn.use(FaradayMiddleware::FollowRedirects, limit: DownloadFollowRedirectLimit)
+        conn.adapter(*Faraday.default_adapter)
+      end
+      response = connection.get
+      if response.status == 304
+        nil
+      elsif response.success?
+        response
+      else
+        raise Error, "Failed to get feed: #{response.status}"
+      end
+    rescue Faraday::Error, Zlib::BufError => e
+      raise Error, "Failed to get #{uri}: #{e}"
+    end
+  end
+
 end
