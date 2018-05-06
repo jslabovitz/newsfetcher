@@ -126,11 +126,10 @@ module NewsFetcher
         end
         response = connection.get
         if response.status == 304
-          ;;warn "#{@path}: feed not modified: #{@link}"
+          # ;;warn "#{@path}: feed not modified: #{@link}"
           return
         elsif response.success?
-          ;;raise Error, 'empty response' if response.body.to_s.empty?
-          ;;warn "#{@path}: loaded feed: #{@link}"
+          # ;;warn "#{@path}: loaded feed: #{@link}"
           last_modified = Time.parse(response.headers[:last_modified] || response.headers[:date])
           data_file.open('w') { |io| io.write(response.body) }
           data_file.utime(last_modified, last_modified)
