@@ -37,7 +37,7 @@ module NewsFetcher
     end
 
     def subscriptions_dir
-      @root_dir / 'feeds'
+      @root_dir / SubscriptionsDirName
     end
 
     def maildir_for_subscription(subscription)

@@ -30,6 +30,7 @@ module NewsFetcher
   DownloadTimeout = 30
   DownloadFollowRedirectLimit = 5
   DataDir = '~/.newsfetcher'
+  SubscriptionsDirName = 'subscriptions'
   StylesheetFile = Path.new(__FILE__).dirname / '../stylesheet.css'
   MessageTemplateFile = Path.new(__FILE__).dirname / '../message.rhtml'
 

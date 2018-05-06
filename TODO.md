@@ -5,8 +5,6 @@
 
 ## Improvements (soon)
 
-- Rename 'feeds' directory to 'subscriptions'.
-
 - Do feed fetching/parsing in only one place.
 
 - If --profile not specified, then run update/dormant/etc. on all profiles.
