@@ -14,7 +14,7 @@ module NewsFetcher
           begin
             subscription.process(ignore_history: @ignore_history, limit: @limit)
           rescue Error => e
-            warn "#{subscription.path}: #{e}"
+            warn "#{subscription.id}: #{e}"
           end
         end
       end

@@ -11,7 +11,7 @@ module NewsFetcher
           begin
             subscription.update
           rescue Error => e
-            warn "#{subscription.path}: #{e}"
+            warn "#{subscription.id}: #{e}"
           end
         end
       end

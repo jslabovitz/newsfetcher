@@ -5,17 +5,17 @@ module NewsFetcher
     attr_accessor :title
     attr_accessor :link
     attr_accessor :profile
-    attr_accessor :path
+    attr_accessor :dir
 
-    def self.load(profile:, path:)
-      info_file = profile.subscriptions_dir / path / InfoFileName
+    def self.load(profile:, dir:)
+      info_file = dir / InfoFileName
       raise Error, "Subscription info file does not exist: #{info_file}" unless info_file.exist?
       info = YAML.load(info_file.read)
       raise Error, "Bad info file: #{info_file}" unless info && !info.empty?
       new(
         info.merge(
-          path: path,
           profile: profile,
+          dir: dir,
         )
       )
     end
@@ -24,24 +24,29 @@ module NewsFetcher
       params.each { |k, v| send("#{k}=", v) }
     end
 
-    def path=(path)
-      @path = Path.new(path)
+    def dir=(dir)
+      @dir = Path.new(dir)
     end
 
-    def dir
-      @profile.subscriptions_dir / @path
+    def relative_dir
+      @dir.relative_to(@profile.subscriptions_dir)
+    end
+
+
+    def id
+      relative_dir.to_s
     end
 
     def info_file
-      dir / InfoFileName
+      @dir / InfoFileName
     end
 
     def data_file
-      dir / DataFileName
+      @dir / DataFileName
     end
 
     def history_file
-      dir / HistoryFileName
+      @dir / HistoryFileName
     end
 
     def last_modified
@@ -56,11 +61,11 @@ module NewsFetcher
     end
 
     def exist?
-      dir.exist?
+      @dir.exist?
     end
 
     def save
-      dir.mkpath unless exist?
+      @dir.mkpath unless exist?
       info_file.write(to_yaml)
     end
 
@@ -88,7 +93,7 @@ module NewsFetcher
         count = 0
         feed = parse_feed
         feed.entries.each do |entry|
-          entry_id = entry.entry_id || entry.url or raise Error, "#{@path}: Can't determine entry ID"
+          entry_id = entry.entry_id || entry.url or raise Error, "#{id}: Can't determine entry ID"
           entry_id = entry_id.to_s
           if ignore_history || !history[entry_id]
             item = {
@@ -126,10 +131,10 @@ module NewsFetcher
         end
         response = connection.get
         if response.status == 304
-          # ;;warn "#{@path}: feed not modified: #{@link}"
+          # ;;warn "#{id}: feed not modified: #{@link}"
           return
         elsif response.success?
-          # ;;warn "#{@path}: loaded feed: #{@link}"
+          # ;;warn "#{id}: loaded feed: #{@link}"
           last_modified = Time.parse(response.headers[:last_modified] || response.headers[:date])
           data_file.open('w') { |io| io.write(response.body) }
           data_file.utime(last_modified, last_modified)

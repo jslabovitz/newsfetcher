@@ -44,7 +44,7 @@ module NewsFetcher
       elems = [
         @maildir,
         @folder,
-        subscription.path.dirname.relative_to(subscriptions_dir),
+        subscription.relative_dir.dirname,
       ]
       Maildir.new(Path.new(*elems).to_s)
     end
@@ -54,7 +54,7 @@ module NewsFetcher
         a.display_name = title
         a.address = "%s+%s@%s" % [
           @email.local,
-          [@folder, *subscription.path.each_filename.to_a].join('.'),
+          [@folder, *subscription.relative_dir.each_filename.to_a].join('.'),
           @email.domain,
         ]
       end
@@ -62,7 +62,7 @@ module NewsFetcher
 
     def send_item(item, subscription)
       maildir = maildir_for_subscription(subscription)
-      ;;warn "#{subscription.path}: #{item[:title].inspect} => #{maildir.path}"
+      ;;warn "#{subscription.id}: #{item[:title].inspect} => #{maildir.path}"
       mail = Mail.new.tap do |m|
         m.date =         item[:date],
         m.from = m.to =  mail_address_for_subscription(subscription, item[:title])
@@ -92,7 +92,7 @@ module NewsFetcher
         dirs = args.map { |a| (a =~ %r{^[/~]}) ? Path.new(a) : (subscriptions_dir / a) }
       end
       dirs.map do |dir|
-        Subscription.load(profile: self, path: dir)
+        Subscription.load(profile: self, dir: dir)
       end
     end
 
@@ -109,10 +109,10 @@ module NewsFetcher
       key = NewsFetcher.uri_to_key(uri)
       path = Path.new(path ? "#{path}/#{key}" : key)
       #FIXME: save feed data
-      subscription = Subscription.new(path: path, link: uri, profile: self)
-      raise Error, "Subscription already exists (as #{subscription.path}): #{uri}" if subscription.exist?
+      subscription = Subscription.new(dir: dir, link: uri, profile: self)
+      raise Error, "Subscription already exists (as #{subscription.id}): #{uri}" if subscription.exist?
       subscription.save
-      ;;warn "saved new subscription to #{subscription.path}"
+      ;;warn "saved new subscription to #{subscription.id}"
     end
 
     def discover_feed(html_str)
@@ -143,7 +143,7 @@ module NewsFetcher
     def dormancy_report(args, period: nil)
       Hash[
         subscriptions(args).map do |subscription|
-          [subscription.path, subscription.dormant_days]
+          [subscription.id, subscription.dormant_days]
         end
       ].reject { |k, v| v && v < period }.sort_by { |k, v| v || 0 }.reverse
     end
