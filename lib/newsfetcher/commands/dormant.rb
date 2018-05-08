@@ -10,11 +10,14 @@ module NewsFetcher
       attr_accessor :period
 
       def run(args)
-        @profile.dormancy_report(args, period: @period).each do |subscription_id, days|
-          puts "%5s: %s" % [
-            days ? days.to_i : 'never',
-            subscription_id,
-          ]
+        @profiles.each do |profile|
+          puts "#{profile.id}:"
+          profile.dormancy_report(args, period: @period).each do |subscription_id, days|
+            puts "\t%5s: %s" % [
+              days ? days.to_i : 'never',
+              subscription_id,
+            ]
+          end
         end
       end
 

@@ -3,9 +3,18 @@ module NewsFetcher
   class Command < SimpleCommand
 
     attr_accessor :profile
+    attr_accessor :profiles
 
-    def profile=(name)
-      @profile = Profile.load(Path.new(DataDir, name).expand_path)
+    def initialize(params={})
+      super
+      @profiles = if @profiles
+        @profiles.split(',')
+      elsif @profile
+        [@profile]
+      else
+        DataDir.children.select(&:directory?)
+      end
+      @profiles = @profiles.map { |p| Profile.load(DataDir / p) }
     end
 
   end

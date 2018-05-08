@@ -10,11 +10,13 @@ module NewsFetcher
       attr_accessor :limit
 
       def run(args)
-        @profile.subscriptions(args).each do |subscription|
-          begin
-            subscription.process(ignore_history: @ignore_history, limit: @limit)
-          rescue Error => e
-            warn "#{subscription.id}: #{e}"
+        @profiles.each do |profile|
+          profile.subscriptions(args).each do |subscription|
+            begin
+              subscription.process(ignore_history: @ignore_history, limit: @limit)
+            rescue Error => e
+              warn "#{subscription.id}: #{e}"
+            end
           end
         end
       end

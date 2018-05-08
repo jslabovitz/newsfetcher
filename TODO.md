@@ -5,8 +5,6 @@
 
 ## Improvements (soon)
 
-- If --profile not specified, then run update/dormant/etc. on all profiles.
-
 - Add command sub-class for commands that take list of subscriptions.
   - Parse subscription args.
   - Trap errors.

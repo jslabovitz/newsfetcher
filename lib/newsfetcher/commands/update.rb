@@ -10,7 +10,9 @@ module NewsFetcher
       attr_accessor :limit
 
       def run(args)
-        @profile.update_subscriptions(args, limit: @limit)
+        @profiles.each do |profile|
+          profile.update_subscriptions(args, limit: @limit)
+        end
       end
 
     end

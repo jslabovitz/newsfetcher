@@ -7,10 +7,10 @@ module NewsFetcher
       register_command 'subscribe'
 
       def run(args)
-        raise Error, "No profile specified" unless @profile
+        raise Error, "Must specify one profile" unless @profiles.length == 1
         uri = args.shift or raise Error, "No URI specified"
         path = args.shift
-        @profile.subscribe(uri: uri, path: path)
+        @profiles.first.subscribe(uri: uri, path: path)
       end
 
     end
