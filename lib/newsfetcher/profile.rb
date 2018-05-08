@@ -9,6 +9,7 @@ module NewsFetcher
 
     def self.load(dir)
       info_file = dir / InfoFileName
+      raise Error, "Profile does not exist at #{dir}" unless dir.exist? && info_file.exist?
       new(YAML.load(info_file.read).merge(root_dir: dir))
     end
 
