@@ -2,7 +2,7 @@ module NewsFetcher
 
   class Profile
 
-    attr_accessor :root_dir
+    attr_accessor :dir
     attr_accessor :maildir
     attr_accessor :folder
     attr_accessor :email
@@ -10,15 +10,15 @@ module NewsFetcher
     def self.load(dir)
       info_file = dir / InfoFileName
       raise Error, "Profile does not exist at #{dir}" unless dir.exist? && info_file.exist?
-      new(YAML.load(info_file.read).merge(root_dir: dir))
+      new(YAML.load(info_file.read).merge(dir: dir))
     end
 
     def initialize(params={})
       params.each { |k, v| send("#{k}=", v) }
     end
 
-    def root_dir=(dir)
-      @root_dir = Path.new(dir)
+    def dir=(dir)
+      @dir = Path.new(dir)
     end
 
     def maildir=(dir)
@@ -38,11 +38,11 @@ module NewsFetcher
     end
 
     def id
-      @root_dir.basename.to_s
+      @dir.basename.to_s
     end
 
     def subscriptions_dir
-      @root_dir / SubscriptionsDirName
+      @dir / SubscriptionsDirName
     end
 
     def maildir_for_subscription(subscription)
