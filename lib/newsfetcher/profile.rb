@@ -37,6 +37,10 @@ module NewsFetcher
       }.to_yaml(line_width: -1)
     end
 
+    def id
+      @root_dir.basename.to_s
+    end
+
     def subscriptions_dir
       @root_dir / SubscriptionsDirName
     end
