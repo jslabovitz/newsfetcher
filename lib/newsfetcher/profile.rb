@@ -164,10 +164,11 @@ module NewsFetcher
       end
     end
 
-    def update_subscriptions(args, limit:)
+    def update_subscriptions(args, max_threads: nil)
+      max_threads ||= 100
       threads = []
       subscriptions(args).each do |subscription|
-        if threads.length >= limit
+        if threads.length >= max_threads
           # ;;warn "waiting for #{threads.length} threads to finish"
           threads.map(&:join)
           threads = []

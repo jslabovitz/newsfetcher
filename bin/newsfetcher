@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'newsfetcher'
+require 'newsfetcher/cli'
 
-SimpleCommand::Manager.run(ARGV)
+NewsFetcher::CLI.run(ARGV)
