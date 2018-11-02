@@ -124,7 +124,7 @@ module NewsFetcher
       end
       loop do
         print "Choice? "
-        i = gets.chomp.to_i
+        i = STDIN.gets.chomp.to_i
         return links[i - 1][:href] if i >= 1 && i <= links.length
       end
     end
