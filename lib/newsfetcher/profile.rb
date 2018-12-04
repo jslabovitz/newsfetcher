@@ -80,7 +80,7 @@ module NewsFetcher
     end
 
     def style
-      @style ||= NewsFetcher::StylesheetFile.read
+      @style ||= StylesheetFile.read
     end
 
     def message_template
