@@ -21,7 +21,7 @@ module NewsFetcher
   HistoryFileName = 'history'
   DownloadTimeout = 30
   DownloadFollowRedirectLimit = 5
-  DataDir = Path.new('~/.newsfetcher').expand_path
+  DefaultProfileDir = '~/.newsfetcher'
   SubscriptionsDirName = 'subscriptions'
   StylesheetFile = Path.new(__FILE__).dirname / '../stylesheet.css'
   MessageTemplateFile = Path.new(__FILE__).dirname / '../message.rhtml'

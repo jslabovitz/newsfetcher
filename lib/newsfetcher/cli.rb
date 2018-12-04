@@ -6,9 +6,8 @@ module NewsFetcher
 
       SimpleCommand.run(argv) do
 
-        global do
-          raise Error, "Must specify profile" unless @profile
-          @profile = Profile.load(DataDir / @profile)
+        global dir: DefaultProfileDir do
+          @profile = Profile.load(@dir)
         end
 
         command 'dormant', period: 30 do |args|

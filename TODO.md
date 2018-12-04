@@ -5,9 +5,6 @@
 
 ## Improvements (soon)
 
-- Remove multiple profile supprt.
-  - Allow for changing root/config/etc. through global variable.
-
 - Add command sub-class for commands that take list of subscriptions.
   - Parse subscription args.
   - Trap errors.
