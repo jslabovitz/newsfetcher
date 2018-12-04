@@ -83,8 +83,13 @@ module NewsFetcher
       (t = dormant_time) ? (t.to_f / DaySeconds) : t
     end
 
-    def update
-      load_feed
+    def update_feed
+      if (response = NewsFetcher.get(@link, last_modified ? { if_modified_since: last_modified.rfc2822 } : nil))
+        # ;;warn "#{id}: loaded feed: #{@link}"
+        last_modified = Time.parse(response.headers[:last_modified] || response.headers[:date])
+        data_file.write(response.body)
+        data_file.utime(last_modified, last_modified)
+      end
     end
 
     def process(ignore_history: false, limit: nil)
@@ -112,15 +117,6 @@ module NewsFetcher
             break if limit && count >= limit
           end
         end
-      end
-    end
-
-    def load_feed
-      if (response = NewsFetcher.get(@link, last_modified ? { if_modified_since: last_modified.rfc2822 } : nil))
-        # ;;warn "#{id}: loaded feed: #{@link}"
-        last_modified = Time.parse(response.headers[:last_modified] || response.headers[:date])
-        data_file.write(response.body)
-        data_file.utime(last_modified, last_modified)
       end
     end
 

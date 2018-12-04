@@ -161,7 +161,7 @@ module NewsFetcher
         threads << Thread.new do
           # ;;warn "started thread for #{subscription.id}"
           begin
-            subscription.update
+            subscription.update_feed
           rescue Error => e
             warn "#{subscription.id}: #{e}"
           end
