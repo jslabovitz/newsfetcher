@@ -149,22 +149,6 @@ module NewsFetcher
       ].reject { |k, v| v && v < period }.sort_by { |k, v| v || 0 }.reverse
     end
 
-    def import(plist_file)
-      io = IO.popen(['plutil', '-convert', 'xml1', '-o', '-', plist_file], 'r')
-      plist = Nokogiri::PList(io)
-      recurse_plist(plist)
-    end
-
-    def recurse_plist(items, path=[], &block)
-      items.each do |item|
-        if item['isContainer']
-          recurse_plist(item['childrenArray'], path + [item['name']], &block)
-        else
-          subscribe(uri: item['rss'], path: path.join('/'))
-        end
-      end
-    end
-
     def update_subscriptions(args, max_threads: nil)
       max_threads ||= 100
       threads = []

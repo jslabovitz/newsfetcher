@@ -25,11 +25,6 @@ module NewsFetcher
           end
         end
 
-        command 'import' do |plist_file|
-          plist_file = args.shift or raise Error, "Must specify plist file"
-          @profile.import(plist_file)
-        end
-
         command 'process', ignore_history: false, limit: nil do |subscription_ids|
           @profile.subscriptions(subscription_ids).each do |subscription|
             begin

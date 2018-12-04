@@ -22,10 +22,6 @@
 
 ## Features (later)
 
-- Import from OPML instead of NNW plist.
-  - Existing gem for OPML?
-  - Remove nokogiri-plist dependency.
-
 - Allow stylesheets to be added/changed.
 
 - Add check/validate command:

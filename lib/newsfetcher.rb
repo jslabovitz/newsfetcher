@@ -7,7 +7,7 @@ require 'mail'
 require 'maildir'
 require 'faraday'
 require 'feedjira'
-require 'nokogiri-plist'
+require 'nokogiri'
 require 'simple-command'
 require 'erb'
 
