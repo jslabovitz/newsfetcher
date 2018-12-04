@@ -149,6 +149,17 @@ module NewsFetcher
       ].reject { |k, v| v && v < period }.sort_by { |k, v| v || 0 }.reverse
     end
 
+    def update(args, max_threads: nil, ignore_history: false, limit: nil)
+      update_subscriptions(args, max_threads: max_threads)
+      subscriptions(args).each do |subscription|
+        begin
+          subscription.process(ignore_history: ignore_history, limit: limit)
+        rescue Error => e
+          warn "#{subscription.id}: #{e}"
+        end
+      end
+    end
+
     def update_subscriptions(args, max_threads: nil)
       max_threads ||= 100
       threads = []

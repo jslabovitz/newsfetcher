@@ -25,6 +25,13 @@ module NewsFetcher
           end
         end
 
+        command 'update', max_threads: nil, ignore_history: false, limit: nil do |subscription_ids|
+          @profile.update(subscription_ids,
+            max_threads: @max_threads,
+            ignore_history: @ignore_history,
+            limit: @limit)
+        end
+
         command 'process', ignore_history: false, limit: nil do |subscription_ids|
           @profile.subscriptions(subscription_ids).each do |subscription|
             begin
@@ -40,7 +47,7 @@ module NewsFetcher
           @profile.subscribe(uri: uri, path: path)
         end
 
-        command 'update', max_threads: nil do |subscription_ids|
+        command 'update-feeds', max_threads: nil do |subscription_ids|
           @profile.update_subscriptions(subscription_ids, max_threads: @max_threads)
         end
 
