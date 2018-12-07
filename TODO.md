@@ -1,6 +1,7 @@
 ## Bugs (now)
 
-- (none)
+- Feed discovery prompting is wonky.
+  - Remove prompts; just print URL and let user copy/paste and try again.
 
 
 ## Improvements (soon)
