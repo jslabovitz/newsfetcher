@@ -139,6 +139,16 @@ module NewsFetcher
       html
     end
 
+    def reset
+      [
+        data_file,
+        history_file.add_extension('.dir'),
+        history_file.add_extension('.pag'),
+      ].each do |file|
+        file.unlink if file.exist?
+      end
+    end
+
     def fix
     end
 

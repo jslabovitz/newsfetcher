@@ -180,6 +180,12 @@ module NewsFetcher
       end
     end
 
+    def reset_subscriptions(args)
+      subscriptions(args).each do |subscription|
+        subscription.reset
+      end
+    end
+
     def fix_subscriptions(args)
       subscriptions(args).each do |subscription|
         subscription.fix

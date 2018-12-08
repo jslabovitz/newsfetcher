@@ -45,6 +45,10 @@ module NewsFetcher
           @profile.add_subscription(uri: uri, path: path)
         end
 
+        command 'reset' do |subscription_ids|
+          @profile.reset_subscriptions(subscription_ids)
+        end
+
         command 'update-feeds', max_threads: nil do |subscription_ids|
           @profile.update_subscriptions(subscription_ids, max_threads: @max_threads)
         end
