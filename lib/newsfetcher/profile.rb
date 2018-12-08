@@ -103,9 +103,8 @@ module NewsFetcher
       response = NewsFetcher.get(uri)
       begin
         Feedjira::Feed.parse(response.body)
-      rescue Feedjira::NoParserAvailable => e
-        new_uri = discover_feed(response.body)
-        uri = new_uri.scheme ? new_uri : (uri + new_uri)
+      rescue Feedjira::NoParserAvailable
+        raise Error, "URI is not a feed"
       end
       key = NewsFetcher.uri_to_key(uri)
       path = Path.new(path ? "#{path}/#{key}" : key)
@@ -116,28 +115,17 @@ module NewsFetcher
       ;;warn "saved new subscription to #{subscription.id}"
     end
 
-    def discover_feed(html_str)
-      links = find_alternate_links(html_str)
-      raise Error, "No alternate links" if links.empty?
-      puts "Alternate links:"
-      links.each_with_index do |link, i|
-        puts "%2d. %s (%s): %s" % [i + 1, link[:href], link[:type], link[:title]]
-      end
-      loop do
-        print "Choice? "
-        i = STDIN.gets.chomp.to_i
-        return links[i - 1][:href] if i >= 1 && i <= links.length
-      end
-    end
-
-    def find_alternate_links(html_str)
-      html = Nokogiri::HTML::Document.parse(html_str)
-      html.xpath('//link[@rel="alternate"]').map do |link_elem|
-        {
-          href: URI.parse(link_elem['href']),
-          type: link_elem['type'],
-          title: link_elem['title'],
-        }
+    def discover_feed(uri)
+      response = NewsFetcher.get(uri)
+      uri = URI.parse(uri)
+      html = Nokogiri::HTML::Document.parse(response.body)
+      html.xpath('//link[@rel="alternate"]').each do |link|
+        href = uri.merge(URI.parse(link['href']))
+        puts "%s (%s) %p" % [
+          href,
+          link['type'],
+          link['title'],
+        ]
       end
     end
 
