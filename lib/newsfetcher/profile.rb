@@ -181,6 +181,23 @@ module NewsFetcher
       # ;;warn "waiting for last #{threads.length} threads to finish"
       threads.map(&:join)
     end
+
+    def process_subscriptions(args, ignore_history: nil, limit: nil)
+      subscriptions(args).each do |subscription|
+        begin
+          subscription.process(ignore_history: ignore_history, limit: limit)
+        rescue Error => e
+          warn "#{subscription.id}: #{e}"
+        end
+      end
+    end
+
+    def fix_subscriptions(args)
+      subscriptions(args).each do |subscription|
+        subscription.fix
+      end
+    end
+
   end
 
 end

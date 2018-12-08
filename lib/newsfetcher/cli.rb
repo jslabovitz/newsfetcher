@@ -20,9 +20,7 @@ module NewsFetcher
         end
 
         command 'fix' do |subscription_ids|
-          @profile.subscriptions(subscription_ids).each do |subscription|
-            subscription.fix
-          end
+          @profile.fix_subscriptions(subscription_ids)
         end
 
         command 'update', max_threads: nil, ignore_history: false, limit: nil do |subscription_ids|
@@ -33,13 +31,7 @@ module NewsFetcher
         end
 
         command 'process', ignore_history: false, limit: nil do |subscription_ids|
-          @profile.subscriptions(subscription_ids).each do |subscription|
-            begin
-              subscription.process(ignore_history: @ignore_history, limit: @limit)
-            rescue Error => e
-              warn "#{subscription.id}: #{e}"
-            end
-          end
+          @profile.process_subscriptions(subscription_ids, ignore_history: @ignore_history, limit: @limit)
         end
 
         command 'subscribe' do |uri, path|
