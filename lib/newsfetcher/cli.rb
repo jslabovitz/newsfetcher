@@ -19,6 +19,12 @@ module NewsFetcher
           end
         end
 
+        command 'discover' do |args|
+          args.each do |uri|
+            @profile.discover_feed(uri)
+          end
+        end
+
         command 'fix' do |subscription_ids|
           @profile.fix_subscriptions(subscription_ids)
         end
