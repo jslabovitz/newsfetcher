@@ -40,9 +40,9 @@ module NewsFetcher
           @profile.process_subscriptions(subscription_ids, ignore_history: @ignore_history, limit: @limit)
         end
 
-        command 'subscribe' do |uri, path|
+        command 'add' do |uri, path|
           raise Error, "No URI specified" unless uri
-          @profile.subscribe(uri: uri, path: path)
+          @profile.add_subscription(uri: uri, path: path)
         end
 
         command 'update-feeds', max_threads: nil do |subscription_ids|

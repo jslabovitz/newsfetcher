@@ -98,7 +98,7 @@ module NewsFetcher
       end
     end
 
-    def subscribe(uri:, path: nil)
+    def add_subscription(uri:, path: nil)
       uri = URI.parse(uri)
       response = NewsFetcher.get(uri)
       begin
