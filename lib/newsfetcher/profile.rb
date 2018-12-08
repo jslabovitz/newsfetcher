@@ -192,6 +192,12 @@ module NewsFetcher
       end
     end
 
+    def remove_subscriptions(args)
+      subscriptions(args).each do |subscription|
+        subscription.remove
+      end
+    end
+
   end
 
 end

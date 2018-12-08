@@ -149,6 +149,10 @@ module NewsFetcher
       end
     end
 
+    def remove
+      @dir.rmtree
+    end
+
     def fix
     end
 
