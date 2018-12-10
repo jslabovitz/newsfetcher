@@ -132,18 +132,18 @@ module NewsFetcher
     def list(args, status: nil, sort: nil)
       status ||= [:active, :dormant, :never]
       status = [status] unless status.kind_of?(Array)
-      sort ||= :title
-      subscriptions(args).select { |s| status.include?(s.status) }.sort_by(&sort).each do |subscription|
+      sort ||= :id
+      subscriptions(args).select { |s| status.include?(s.status) }.sort_by { |s| s.send(sort).to_s }.each do |subscription|
         if (t = subscription.latest_item_timestamp)
           days = (Date.today - t.to_date).to_i
         else
           days = nil
         end
-        puts "\t%6s | %10s | %20s | %s" % [
+        puts "%8s | %10s | %-40.40s | %-40.40s" % [
           subscription.status,
           days ? "#{days} days" : 'never',
-          subscription.id,
           subscription.title,
+          subscription.id,
         ]
       end
     end
