@@ -129,12 +129,19 @@ module NewsFetcher
       end
     end
 
-    def dormancy_report(args, period: nil)
-      Hash[
-        subscriptions(args).map do |subscription|
-          [subscription.id, subscription.dormant_days]
-        end
-      ].reject { |k, v| v && v < period }.sort_by { |k, v| v || 0 }.reverse
+    def list(args, status: nil, sort: nil)
+      status ||= [:active, :dormant, :never]
+      status = [status] unless status.kind_of?(Array)
+      sort ||= :title
+      subscriptions(args).select { |s| status.include?(s.status) }.sort_by(&sort).each do |subscription|
+        days = (Date.today - subscription.latest_item_timestamp.to_date).to_i
+        puts "\t%6s | %10s | %20s | %s" % [
+          subscription.status,
+          days ? "#{days} days" : 'never',
+          subscription.id,
+          subscription.title,
+        ]
+      end
     end
 
     def update(args, max_threads: nil, ignore_history: false, limit: nil)

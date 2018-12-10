@@ -10,13 +10,10 @@ module NewsFetcher
           @profile = Profile.load(@dir)
         end
 
-        command 'dormant', period: 30 do |args|
-          @profile.dormancy_report(args, period: @period).each do |subscription_id, days|
-            puts "\t%5s: %s" % [
-              days ? days.to_i : 'never',
-              subscription_id,
-            ]
-          end
+        command 'list', status: nil, sort: nil do |args|
+          @profile.list(args,
+            status: @status ? [@status.split(',').map(&:to_sym)] : nil,
+            sort: @sort.to_sym)
         end
 
         command 'discover' do |args|
