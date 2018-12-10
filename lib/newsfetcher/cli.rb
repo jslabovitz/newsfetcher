@@ -13,7 +13,7 @@ module NewsFetcher
         command 'list', status: nil, sort: nil do |args|
           @profile.list(args,
             status: @status ? [@status.split(',').map(&:to_sym)] : nil,
-            sort: @sort.to_sym)
+            sort: @sort ? @sort.to_sym : nil)
         end
 
         command 'discover' do |args|
