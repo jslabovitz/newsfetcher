@@ -6,18 +6,33 @@ module NewsFetcher
     attr_accessor :link
     attr_accessor :profile
     attr_accessor :dir
+    attr_accessor :history
 
     def self.load(profile:, dir:)
-      info_file = dir / InfoFileName
-      raise Error, "Subscription info file does not exist: #{info_file}" unless info_file.exist?
-      info = YAML.load(info_file.read)
-      raise Error, "Bad info file: #{info_file}" unless info && !info.empty?
+      info = load_info(dir / InfoFileName)
+      history = load_history(dir / HistoryFileName)
       new(
         info.merge(
           profile: profile,
           dir: dir,
+          history: history,
         )
       )
+    end
+
+    def self.load_info(path)
+      raise Error, "Subscription info file does not exist: #{path}" unless path.exist?
+      info = YAML.load(path.read)
+      raise Error, "Bad info file: #{info_file}" unless info && !info.empty?
+      info
+    end
+
+    def self.load_history(path)
+      history = {}
+      SDBM.open(path) do |db|
+        history = db.map { |k, v| [k, Time.parse(v)] }.to_h
+      end
+      history
     end
 
     def initialize(params={})
@@ -68,19 +83,21 @@ module NewsFetcher
       info_file.write(to_yaml)
     end
 
-    def dormant_time
-      history = SDBM.open(history_file)
-      if (latest = history.values.map { |v| Time.parse(v) }.sort.last)
-        Time.now - latest
-      else
-        nil
-      end
+    def latest_item_timestamp
+      @history.values.sort.last
     end
 
-    DaySeconds = 24 * 60 * 60
-
-    def dormant_days
-      (t = dormant_time) ? (t.to_f / DaySeconds) : t
+    def status
+      last = latest_item_timestamp
+      if last
+        if (Time.now - last) > DefaultDormantTime
+          :dormant
+        else
+          :active
+        end
+      else
+        :new
+      end
     end
 
     def update_feed
