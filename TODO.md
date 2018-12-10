@@ -1,18 +1,26 @@
 ## Bugs (now)
 
-- Feed discovery prompting is wonky.
-  - Remove prompts; just print URL and let user copy/paste and try again.
-
 
 ## Improvements (soon)
+
+- Keep only 30 days (or configured) of history.
+  - When processing, ignore all entries older than 30 days.
+
+- Move history back into info file.
+
+- Save feed title/etc. to info file.
+  - Update on processing.
+
+- Remove Faraday use.
+  - Have Feedjira do I/O?
+
+- Remove Maildir?
+    - Simply use Mail's default delivery methods.
 
 - Expand testing:
     - Write actual test classes/methods.
     - Use Mail::TestMailer to test results.
     - Use Mail::FileDelivery to save files.
-
-- Remove Maildir?
-    - Simply use Mail's default delivery methods.
 
 - Add command sub-class for commands that take list of subscriptions.
   - Parse subscription args.
