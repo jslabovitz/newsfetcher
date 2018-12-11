@@ -68,7 +68,7 @@ module NewsFetcher
 
     def send_item(item, subscription)
       maildir = maildir_for_subscription(subscription)
-      ;;warn "#{subscription.id}: #{item[:title].inspect} => #{maildir.path}"
+      # ;;warn "#{subscription.id}: #{item[:title].inspect} => #{maildir.path}"
       mail = Mail.new.tap do |m|
         m.date =         item[:date],
         m.from = m.to =  mail_address_for_subscription(subscription, item[:title])
