@@ -46,15 +46,6 @@ module NewsFetcher
       @dir / SubscriptionsDirName
     end
 
-    def maildir_for_subscription(subscription)
-      elems = [
-        @maildir,
-        @folder,
-        subscription.relative_dir.dirname,
-      ]
-      Maildir.new(Path.new(*elems).to_s)
-    end
-
     def mail_address_for_subscription(subscription, title)
       Mail::Address.new.tap do |a|
         a.display_name = title
@@ -67,7 +58,7 @@ module NewsFetcher
     end
 
     def send_item(item, subscription)
-      maildir = maildir_for_subscription(subscription)
+      maildir = Maildir.new((@maildir / @folder / subscription.relative_dir).to_s)
       # ;;warn "#{subscription.id}: #{item[:title].inspect} => #{maildir.path}"
       mail = Mail.new.tap do |m|
         m.date =         item[:date],
