@@ -6,6 +6,7 @@ module NewsFetcher
     attr_accessor :maildir
     attr_accessor :folder
     attr_accessor :email
+    attr_accessor :coalesce
 
     def self.load(dir)
       dir = Path.new(dir).expand_path
@@ -15,6 +16,7 @@ module NewsFetcher
     end
 
     def initialize(params={})
+      @coalesce = false
       params.each { |k, v| send("#{k}=", v) }
     end
 
@@ -30,11 +32,16 @@ module NewsFetcher
       @email = Mail::Address.new(address)
     end
 
+    def coalesce=(state)
+      @coalesce = !!state
+    end
+
     def to_yaml
       {
         email: @email.to_s,
         maildir: @maildir.to_s,
         folder: @folder,
+        coalesce: @coalesce,
       }.to_yaml(line_width: -1)
     end
 
@@ -58,8 +65,10 @@ module NewsFetcher
     end
 
     def send_item(item, subscription)
-      maildir = Maildir.new((@maildir / @folder / subscription.relative_dir).to_s)
-      # ;;warn "#{subscription.id}: #{item[:title].inspect} => #{maildir.path}"
+      maildir_folder = @maildir / @folder / subscription.relative_dir
+      maildir_folder = maildir_folder.dirname if @coalesce
+      maildir = Maildir.new(maildir_folder.to_s)
+      ;;warn "#{subscription.id}: #{item[:title].inspect} => #{maildir.path}"
       mail = Mail.new.tap do |m|
         m.date =         item[:date],
         m.from = m.to =  mail_address_for_subscription(subscription, item[:title])
