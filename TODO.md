@@ -14,9 +14,6 @@
 - Remove Faraday use.
   - Have Feedjira do I/O?
 
-- Remove Maildir?
-    - Simply use Mail's default delivery methods.
-
 - Expand testing:
     - Write actual test classes/methods.
     - Use Mail::TestMailer to test results.
