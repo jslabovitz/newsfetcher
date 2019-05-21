@@ -5,8 +5,10 @@ module NewsFetcher
     attr_accessor :dir
     attr_accessor :maildir
     attr_accessor :folder
-    attr_accessor :email
+    attr_accessor :email_from
+    attr_accessor :email_to
     attr_accessor :coalesce
+    attr_accessor :use_plus_addressing
 
     def self.load(dir)
       dir = Path.new(dir).expand_path
@@ -17,6 +19,7 @@ module NewsFetcher
 
     def initialize(params={})
       @coalesce = false
+      @use_plus_addressing = false
       params.each { |k, v| send("#{k}=", v) }
     end
 
@@ -28,20 +31,30 @@ module NewsFetcher
       @maildir = Path.new(dir)
     end
 
-    def email=(address)
-      @email = Mail::Address.new(address)
+    def email_from=(address)
+      @email_from = Mail::Address.new(address)
+    end
+
+    def email_to=(address)
+      @email_to = Mail::Address.new(address)
     end
 
     def coalesce=(state)
       @coalesce = !!state
     end
 
+    def use_plus_addressing=(state)
+      @use_plus_addressing = !!state
+    end
+
     def to_yaml
       {
-        email: @email.to_s,
+        email_from: @email_from.to_s,
+        email_to: @email_to.to_s,
         maildir: @maildir.to_s,
         folder: @folder,
         coalesce: @coalesce,
+        use_plus_addressing: @use_plus_addressing,
       }.to_yaml(line_width: -1)
     end
 
@@ -54,13 +67,17 @@ module NewsFetcher
     end
 
     def mail_address_for_subscription(subscription, title)
-      Mail::Address.new.tap do |a|
-        a.display_name = title
-        a.address = "%s+%s@%s" % [
-          @email.local,
-          [@folder, *subscription.relative_dir.each_filename.to_a].join('.'),
-          @email.domain,
-        ]
+      if @use_plus_addressing
+        Mail::Address.new.tap do |a|
+          a.display_name = title
+          a.address = "%s+%s@%s" % [
+            @email_to.local,
+            [@folder, *subscription.relative_dir.each_filename.to_a].join('.'),
+            @email_to.domain,
+          ]
+        end
+      else
+        Mail::Address.new(@email_to)
       end
     end
 
@@ -71,7 +88,8 @@ module NewsFetcher
       ;;warn "#{subscription.id}: #{item[:title].inspect} => #{maildir.path}"
       mail = Mail.new.tap do |m|
         m.date =         item[:date],
-        m.from = m.to =  mail_address_for_subscription(subscription, item[:title])
+        m.from =         @email_from
+        m.to =           mail_address_for_subscription(subscription, item[:title])
         m.subject =      item[:title]
         m.content_type = 'text/html; charset=UTF-8'
         m.body         = ERB.new(message_template).result_with_hash(item)
