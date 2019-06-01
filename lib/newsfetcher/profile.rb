@@ -166,13 +166,7 @@ module NewsFetcher
 
     def update(args, max_threads: nil, ignore_history: false, limit: nil)
       update_subscriptions(args, max_threads: max_threads)
-      subscriptions(args).each do |subscription|
-        begin
-          subscription.process(ignore_history: ignore_history, limit: limit)
-        rescue Error => e
-          warn "#{subscription.id}: #{e}"
-        end
-      end
+      process_subscriptions(args, ignore_history: ignore_history, limit: limit)
     end
 
     def update_subscriptions(args, max_threads: nil)

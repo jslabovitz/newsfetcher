@@ -33,10 +33,6 @@ module NewsFetcher
             limit: @limit)
         end
 
-        command 'process', ignore_history: false, limit: nil do |subscription_ids|
-          @profile.process_subscriptions(subscription_ids, ignore_history: @ignore_history, limit: @limit)
-        end
-
         command 'add' do |uri, path|
           raise Error, "No URI specified" unless uri
           @profile.add_subscription(uri: uri, path: path)
@@ -48,10 +44,6 @@ module NewsFetcher
 
         command 'reset' do |subscription_ids|
           @profile.reset_subscriptions(subscription_ids)
-        end
-
-        command 'update-feeds', max_threads: nil do |subscription_ids|
-          @profile.update_subscriptions(subscription_ids, max_threads: @max_threads)
         end
 
       end
