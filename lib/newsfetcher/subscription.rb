@@ -109,30 +109,26 @@ module NewsFetcher
       end
     end
 
-    def process(ignore_history: false, limit: nil)
+    def process
       SDBM.open(history_file) do |history|
-        count = 0
         feed = parse_feed
         feed.entries.each do |entry|
           entry_id = entry.entry_id || entry.url or raise Error, "#{id}: Can't determine entry ID"
           entry_id = entry_id.to_s
-          if ignore_history || !history[entry_id]
-            item = {
-              date: entry.published || Time.now,
-              style: @profile.style,
-              subscription_title: @title || feed.title || 'untitled',
-              subscription_description: feed.respond_to?(:description) ? feed.description : nil,
-              title: (t = entry.title.to_s.strip).empty? ? 'untitled' : t,
-              url: entry.url,
-              author: entry.respond_to?(:author) ? entry.author : nil,
-              image: entry.respond_to?(:image) ? entry.image : nil,
-              content: parse_content(entry.content || entry.summary).to_html,
-            }
-            @profile.send_item(item, self)
-            history[entry_id] = item[:date].to_s
-            count += 1
-            break if limit && count >= limit
-          end
+          next if history[entry_id]
+          item = {
+            date: entry.published || Time.now,
+            style: @profile.style,
+            subscription_title: @title || feed.title || 'untitled',
+            subscription_description: feed.respond_to?(:description) ? feed.description : nil,
+            title: (t = entry.title.to_s.strip).empty? ? 'untitled' : t,
+            url: entry.url,
+            author: entry.respond_to?(:author) ? entry.author : nil,
+            image: entry.respond_to?(:image) ? entry.image : nil,
+            content: parse_content(entry.content || entry.summary).to_html,
+          }
+          @profile.send_item(item, self)
+          history[entry_id] = item[:date].to_s
         end
       end
     end
