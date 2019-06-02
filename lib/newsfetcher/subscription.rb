@@ -55,7 +55,7 @@ module NewsFetcher
       @dir / InfoFileName
     end
 
-    def data_file
+    def feed_file
       @dir / FeedFileName
     end
 
@@ -64,7 +64,7 @@ module NewsFetcher
     end
 
     def last_modified
-      data_file.exist? ? data_file.mtime : nil
+      feed_file.exist? ? feed_file.mtime : nil
     end
 
     def to_yaml
@@ -104,8 +104,8 @@ module NewsFetcher
       if (response = NewsFetcher.get(@link, last_modified ? { if_modified_since: last_modified.rfc2822 } : nil))
         # ;;warn "#{id}: loaded feed: #{@link}"
         last_modified = Time.parse(response.headers[:last_modified] || response.headers[:date])
-        data_file.write(response.body)
-        data_file.utime(last_modified, last_modified)
+        feed_file.write(response.body)
+        feed_file.utime(last_modified, last_modified)
       end
     end
 
@@ -138,12 +138,12 @@ module NewsFetcher
     end
 
     def parse_feed
-      raise Error, "No feed data file" unless data_file.exist?
-      data = data_file.read
+      raise Error, "No feed file" unless feed_file.exist?
+      feed = feed_file.read
       begin
-        Feedjira::Feed.parse(data)
+        Feedjira::Feed.parse(feed)
       rescue => e
-        raise Error, "Can't parse feed from #{data_file}: #{e}"
+        raise Error, "Can't parse feed from #{feed_file}: #{e}"
       end
     end
 
@@ -158,7 +158,7 @@ module NewsFetcher
 
     def reset
       [
-        data_file,
+        feed_file,
         history_file.add_extension('.dir'),
         history_file.add_extension('.pag'),
       ].each do |file|
