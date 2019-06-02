@@ -3,6 +3,17 @@
 
 ## Improvements (soon)
 
+- Remove Maildir support.
+  - Implement msmtp delivery, if needed (new gem?).
+  - Rework profile info.yaml file:
+    - Delete: maildir, folder, coalesce, use_plus_addressing.
+    - Build template-based email-to address:
+      - %d: dirname of subscription
+      - %b: basename of subscription
+      - eg: johnl+News.%d@johnlabovitz.com => johnl+News.tech@johnlabovitz.com
+
+- Rename email_from/email_to to mail_from/mail_to.
+
 - Rework history:
   - Use plain-text file instead of SDBM file.
   - Simply append ID/timestamp.
@@ -10,16 +21,11 @@
   - Ignore entries older than certain date (~1 month, configurable).
   - Add 'prune' command to prune out old history (rewrite file).
 
-- Add command sub-class for commands that take list of subscriptions.
-  - Parse subscription args.
-  - Trap errors.
-  - Show subscription path for all errors/statuses/logs.
-
 - Implement Item class to deal with item-related data & logic.
 
 - Use Logger instead of #warn/#puts.
 
-- Add lock files per-feed locks to avoid access by multiple processes/threads.
+- Add per-feed locks to avoid access by multiple processes/threads.
 
 
 ## Features (later)
