@@ -8,14 +8,6 @@
 
 - Move history back into info file.
 
-- Save feed title/etc. to info file.
-  - Update on processing.
-
-- Expand testing:
-    - Write actual test classes/methods.
-    - Use Mail::TestMailer to test results.
-    - Use Mail::FileDelivery to save files.
-
 - Add command sub-class for commands that take list of subscriptions.
   - Parse subscription args.
   - Trap errors.
@@ -29,6 +21,11 @@
 
 
 ## Features (later)
+
+- Expand testing:
+    - Write actual test classes/methods.
+    - Use Mail::TestMailer to test results.
+    - Use Mail::FileDelivery to save files.
 
 - Allow stylesheets to be added/changed.
 
