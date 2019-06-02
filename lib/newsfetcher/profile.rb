@@ -116,15 +116,8 @@ module NewsFetcher
 
     def add_subscription(uri:, path: nil)
       uri = URI.parse(uri)
-      response = NewsFetcher.get(uri)
-      begin
-        Feedjira::Feed.parse(response.body)
-      rescue Feedjira::NoParserAvailable
-        raise Error, "URI is not a feed"
-      end
       key = NewsFetcher.uri_to_key(uri)
       path = Path.new(path ? "#{path}/#{key}" : key)
-      #FIXME: save feed data
       subscription = Subscription.new(dir: subscriptions_dir / path, link: uri, profile: self)
       raise Error, "Subscription already exists (as #{subscription.id}): #{uri}" if subscription.exist?
       subscription.save
