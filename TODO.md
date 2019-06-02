@@ -11,9 +11,6 @@
 - Save feed title/etc. to info file.
   - Update on processing.
 
-- Remove Faraday use.
-  - Have Feedjira do I/O?
-
 - Expand testing:
     - Write actual test classes/methods.
     - Use Mail::TestMailer to test results.
