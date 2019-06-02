@@ -17,7 +17,7 @@ require 'newsfetcher/subscription'
 module NewsFetcher
 
   InfoFileName = 'info.yaml'
-  DataFileName = 'feed'
+  FeedFileName = 'feed'
   HistoryFileName = 'history'
   DownloadTimeout = 30
   DownloadFollowRedirectLimit = 5

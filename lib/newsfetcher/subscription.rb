@@ -56,7 +56,7 @@ module NewsFetcher
     end
 
     def data_file
-      @dir / DataFileName
+      @dir / FeedFileName
     end
 
     def history_file
