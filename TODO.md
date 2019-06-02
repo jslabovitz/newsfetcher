@@ -3,10 +3,12 @@
 
 ## Improvements (soon)
 
-- Keep only 30 days (or configured) of history.
-  - When processing, ignore all entries older than 30 days.
-
-- Move history back into info file.
+- Rework history:
+  - Use plain-text file instead of SDBM file.
+  - Simply append ID/timestamp.
+  - Read history only when needed.
+  - Ignore entries older than certain date (~1 month, configurable).
+  - Add 'prune' command to prune out old history (rewrite file).
 
 - Add command sub-class for commands that take list of subscriptions.
   - Parse subscription args.
@@ -17,7 +19,9 @@
 
 - Use Logger instead of #warn/#puts.
 
-- Add lock files (per profile? per feed?) to avoid multiple processes.
+- Add lock files per-feed locks to avoid access by multiple processes/threads.
+
+- Consider processing feeds in threads, not just downloading them.
 
 
 ## Features (later)
