@@ -21,6 +21,7 @@ module NewsFetcher
   HistoryFileName = 'history'
   DownloadTimeout = 30
   DownloadFollowRedirectLimit = 5
+  DefaultMaxThreads = 100
   DefaultDormantTime = 30 * 24 * 60 * 60    # one month
   DefaultProfileDir = '~/.newsfetcher'
   SubscriptionsDirName = 'subscriptions'

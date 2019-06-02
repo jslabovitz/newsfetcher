@@ -26,9 +26,8 @@ module NewsFetcher
           @profile.fix_subscriptions(subscription_ids)
         end
 
-        command 'update', max_threads: nil do |subscription_ids|
-          @profile.update(subscription_ids,
-            max_threads: @max_threads)
+        command 'update' do |subscription_ids|
+          @profile.update(subscription_ids)
         end
 
         command 'add' do |uri, path|

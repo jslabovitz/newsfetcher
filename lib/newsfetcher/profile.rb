@@ -9,6 +9,7 @@ module NewsFetcher
     attr_accessor :email_to
     attr_accessor :coalesce
     attr_accessor :use_plus_addressing
+    attr_accessor :max_threads
 
     def self.load(dir)
       dir = Path.new(dir).expand_path
@@ -20,6 +21,7 @@ module NewsFetcher
     def initialize(params={})
       @coalesce = false
       @use_plus_addressing = false
+      @max_threads = DefaultMaxThreads
       params.each { |k, v| send("#{k}=", v) }
     end
 
@@ -157,16 +159,15 @@ module NewsFetcher
       end
     end
 
-    def update(args, max_threads: nil)
-      update_subscriptions(args, max_threads: max_threads)
+    def update(args)
+      update_subscriptions(args)
       process_subscriptions(args)
     end
 
-    def update_subscriptions(args, max_threads: nil)
-      max_threads ||= 100
+    def update_subscriptions(args)
       threads = []
       subscriptions(args).each do |subscription|
-        if threads.length >= max_threads
+        if threads.length >= @max_threads
           # ;;warn "waiting for #{threads.length} threads to finish"
           threads.map(&:join)
           threads = []
