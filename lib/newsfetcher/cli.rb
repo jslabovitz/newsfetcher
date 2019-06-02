@@ -27,7 +27,7 @@ module NewsFetcher
         end
 
         command 'update' do |subscription_ids|
-          @profile.update(subscription_ids)
+          @profile.update_subscriptions(subscription_ids)
         end
 
         command 'add' do |uri, path|

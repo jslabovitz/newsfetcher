@@ -21,8 +21,6 @@
 
 - Add lock files per-feed locks to avoid access by multiple processes/threads.
 
-- Consider processing feeds in threads, not just downloading them.
-
 
 ## Features (later)
 

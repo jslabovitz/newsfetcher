@@ -160,11 +160,6 @@ module NewsFetcher
       end
     end
 
-    def update(args)
-      update_subscriptions(args)
-      process_subscriptions(args)
-    end
-
     def update_subscriptions(args)
       threads = []
       subscriptions(args).each do |subscription|
@@ -177,6 +172,7 @@ module NewsFetcher
           # ;;warn "started thread for #{subscription.id}"
           begin
             subscription.update_feed
+            subscription.process
           rescue Error => e
             warn "#{subscription.id}: #{e}"
           end
@@ -184,16 +180,6 @@ module NewsFetcher
       end
       # ;;warn "waiting for last #{threads.length} threads to finish"
       threads.map(&:join)
-    end
-
-    def process_subscriptions(args)
-      subscriptions(args).each do |subscription|
-        begin
-          subscription.process
-        rescue Error => e
-          warn "#{subscription.id}: #{e}"
-        end
-      end
     end
 
     def reset_subscriptions(args)
