@@ -66,9 +66,9 @@ module NewsFetcher
       elsif response.success?
         response
       else
-        raise Error, "Failed to get feed: #{response.status}"
+        raise Error, "Unexpected status: #{response.status}"
       end
-    rescue Faraday::Error, Zlib::BufError => e
+    rescue Faraday::Error, Zlib::BufError, Error => e
       raise Error, "Failed to get #{uri}: #{e}"
     end
   end
