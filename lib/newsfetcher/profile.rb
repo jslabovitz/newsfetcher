@@ -12,10 +12,11 @@ module NewsFetcher
     attr_accessor :max_threads
 
     def self.load(dir)
-      dir = Path.new(dir).expand_path
-      info_file = dir / InfoFileName
-      raise Error, "Profile does not exist at #{dir}" unless dir.exist? && info_file.exist?
-      new(YAML.load(info_file.read).merge(dir: dir))
+      new(
+        {
+          dir: dir,
+        }.merge(NewsFetcher.load_yaml(dir / InfoFileName))
+      )
     end
 
     def initialize(params={})

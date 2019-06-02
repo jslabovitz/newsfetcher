@@ -7,7 +7,7 @@ module NewsFetcher
       SimpleCommand.run(argv) do
 
         global dir: DefaultProfileDir do
-          @profile = Profile.load(@dir)
+          @profile = Profile.load(Path.new(@dir))
         end
 
         command 'list', status: nil, sort: nil do |args|

@@ -9,22 +9,14 @@ module NewsFetcher
     attr_accessor :history
 
     def self.load(profile:, dir:)
-      info = load_info(dir / InfoFileName)
       history = load_history(dir / HistoryFileName)
       new(
-        info.merge(
+        {
           profile: profile,
           dir: dir,
           history: history,
-        )
+        }.merge(NewsFetcher.load_yaml(dir / InfoFileName))
       )
-    end
-
-    def self.load_info(path)
-      raise Error, "Subscription info file does not exist: #{path}" unless path.exist?
-      info = YAML.load(path.read)
-      raise Error, "Bad info file: #{info_file}" unless info && !info.empty?
-      info
     end
 
     def self.load_history(path)
