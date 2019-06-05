@@ -94,7 +94,7 @@ module NewsFetcher
       mail.subject =      "[%s] %s" % [subscription.id, item[:title]]
       mail.content_type = 'text/html; charset=UTF-8'
       mail.body         = ERB.new(message_template).result_with_hash(item)
-      ;;warn "#{mail.subject.inspect} => #{maildir.path}"
+      ;;warn "#{subscription.id}: Sending #{mail.subject.inspect}"
       maildir.add(mail)
     end
 
