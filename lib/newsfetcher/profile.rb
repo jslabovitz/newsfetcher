@@ -91,7 +91,7 @@ module NewsFetcher
       mail.date =         item[:date]
       mail.from =         @email_from
       mail.to =           mail_address_for_subscription(subscription)
-      mail.subject =      "[%s] %s" % [subscription.relative_dir.basename, item[:title]]
+      mail.subject =      "[%s] %s" % [subscription.id, item[:title]]
       mail.content_type = 'text/html; charset=UTF-8'
       mail.body         = ERB.new(message_template).result_with_hash(item)
       ;;warn "#{mail.subject.inspect} => #{maildir.path}"
