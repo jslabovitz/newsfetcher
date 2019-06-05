@@ -136,12 +136,30 @@ module NewsFetcher
     end
 
     def parse_content(content)
-      html = Nokogiri::HTML::DocumentFragment.parse(content)
-      html.xpath('div[@class="feedflare"]').each(&:remove)
-      html.xpath('img[@height="1" and @width="1"]').each(&:remove)
-      #FIXME: doesn't work
-      # html.search('iframe').each { |e| e.delete('width'); e.delete('height') }
-      html
+      remove_feedflare = Loofah::Scrubber.new do |node|
+        node.remove if node.name == 'div' && node['class'] == 'feedflare'
+      end
+      remove_beacon = Loofah::Scrubber.new do |node|
+        node.remove if node.name == 'img' && node['height'] == '1' && node['width'] == '1'
+      end
+      remove_font = Loofah::Scrubber.new do |node|
+        node.replace(node.children) if %w{font big small}.include?(node.name)
+      end
+      remove_form = Loofah::Scrubber.new do |node|
+        node.replace(node.children) if node.name == 'form'
+      end
+      remove_styling = Loofah::Scrubber.new do |node|
+        node.remove_attribute('style') if node['style']
+        node.remove_attribute('class') if node['class']
+        node.remove_attribute('id') if node['id']
+      end
+      Loofah.fragment(content).
+        scrub!(:prune).
+        scrub!(remove_beacon).
+        scrub!(remove_feedflare).
+        scrub!(remove_font).
+        scrub!(remove_form).
+        scrub!(remove_styling)
     end
 
     def reset
