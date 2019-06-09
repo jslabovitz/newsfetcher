@@ -2,8 +2,6 @@ module NewsFetcher
 
   class Profile
 
-    include ERB::Util
-
     attr_accessor :dir
     attr_accessor :maildir
     attr_accessor :folder
@@ -75,14 +73,15 @@ module NewsFetcher
     end
 
     def send_item(item)
-      subscription = item[:subscription]
+      item.profile = self
+      subscription = item.subscription
       mail = Mail.new
-      mail.date =         item[:date]
+      mail.date =         item.date
       mail.from =         @mail_from
       mail.to =           mail_address_for_subscription(subscription)
-      mail.subject =      "[%s] %s" % [subscription.id, item[:title]]
+      mail.subject =      "[%s] %s" % [subscription.id, item.title]
       mail.content_type = 'text/html; charset=UTF-8'
-      mail.body         = ERB.new(message_template).result_with_hash(item.merge(style: style))
+      mail.body         = ERB.new(message_template).result(item.get_binding)
       ;;warn "#{subscription.id}: Sending #{mail.subject.inspect}"
       maildir_folder = @maildir / @folder / subscription.relative_dir
       maildir_folder = maildir_folder.dirname if @coalesce

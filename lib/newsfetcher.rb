@@ -12,6 +12,7 @@ require 'nokogiri'
 require 'simple-command'
 require 'erb'
 
+require 'newsfetcher/item'
 require 'newsfetcher/profile'
 require 'newsfetcher/subscription'
 
@@ -26,8 +27,8 @@ module NewsFetcher
   DefaultDormantTime = 30 * 24 * 60 * 60    # one month
   DefaultProfileDir = '~/.newsfetcher'
   SubscriptionsDirName = 'subscriptions'
-  StylesheetFile = Path.new(__FILE__).dirname / '../stylesheet.css'
-  MessageTemplateFile = Path.new(__FILE__).dirname / '../message.rhtml'
+  StylesheetFile = Path.new(__FILE__).dirname / '../message/stylesheet.css'
+  MessageTemplateFile = Path.new(__FILE__).dirname / '../message/content.html.erb'
 
   Feedjira.configure do |config|
     config.strip_whitespace = true
@@ -80,6 +81,33 @@ module NewsFetcher
     info = YAML.load(path.read)
     raise Error, "Bad file: #{info_file}" unless info && !info.empty?
     info
+  end
+
+  def self.parse_content(content)
+    remove_feedflare = Loofah::Scrubber.new do |node|
+      node.remove if node.name == 'div' && node['class'] == 'feedflare'
+    end
+    remove_beacon = Loofah::Scrubber.new do |node|
+      node.remove if node.name == 'img' && node['height'] == '1' && node['width'] == '1'
+    end
+    remove_font = Loofah::Scrubber.new do |node|
+      node.replace(node.children) if %w{font big small}.include?(node.name)
+    end
+    remove_form = Loofah::Scrubber.new do |node|
+      node.replace(node.children) if node.name == 'form'
+    end
+    remove_styling = Loofah::Scrubber.new do |node|
+      node.remove_attribute('style') if node['style']
+      node.remove_attribute('class') if node['class']
+      node.remove_attribute('id') if node['id']
+    end
+    Loofah.fragment(content).
+      scrub!(:prune).
+      scrub!(remove_beacon).
+      scrub!(remove_feedflare).
+      scrub!(remove_font).
+      scrub!(remove_form).
+      scrub!(remove_styling)
   end
 
 end

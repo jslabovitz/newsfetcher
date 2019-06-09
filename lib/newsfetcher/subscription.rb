@@ -101,22 +101,10 @@ module NewsFetcher
     def process(&block)
       SDBM.open(history_file) do |history|
         feed = parse_feed
-        feed.entries.each do |entry|
-          entry_date = entry.published || Time.now
-          entry_id = entry.entry_id || entry.url or raise Error, "#{id}: Can't determine entry ID"
-          entry_id = entry_id.to_s
-          unless history[entry_id]
-            yield(
-              date: entry_date,
-              subscription: self,
-              subscription_title: @title || feed.title || 'untitled',
-              subscription_description: feed.respond_to?(:description) ? feed.description : nil,
-              title: (t = entry.title.to_s.strip).empty? ? 'untitled' : t,
-              url: entry.url,
-              author: entry.respond_to?(:author) ? entry.author : nil,
-              image: entry.respond_to?(:image) ? entry.image : nil,
-              content: parse_content(entry.content || entry.summary).to_html)
-            history[entry_id] = entry_date.to_s
+        feed_items(feed).each do |item|
+          unless history[item.id]
+            yield(item)
+            history[item.id] = item.date.to_s
           end
         end
       end
@@ -132,31 +120,14 @@ module NewsFetcher
       end
     end
 
-    def parse_content(content)
-      remove_feedflare = Loofah::Scrubber.new do |node|
-        node.remove if node.name == 'div' && node['class'] == 'feedflare'
+    def feed_items(feed)
+      feed.entries.collect do |entry|
+        Item.new(
+          feed: feed,
+          entry: entry,
+          subscription: self,
+          profile: @profile)
       end
-      remove_beacon = Loofah::Scrubber.new do |node|
-        node.remove if node.name == 'img' && node['height'] == '1' && node['width'] == '1'
-      end
-      remove_font = Loofah::Scrubber.new do |node|
-        node.replace(node.children) if %w{font big small}.include?(node.name)
-      end
-      remove_form = Loofah::Scrubber.new do |node|
-        node.replace(node.children) if node.name == 'form'
-      end
-      remove_styling = Loofah::Scrubber.new do |node|
-        node.remove_attribute('style') if node['style']
-        node.remove_attribute('class') if node['class']
-        node.remove_attribute('id') if node['id']
-      end
-      Loofah.fragment(content).
-        scrub!(:prune).
-        scrub!(remove_beacon).
-        scrub!(remove_feedflare).
-        scrub!(remove_font).
-        scrub!(remove_form).
-        scrub!(remove_styling)
     end
 
     def reset
@@ -179,23 +150,8 @@ module NewsFetcher
     def show
       feed = parse_feed
       puts; puts '%s:' % (@title || feed.title)
-      feed.entries.each do |entry|
-        entry_id = entry.entry_id || entry.url or raise
-        entry_id = entry_id.to_s
-        content = entry.content || entry.summary
-        html = parse_content(content).to_html
-        {
-          'ID' => entry_id,
-          'URL' => entry.url,
-          'Content' => html,
-        }.each do |label, value|
-          if value =~ /\n/
-            puts '%20s:' % label
-            value.split(/\n/).each { |v| puts '  | %s' % v }
-          else
-            puts '%20s: %s' % [label, value]
-          end
-        end
+      feed_items(feed).each do |item|
+        item.show
         puts
       end
     end
