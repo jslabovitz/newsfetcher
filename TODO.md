@@ -4,18 +4,16 @@
 ## Improvements (soon)
 
 - Remove Maildir support.
-  - Implement msmtp delivery, if needed (new gem?).
+  - Add 'mailer' parameter to profile:
+      mailer: /usr/local/bin/msmtp -t ...
   - Rework profile info.yaml file:
     - Delete: maildir, folder, coalesce, use_plus_addressing.
 
-- Move message.rhtml into full message, not just HTML.
-  - Include message header and stylesheet.
-  - Read from .newsfetcher/message.erb if present, or use default.
-  - hash items for:
-    - dirname of subscription
-    - basename of subscription
-    - title of item
-    - eg: johnl+News.%d@johnlabovitz.com => johnl+News.tech@johnlabovitz.com
+- Create message/message.erb template.
+  - Include message header and content.
+  - Read from profile dir, if present.
+  - Use ERB tags for current #send_item message keys.
+  - Parse into message using Mail.read?
 
 - Minify CSS.
 
@@ -25,9 +23,6 @@
   - Read history only when needed.
   - Ignore entries older than certain date (~1 month, configurable).
   - Add 'prune' command to prune out old history (rewrite file).
-
-- Implement Item class to deal with item-related data & logic.
-  - Rename to Message?
 
 - Use Logger instead of #warn/#puts.
 
