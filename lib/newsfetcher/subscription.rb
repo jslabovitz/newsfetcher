@@ -147,11 +147,11 @@ module NewsFetcher
     def fix
     end
 
-    def show
+    def show(keys)
       feed = parse_feed
       puts; puts '%s:' % (@title || feed.title)
       feed_items(feed).each do |item|
-        item.show
+        item.show(keys)
         puts
       end
     end

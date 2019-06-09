@@ -193,9 +193,9 @@ module NewsFetcher
       end
     end
 
-    def show(args)
+    def show(args, keys: nil)
       subscriptions(args).each do |subscription|
-        subscription.show
+        subscription.show(keys)
       end
     end
 

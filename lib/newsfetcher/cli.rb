@@ -43,8 +43,9 @@ module NewsFetcher
           @profile.reset(subscription_ids)
         end
 
-        command 'show' do |subscription_ids|
-          @profile.show(subscription_ids)
+        command 'show', keys: nil do |subscription_ids|
+          @keys = @keys.split(',').map(&:to_sym) if @keys
+          @profile.show(subscription_ids, keys: @keys)
         end
 
       end
