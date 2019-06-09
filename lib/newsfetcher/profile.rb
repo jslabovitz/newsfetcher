@@ -72,18 +72,19 @@ module NewsFetcher
       address
     end
 
-    def send_item(item, subscription)
-      maildir_folder = @maildir / @folder / subscription.relative_dir
-      maildir_folder = maildir_folder.dirname if @coalesce
-      maildir = Maildir.new(maildir_folder.to_s)
+    def send_item(item)
+      subscription = item[:subscription]
       mail = Mail.new
       mail.date =         item[:date]
       mail.from =         @mail_from
       mail.to =           mail_address_for_subscription(subscription)
       mail.subject =      "[%s] %s" % [subscription.id, item[:title]]
       mail.content_type = 'text/html; charset=UTF-8'
-      mail.body         = ERB.new(message_template).result_with_hash(item)
+      mail.body         = ERB.new(message_template).result_with_hash(item.merge(style: style))
       ;;warn "#{subscription.id}: Sending #{mail.subject.inspect}"
+      maildir_folder = @maildir / @folder / subscription.relative_dir
+      maildir_folder = maildir_folder.dirname if @coalesce
+      maildir = Maildir.new(maildir_folder.to_s)
       maildir.add(mail)
     end
 
@@ -161,7 +162,9 @@ module NewsFetcher
           # ;;warn "started thread for #{subscription.id}"
           begin
             subscription.update_feed
-            subscription.process
+            subscription.process do |item|
+              send_item(item)
+            end
           rescue Error => e
             warn "#{subscription.id}: #{e}"
           end
