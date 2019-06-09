@@ -3,21 +3,21 @@
 
 ## Improvements (soon)
 
-- Rework message building/sending:
-  - Remove Maildir support.
+- Remove Maildir support.
   - Implement msmtp delivery, if needed (new gem?).
-  - Move message.rhtml into full message, not just HTML.
-    - Include message header and stylesheet.
-    - Read from .newsfetcher/message.erb if present, or use default.
-    - hash items for:
-      - dirname of subscription
-      - basename of subscription
-      - title of item
-      - eg: johnl+News.%d@johnlabovitz.com => johnl+News.tech@johnlabovitz.com
   - Rework profile info.yaml file:
     - Delete: maildir, folder, coalesce, use_plus_addressing.
 
-- Rename email_from/email_to to mail_from/mail_to.
+- Move message.rhtml into full message, not just HTML.
+  - Include message header and stylesheet.
+  - Read from .newsfetcher/message.erb if present, or use default.
+  - hash items for:
+    - dirname of subscription
+    - basename of subscription
+    - title of item
+    - eg: johnl+News.%d@johnlabovitz.com => johnl+News.tech@johnlabovitz.com
+
+- Minify CSS.
 
 - Rework history:
   - Use plain-text file instead of SDBM file.
