@@ -200,6 +200,12 @@ module NewsFetcher
       end
     end
 
+    def show(args)
+      subscriptions(args).each do |subscription|
+        subscription.show
+      end
+    end
+
   end
 
 end

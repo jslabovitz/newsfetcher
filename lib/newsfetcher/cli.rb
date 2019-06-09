@@ -43,6 +43,10 @@ module NewsFetcher
           @profile.reset_subscriptions(subscription_ids)
         end
 
+        command 'show' do |subscription_ids|
+          @profile.show(subscription_ids)
+        end
+
       end
 
     end

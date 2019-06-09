@@ -179,6 +179,30 @@ module NewsFetcher
     def fix
     end
 
+    def show
+      feed = parse_feed
+      puts; puts '%s:' % (@title || feed.title)
+      feed.entries.each do |entry|
+        entry_id = entry.entry_id || entry.url or raise
+        entry_id = entry_id.to_s
+        content = entry.content || entry.summary
+        html = parse_content(content).to_html
+        {
+          'ID' => entry_id,
+          'URL' => entry.url,
+          'Content' => html,
+        }.each do |label, value|
+          if value =~ /\n/
+            puts '%20s:' % label
+            value.split(/\n/).each { |v| puts '  | %s' % v }
+          else
+            puts '%20s: %s' % [label, value]
+          end
+        end
+        puts
+      end
+    end
+
   end
 
 end
