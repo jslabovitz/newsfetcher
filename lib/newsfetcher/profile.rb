@@ -5,8 +5,8 @@ module NewsFetcher
     attr_accessor :dir
     attr_accessor :maildir
     attr_accessor :folder
-    attr_accessor :email_from
-    attr_accessor :email_to
+    attr_accessor :mail_from
+    attr_accessor :mail_to
     attr_accessor :coalesce
     attr_accessor :use_plus_addressing
     attr_accessor :max_threads
@@ -34,12 +34,12 @@ module NewsFetcher
       @maildir = Path.new(dir)
     end
 
-    def email_from=(address)
-      @email_from = Mail::Address.new(address)
+    def mail_from=(address)
+      @mail_from = Mail::Address.new(address)
     end
 
-    def email_to=(address)
-      @email_to = Mail::Address.new(address)
+    def mail_to=(address)
+      @mail_to = Mail::Address.new(address)
     end
 
     def coalesce=(state)
@@ -52,8 +52,8 @@ module NewsFetcher
 
     def to_yaml
       {
-        email_from: @email_from.to_s,
-        email_to: @email_to.to_s,
+        mail_from: @mail_from.to_s,
+        mail_to: @mail_to.to_s,
         maildir: @maildir.to_s,
         folder: @folder,
         coalesce: @coalesce,
@@ -73,12 +73,12 @@ module NewsFetcher
       address = Mail::Address.new
       if @use_plus_addressing
         address.address = "%s+%s@%s" % [
-          @email_to.local,
+          @mail_to.local,
           [@folder, *subscription.relative_dir.each_filename.to_a].join('.'),
-          @email_to.domain,
+          @mail_to.domain,
         ]
       else
-        address.address = @email_to.address
+        address.address = @mail_to.address
       end
       address
     end
@@ -89,7 +89,7 @@ module NewsFetcher
       maildir = Maildir.new(maildir_folder.to_s)
       mail = Mail.new
       mail.date =         item[:date]
-      mail.from =         @email_from
+      mail.from =         @mail_from
       mail.to =           mail_address_for_subscription(subscription)
       mail.subject =      "[%s] %s" % [subscription.id, item[:title]]
       mail.content_type = 'text/html; charset=UTF-8'
