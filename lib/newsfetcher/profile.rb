@@ -81,7 +81,7 @@ module NewsFetcher
       mail.to =           mail_address_for_subscription(subscription)
       mail.subject =      "[%s] %s" % [subscription.id, item.title]
       mail.content_type = 'text/html; charset=UTF-8'
-      mail.body         = ERB.new(message_template).result(item.get_binding)
+      mail.body         = ERB.new(content_template).result(item.get_binding)
       ;;warn "#{subscription.id}: Sending #{mail.subject.inspect}"
       maildir_folder = @maildir / @folder / subscription.relative_dir
       maildir_folder = maildir_folder.dirname if @coalesce
@@ -93,8 +93,8 @@ module NewsFetcher
       @style ||= StylesheetFile.read
     end
 
-    def message_template
-      @message_template ||= MessageTemplateFile.read
+    def content_template
+      @content_template ||= ContentTemplateFile.read
     end
 
     def subscriptions(args=[])
