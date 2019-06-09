@@ -59,20 +59,17 @@ module NewsFetcher
       feed_file.exist? ? feed_file.mtime : nil
     end
 
-    def to_yaml
-      {
-        'title' => @title,
-        'link' => @link.to_s,
-      }.reject { |k, v| v.nil? }.to_yaml(line_width: -1)
-    end
-
     def exist?
       @dir.exist?
     end
 
     def save
+      info = {
+        'title' => @title,
+        'link' => @link.to_s,
+      }.reject { |k, v| v.nil? }.to_yaml(line_width: -1)
       @dir.mkpath unless exist?
-      info_file.write(to_yaml)
+      info_file.write(info)
     end
 
     def latest_item_timestamp

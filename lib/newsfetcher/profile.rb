@@ -50,17 +50,6 @@ module NewsFetcher
       @use_plus_addressing = !!state
     end
 
-    def to_yaml
-      {
-        mail_from: @mail_from.to_s,
-        mail_to: @mail_to.to_s,
-        maildir: @maildir.to_s,
-        folder: @folder,
-        coalesce: @coalesce,
-        use_plus_addressing: @use_plus_addressing,
-      }.to_yaml(line_width: -1)
-    end
-
     def id
       @dir.basename.to_s
     end
