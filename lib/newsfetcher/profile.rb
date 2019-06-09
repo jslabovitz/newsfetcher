@@ -2,6 +2,8 @@ module NewsFetcher
 
   class Profile
 
+    include ERB::Util
+
     attr_accessor :dir
     attr_accessor :maildir
     attr_accessor :folder

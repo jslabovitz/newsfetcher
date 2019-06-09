@@ -8,14 +8,14 @@
   </head>
   <body>
     <div class="bar">
-      <%= subscription_title %>
+      <%= h(subscription_title) %>
     </div>
     <h1>
       <a href="<%= url %>"><%= title %></a>
     </h1>
 <% if author %>
     <div class="author">
-      <%= author %>
+      <%= h(author) %>
     </div>
 <% end %>
 <% if image %>
@@ -28,7 +28,7 @@
     </div>
 <% if subscription_description %>
     <div class="bar">
-      <%= subscription_description %>
+      <%= h(subscription_description) %>
     </div>
 <% end %>
   </body>
