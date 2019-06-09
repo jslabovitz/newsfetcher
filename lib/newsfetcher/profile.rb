@@ -160,7 +160,7 @@ module NewsFetcher
       end
     end
 
-    def update_subscriptions(args)
+    def update(args)
       threads = []
       subscriptions(args).each do |subscription|
         if threads.length >= @max_threads
@@ -182,19 +182,19 @@ module NewsFetcher
       threads.map(&:join)
     end
 
-    def reset_subscriptions(args)
+    def reset(args)
       subscriptions(args).each do |subscription|
         subscription.reset
       end
     end
 
-    def fix_subscriptions(args)
+    def fix(args)
       subscriptions(args).each do |subscription|
         subscription.fix
       end
     end
 
-    def remove_subscriptions(args)
+    def remove(args)
       subscriptions(args).each do |subscription|
         subscription.remove
       end

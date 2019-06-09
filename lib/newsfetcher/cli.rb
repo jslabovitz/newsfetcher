@@ -23,11 +23,11 @@ module NewsFetcher
         end
 
         command 'fix' do |subscription_ids|
-          @profile.fix_subscriptions(subscription_ids)
+          @profile.fix(subscription_ids)
         end
 
         command 'update' do |subscription_ids|
-          @profile.update_subscriptions(subscription_ids)
+          @profile.update(subscription_ids)
         end
 
         command 'add' do |uri, path|
@@ -36,11 +36,11 @@ module NewsFetcher
         end
 
         command 'remove' do |subscription_ids|
-          @profile.remove_subscriptions(subscription_ids)
+          @profile.remove(subscription_ids)
         end
 
         command 'reset' do |subscription_ids|
-          @profile.reset_subscriptions(subscription_ids)
+          @profile.reset(subscription_ids)
         end
 
         command 'show' do |subscription_ids|
