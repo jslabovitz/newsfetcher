@@ -3,19 +3,17 @@
 
 ## Improvements (soon)
 
-- Remove Maildir support.
-  - Add 'mailer' parameter to profile:
-      mailer: /usr/local/bin/msmtp -t ...
-  - Rework profile info.yaml file:
-    - Delete: maildir, folder, coalesce, use_plus_addressing.
-
 - Create message/message.erb template.
   - Include message header and content.
   - Read from profile dir, if present.
   - Use ERB tags for current #send_item message keys.
   - Parse into message using Mail.read?
 
-- Minify CSS.
+- Remove Maildir support.
+  - Add 'mailer' parameter to profile:
+      mailer: /usr/local/bin/msmtp -t ...
+  - Rework profile info.yaml file:
+    - Delete: maildir, folder, coalesce, use_plus_addressing.
 
 - Rework history:
   - Use plain-text file instead of SDBM file.
@@ -30,6 +28,12 @@
 
 
 ## Features (later)
+
+- Look into minimizing styles:
+    https://stackoverflow.com/questions/4829254/best-practices-for-styling-html-emails
+    https://24ways.org/2009/rock-solid-html-emails
+  - Inline styles are you best friend. Absolutely don't link style sheets and do not use a <style> tag (GMail, for example, strips that tag and all it's contents).
+  - Or punt and just let user deal with it.
 
 - Expand testing:
     - Write actual test classes/methods.
