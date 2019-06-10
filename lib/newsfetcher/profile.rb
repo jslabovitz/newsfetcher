@@ -10,11 +10,15 @@ module NewsFetcher
     attr_accessor :coalesce
     attr_accessor :use_plus_addressing
     attr_accessor :max_threads
+    attr_accessor :style
+    attr_accessor :content_template
 
     def self.load(dir)
       new(
         {
           dir: dir,
+          style: StylesheetFile.read,
+          content_template: ContentTemplateFile.read,
         }.merge(NewsFetcher.load_yaml(dir / InfoFileName))
       )
     end
@@ -81,20 +85,12 @@ module NewsFetcher
       mail.to =           mail_address_for_subscription(subscription)
       mail.subject =      "[%s] %s" % [subscription.id, item.title]
       mail.content_type = 'text/html; charset=UTF-8'
-      mail.body         = ERB.new(content_template).result(item.get_binding)
+      mail.body         = ERB.new(@content_template).result(item.get_binding)
       ;;warn "#{subscription.id}: Sending #{mail.subject.inspect}"
       maildir_folder = @maildir / @folder / subscription.relative_dir
       maildir_folder = maildir_folder.dirname if @coalesce
       maildir = Maildir.new(maildir_folder.to_s)
       maildir.add(mail)
-    end
-
-    def style
-      @style ||= StylesheetFile.read
-    end
-
-    def content_template
-      @content_template ||= ContentTemplateFile.read
     end
 
     def subscriptions(args=[])
