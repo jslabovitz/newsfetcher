@@ -156,6 +156,14 @@ module NewsFetcher
       end
     end
 
+    def show_message
+      feed = parse_feed
+      feed_items(feed).each do |item|
+        email = item.make_email
+        puts email.body.to_s
+      end
+    end
+
   end
 
 end

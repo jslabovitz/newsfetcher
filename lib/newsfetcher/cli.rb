@@ -48,6 +48,10 @@ module NewsFetcher
           @profile.show(subscription_ids, keys: @keys)
         end
 
+        command 'show-message' do |subscription_ids|
+          @profile.show_message(subscription_ids)
+        end
+
       end
 
     end

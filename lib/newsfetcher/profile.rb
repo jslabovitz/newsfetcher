@@ -194,6 +194,12 @@ module NewsFetcher
       end
     end
 
+    def show_message(args)
+      subscriptions(args).each do |subscription|
+        subscription.show_message
+      end
+    end
+
   end
 
 end
