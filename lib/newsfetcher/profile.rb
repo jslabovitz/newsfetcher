@@ -18,7 +18,6 @@ module NewsFetcher
         {
           dir: dir,
           style: StylesheetFile.read,
-          content_template: ContentTemplateFile.read,
         }.merge(NewsFetcher.load_yaml(dir / InfoFileName))
       )
     end

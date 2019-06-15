@@ -29,7 +29,6 @@ module NewsFetcher
   DefaultProfileDir = '~/.newsfetcher'
   SubscriptionsDirName = 'subscriptions'
   StylesheetFile = Path.new(__FILE__).dirname / '../message/stylesheet.css'
-  ContentTemplateFile = Path.new(__FILE__).dirname / '../message/content.html.erb'
 
   Feedjira.configure do |config|
     config.strip_whitespace = true
