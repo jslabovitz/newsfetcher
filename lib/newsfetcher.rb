@@ -111,4 +111,23 @@ module NewsFetcher
       scrub!(remove_styling)
   end
 
+  def self.html_document(&block)
+    doc = Nokogiri::HTML::Document.new
+    doc.encoding = 'UTF-8'
+    Nokogiri::HTML::Builder.with(doc) do |html|
+      html.html do
+        yield(html) if block_given?
+      end
+    end
+    doc
+  end
+
+  def self.html_fragment(&block)
+    fragment = Nokogiri::HTML::DocumentFragment.parse('')
+    Nokogiri::HTML::Builder.with(fragment) do |html|
+      yield(html) if block_given?
+    end
+    fragment
+  end
+
 end
