@@ -76,17 +76,9 @@ module NewsFetcher
     end
 
     def send_item(item)
-      item.profile = self
-      subscription = item.subscription
-      mail = Mail.new
-      mail.date =         item.date
-      mail.from =         @mail_from
-      mail.to =           mail_address_for_subscription(subscription)
-      mail.subject =      "[%s] %s" % [subscription.id, item.title]
-      mail.content_type = 'text/html; charset=UTF-8'
-      mail.body         = ERB.new(@content_template).result(item.get_binding)
-      ;;warn "#{subscription.id}: Sending #{mail.subject.inspect}"
-      maildir_folder = @maildir / @folder / subscription.relative_dir
+      mail = item.make_email
+      ;;warn "#{item.subscription.id}: Sending #{mail.subject.inspect}"
+      maildir_folder = @maildir / @folder / item.subscription.relative_dir
       maildir_folder = maildir_folder.dirname if @coalesce
       maildir = Maildir.new(maildir_folder.to_s)
       maildir.add(mail)
