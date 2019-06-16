@@ -35,6 +35,10 @@ module NewsFetcher
       @dir = Path.new(dir)
     end
 
+    def link=(link)
+      @link = URI.parse(link)
+    end
+
     def relative_dir
       @dir.relative_to(@profile.subscriptions_dir)
     end
