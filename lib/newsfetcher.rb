@@ -7,7 +7,6 @@ require 'faraday'
 require 'feedjira'
 require 'loofah'
 require 'mail'
-require 'maildir'
 require 'nokogiri'
 require 'path'
 require 'public_suffix'
@@ -33,8 +32,6 @@ module NewsFetcher
   Feedjira.configure do |config|
     config.strip_whitespace = true
   end
-
-  Maildir.serializer = Maildir::Serializer::Mail.new
 
   class Error < Exception; end
 
@@ -127,6 +124,12 @@ module NewsFetcher
       yield(html) if block_given?
     end
     fragment
+  end
+
+  def self.replace_fields(str, fields)
+    str.to_s.gsub(/%(\w)/) do
+      fields[$1] or raise "Unknown tag: #{$1.inspect}"
+    end
   end
 
 end

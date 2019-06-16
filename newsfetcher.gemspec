@@ -20,7 +20,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'feedjira', '~> 2'
   s.add_dependency 'loofah', '~> 2'
   s.add_dependency 'mail', '~> 2'
-  s.add_dependency 'maildir', '~> 2'
   s.add_dependency 'path', '~> 2'
   s.add_dependency 'public_suffix', '~> 0'
   s.add_dependency 'simple-command', '~> 0'

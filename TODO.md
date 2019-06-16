@@ -3,12 +3,6 @@
 
 ## Improvements (soon)
 
-- Remove Maildir support.
-  - Add 'mailer' parameter to profile:
-      mailer: /usr/local/bin/msmtp -t ...
-  - Rework profile info.yaml file:
-    - Delete: maildir, folder, coalesce, use_plus_addressing.
-
 - Rework history:
   - Use plain-text file instead of SDBM file.
   - Simply append ID/timestamp.

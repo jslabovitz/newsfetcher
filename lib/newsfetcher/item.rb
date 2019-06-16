@@ -34,12 +34,18 @@ class Item
   end
 
   def make_email
+    fields = {
+      'p' => @subscription.relative_dir.dirname.each_filename.to_a.join('.'),
+      'i' => @subscription.id,
+      't' => @title,
+    }
     mail = Mail.new
     mail.date =         @date
     mail.from =         @profile.mail_from
-    mail.to =           @profile.mail_address_for_subscription(@subscription)
-    mail.subject =      '[%s] %s' % [@subscription.id, @title]
-    mail.content_type = 'text/html; charset=UTF-8'
+    mail.to =           NewsFetcher.replace_fields(@profile.mail_to, fields)
+    mail.subject =      NewsFetcher.replace_fields(@profile.mail_subject, fields)
+    mail.content_type = 'text/html'
+    mail.charset      = 'utf-8'
     mail.body         = render.to_html
     mail
   end

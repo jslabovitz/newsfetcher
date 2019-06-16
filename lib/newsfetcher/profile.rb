@@ -3,15 +3,11 @@ module NewsFetcher
   class Profile
 
     attr_accessor :dir
-    attr_accessor :maildir
-    attr_accessor :folder
     attr_accessor :mail_from
     attr_accessor :mail_to
-    attr_accessor :coalesce
-    attr_accessor :use_plus_addressing
+    attr_accessor :mail_subject
     attr_accessor :max_threads
     attr_accessor :style
-    attr_accessor :content_template
 
     def self.load(dir)
       new(
@@ -23,9 +19,9 @@ module NewsFetcher
     end
 
     def initialize(params={})
-      @coalesce = false
-      @use_plus_addressing = false
       @max_threads = DefaultMaxThreads
+      @delivery_method = [:sendmail]
+      @mail_subject = '[%i] %t'
       params.each { |k, v| send("#{k}=", v) }
     end
 
@@ -33,8 +29,8 @@ module NewsFetcher
       @dir = Path.new(dir)
     end
 
-    def maildir=(dir)
-      @maildir = Path.new(dir)
+    def mailer=(location)
+      @delivery_method = [:sendmail, location: location]
     end
 
     def mail_from=(address)
@@ -45,14 +41,6 @@ module NewsFetcher
       @mail_to = Mail::Address.new(address)
     end
 
-    def coalesce=(state)
-      @coalesce = !!state
-    end
-
-    def use_plus_addressing=(state)
-      @use_plus_addressing = !!state
-    end
-
     def id
       @dir.basename.to_s
     end
@@ -61,27 +49,11 @@ module NewsFetcher
       @dir / SubscriptionsDirName
     end
 
-    def mail_address_for_subscription(subscription)
-      address = Mail::Address.new
-      if @use_plus_addressing
-        address.address = "%s+%s@%s" % [
-          @mail_to.local,
-          [@folder, *subscription.relative_dir.each_filename.to_a].join('.'),
-          @mail_to.domain,
-        ]
-      else
-        address.address = @mail_to.address
-      end
-      address
-    end
-
     def send_item(item)
       mail = item.make_email
       ;;warn "#{item.subscription.id}: Sending #{mail.subject.inspect}"
-      maildir_folder = @maildir / @folder / item.subscription.relative_dir
-      maildir_folder = maildir_folder.dirname if @coalesce
-      maildir = Maildir.new(maildir_folder.to_s)
-      maildir.add(mail)
+      mail.delivery_method(*@delivery_method)
+      mail.deliver!
     end
 
     def subscriptions(args=[])
