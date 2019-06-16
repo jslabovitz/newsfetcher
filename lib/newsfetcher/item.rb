@@ -33,10 +33,6 @@ class Item
     @content = NewsFetcher.parse_content(entry.content || entry.summary).to_html
   end
 
-  def subscription_site
-    @url ? PublicSuffix.domain(@url.host) : ''
-  end
-
   def make_email
     mail = Mail.new
     mail.date =         @date
@@ -55,7 +51,16 @@ class Item
       end
       html.body do
         html.div(class: 'bar') { html << make_header }
-        html.h1 { html.a(title, href: @url) }
+        html.h1 do
+          if is_html?(@title)
+            html.a(href: @url) { html << @title }
+          else
+            html.a(@title, href: @url)
+          end
+          if (domain = PublicSuffix.domain(@url.host)) != PublicSuffix.domain(@subscription.link.host)
+            html.text(' [%s]' % PublicSuffix.domain(domain))
+          end
+        end
         html.div(class: 'content') { html << @content }
         html.div(@subscription_description, class: 'bar')
       end
@@ -63,7 +68,7 @@ class Item
   end
 
   def make_header
-    %i{subscription_title author subscription_site}.map do |key|
+    %i{subscription_title author}.map do |key|
       make_header_part(key)
     end.compact.join(' // ')
   end
@@ -77,6 +82,10 @@ class Item
     else
       nil
     end
+  end
+
+  def is_html?(str)
+    str =~ /(<[a-z]+>)|(\&[a-z]+;)/i
   end
 
   DefaultKeys = %i{id date subscription_title subscription_description title url author image content}
