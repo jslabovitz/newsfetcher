@@ -68,20 +68,13 @@ class Item
   end
 
   def make_header
-    %i{subscription_title author}.map do |key|
-      make_header_part(key)
-    end.compact.join(' // ')
-  end
-
-  def make_header_part(key)
-    value = send(key)
-    if value && !value.empty?
-      NewsFetcher.html_fragment do |h|
-        h.span(value, class: key.to_s.gsub('_', '-'))
-      end.to_html
-    else
-      nil
-    end
+    NewsFetcher.html_fragment do |html|
+      html.span(@subscription_title, class: 'subscription-title')
+      if @author
+        html << ' // '
+        html.span(@author, class: 'author')
+      end
+    end.to_html
   end
 
   def is_html?(str)
