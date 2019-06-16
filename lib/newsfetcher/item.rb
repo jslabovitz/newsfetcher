@@ -38,7 +38,7 @@ class Item
     mail.date =         @date
     mail.from =         @profile.mail_from
     mail.to =           @profile.mail_address_for_subscription(@subscription)
-    mail.subject =      "[%s] %s" % [@subscription.id, @title]
+    mail.subject =      '[%s] %s' % [@subscription.id, @title]
     mail.content_type = 'text/html; charset=UTF-8'
     mail.body         = render.to_html
     mail
