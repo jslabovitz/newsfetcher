@@ -28,7 +28,7 @@ module NewsFetcher
     end
 
     def initialize(params={})
-      params.each { |k, v| send("#{k}=", v) }
+      params.each { |k, v| send("#{k}=", v) if v }
     end
 
     def dir=(dir)
