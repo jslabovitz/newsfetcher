@@ -56,31 +56,26 @@ class Item
         html.style { html << @style }
       end
       html.body do
-        html.div(class: 'bar') { html << make_header }
+        html.div(class: 'bar') do
+          html.text(@subscription_title)
+        end
         html.h1 do
           if is_html?(@title)
-            html.a(href: @url) { html << @title }
+            html << @title
           else
-            html.a(@title, href: @url)
-          end
-          if (domain = PublicSuffix.domain(@url.host)) != PublicSuffix.domain(@subscription.link.host)
-            html.text(' [%s]' % PublicSuffix.domain(domain))
+            html.text(@title)
           end
         end
+        html.h2 { html.a(PublicSuffix.domain(@url.host), href: @url) }
+        html.h3(@author) if @author
         html.div(class: 'content') { html << @content }
-        html.div(@subscription_description, class: 'bar')
+        if @subscription_description
+          html.div(class: 'bar') do
+            html.text(@subscription_description)
+          end
+        end
       end
     end
-  end
-
-  def make_header
-    NewsFetcher.html_fragment do |html|
-      html.span(@subscription_title, class: 'subscription-title')
-      if @author
-        html << ' // '
-        html.span(@author, class: 'author')
-      end
-    end.to_html
   end
 
   def is_html?(str)
