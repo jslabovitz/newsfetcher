@@ -12,6 +12,11 @@
 
 - Add per-feed locks to avoid access by multiple processes/threads.
 
+- Combine list/show/show-message commands.
+  - Use flags to control what is shown.
+
+- Merge main NewsFetcher module with Profile?
+
 
 ## Features (later)
 
