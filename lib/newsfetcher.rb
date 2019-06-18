@@ -69,7 +69,7 @@ module NewsFetcher
         raise Error, "Unexpected status: #{response.status}"
       end
     rescue Faraday::Error, Zlib::BufError, Error => e
-      raise Error, "Failed to get #{uri}: #{e}"
+      raise Error, "Couldn't get #{uri}: #{e}"
     end
   end
 
