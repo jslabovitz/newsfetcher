@@ -25,7 +25,7 @@ module NewsFetcher
       @delivery_method = [:sendmail]
       @mail_subject = '[%i] %t'
       @log_level = Logger::INFO
-      params.each { |k, v| send("#{k}=", v) }
+      params.each { |k, v| send("#{k}=", v) if v }
       @logger = Logger.new(STDERR,
         level: @log_level,
         formatter: NewsFetcher.method(:log_formatter).to_proc)
