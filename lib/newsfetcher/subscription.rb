@@ -95,7 +95,7 @@ module NewsFetcher
 
     def update_feed
       if (response = NewsFetcher.get(@link, last_modified ? { if_modified_since: last_modified.rfc2822 } : nil))
-        # ;;warn "#{id}: loaded feed: #{@link}"
+        @profile.logger.debug { "#{id}: loaded feed: #{@link}" }
         last_modified = Time.parse(response.headers[:last_modified] || response.headers[:date])
         feed_file.write(response.body)
         feed_file.utime(last_modified, last_modified)

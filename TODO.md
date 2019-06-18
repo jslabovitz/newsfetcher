@@ -10,8 +10,6 @@
   - Ignore entries older than certain date (~1 month, configurable).
   - Add 'prune' command to prune out old history (rewrite file).
 
-- Use Logger instead of #warn/#puts.
-
 - Add per-feed locks to avoid access by multiple processes/threads.
 
 

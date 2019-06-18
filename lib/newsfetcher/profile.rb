@@ -8,6 +8,8 @@ module NewsFetcher
     attr_accessor :mail_subject
     attr_accessor :max_threads
     attr_accessor :style
+    attr_accessor :logger
+    attr_accessor :log_level
 
     def self.load(dir, params={})
       new(
@@ -22,7 +24,11 @@ module NewsFetcher
       @max_threads = DefaultMaxThreads
       @delivery_method = [:sendmail]
       @mail_subject = '[%i] %t'
+      @log_level = Logger::INFO
       params.each { |k, v| send("#{k}=", v) }
+      @logger = Logger.new(STDERR,
+        level: @log_level,
+        formatter: NewsFetcher.method(:log_formatter).to_proc)
     end
 
     def dir=(dir)
@@ -51,7 +57,7 @@ module NewsFetcher
 
     def send_item(item)
       mail = item.make_email
-      ;;warn "#{item.subscription.id}: Sending #{mail.subject.inspect}"
+      @logger.info { "#{item.subscription.id}: Sending #{mail.subject.inspect}" }
       mail.delivery_method(*@delivery_method)
       mail.deliver!
     end
@@ -74,7 +80,7 @@ module NewsFetcher
       subscription = Subscription.new(dir: subscriptions_dir / path, link: uri, profile: self)
       raise Error, "Subscription already exists (as #{subscription.id}): #{uri}" if subscription.exist?
       subscription.save
-      ;;warn "saved new subscription to #{subscription.id}"
+      @logger.info { "Saved new subscription to #{subscription.id}" }
     end
 
     def discover_feed(uri)
@@ -114,23 +120,23 @@ module NewsFetcher
       threads = []
       subscriptions(args).each do |subscription|
         if threads.length >= @max_threads
-          # ;;warn "waiting for #{threads.length} threads to finish"
+          @logger.debug { "Waiting for #{threads.length} threads to finish" }
           threads.map(&:join)
           threads = []
         end
         threads << Thread.new do
-          # ;;warn "started thread for #{subscription.id}"
+          @logger.debug { "Started thread for #{subscription.id}" }
           begin
             subscription.update_feed
             subscription.process do |item|
               send_item(item)
             end
           rescue Error => e
-            warn "#{subscription.id}: #{e}"
+            @logger.error { "#{subscription.id}: #{e}" }
           end
         end
       end
-      # ;;warn "waiting for last #{threads.length} threads to finish"
+      @logger.debug { "Waiting for last #{threads.length} threads to finish" }
       threads.map(&:join)
     end
 

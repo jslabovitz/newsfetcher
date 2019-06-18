@@ -1,4 +1,5 @@
 require 'date'
+require 'logger'
 require 'sdbm'
 require 'uri'
 require 'yaml'
@@ -130,6 +131,14 @@ module NewsFetcher
     str.to_s.gsub(/%(\w)/) do
       fields[$1] or raise "Unknown tag: #{$1.inspect}"
     end
+  end
+
+  def self.log_formatter(severity, datetime, progname, msg)
+    "%s %5s: %s\n" % [
+      datetime.strftime('%FT%T%:z'),
+      severity,
+      msg,
+    ]
   end
 
 end
