@@ -9,12 +9,12 @@ module NewsFetcher
     attr_accessor :max_threads
     attr_accessor :style
 
-    def self.load(dir)
+    def self.load(dir, params={})
       new(
         {
           dir: dir,
           style: StylesheetFile.read,
-        }.merge(NewsFetcher.load_yaml(dir / InfoFileName))
+        }.merge(NewsFetcher.load_yaml(dir / InfoFileName)).merge(params)
       )
     end
 
