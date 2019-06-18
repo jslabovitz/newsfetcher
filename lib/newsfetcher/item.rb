@@ -79,7 +79,7 @@ class Item
   end
 
   def is_html?(str)
-    str =~ /(<[a-z]+>)|(\&[a-z]+;)/i
+    str =~ /(<[a-z]+>)|(\&\S+;)/i
   end
 
   DefaultKeys = %i{id date subscription_title subscription_description title url author image content}
