@@ -6,8 +6,8 @@ module NewsFetcher
 
       SimpleCommand.run(argv) do
 
-        global dir: DefaultProfileDir, log_level: Logger::INFO do
-          @profile = Profile.load(Path.new(@dir), log_level: @log_level.to_sym)
+        global dir: DefaultProfileDir, log_level: nil do
+          @profile = Profile.load(Path.new(@dir), log_level: @log_level && @log_level.to_sym)
         end
 
         command 'list', status: nil, sort: nil do |args|
