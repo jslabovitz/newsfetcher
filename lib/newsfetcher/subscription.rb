@@ -36,7 +36,7 @@ module NewsFetcher
     end
 
     def link=(link)
-      @link = URI.parse(link)
+      @link = URI.parse(link) unless link.kind_of?(URI)
     end
 
     def relative_dir
