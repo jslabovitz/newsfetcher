@@ -84,9 +84,9 @@ module NewsFetcher
   def self.load_yaml(path)
     path = path.expand_path
     raise Error, "File does not exist: #{path}" unless path.exist?
-    info = YAML.load(path.read)
-    raise Error, "Bad file: #{info_file}" unless info && !info.empty?
-    info
+    obj = YAML.load(path.read)
+    raise Error, "Bad file: #{path}" unless obj && !obj.empty?
+    obj
   end
 
   def self.parse_content(content)
