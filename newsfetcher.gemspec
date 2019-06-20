@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'loofah', '~> 2'
   s.add_dependency 'mail', '~> 2'
   s.add_dependency 'path', '~> 2'
-  s.add_dependency 'public_suffix', '~> 0'
+  s.add_dependency 'public_suffix', '~> 3'
   s.add_dependency 'simple-command', '~> 0'
 
   s.add_development_dependency 'rake', '~> 12'
