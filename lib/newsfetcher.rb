@@ -73,6 +73,14 @@ module NewsFetcher
     end
   end
 
+  def self.save_yaml(path, obj)
+    hash = Hash[
+      obj.reject { |k, v| v.nil? }.map { |k, v| [k.to_s, v.to_s] }
+    ]
+    path.dirname.mkpath unless path.dirname.exist?
+    path.write(hash.to_yaml(line_width: -1))
+  end
+
   def self.load_yaml(path)
     path = path.expand_path
     raise Error, "File does not exist: #{path}" unless path.exist?
