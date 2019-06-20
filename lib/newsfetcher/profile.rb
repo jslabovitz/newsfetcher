@@ -12,6 +12,7 @@ module NewsFetcher
     attr_accessor :log_level
 
     def self.load(dir, params={})
+      dir = Path.new(dir)
       new(
         {
           dir: dir,
@@ -29,6 +30,16 @@ module NewsFetcher
       @logger = Logger.new(STDERR,
         level: @log_level,
         formatter: NewsFetcher.method(:log_formatter).to_proc)
+    end
+
+    def save
+      NewsFetcher.save_yaml(info_file,
+        mail_from: @mail_from,
+        mail_to: @mail_to)
+    end
+
+    def info_file
+      (@dir / InfoFileName)
     end
 
     def dir=(dir)
