@@ -11,6 +11,14 @@ module NewsFetcher
     attr_accessor :logger
     attr_accessor :log_level
 
+    def self.init(dir, params)
+      dir = Path.new(dir)
+      raise "#{dir} already exists" if dir.exist?
+      dir.mkpath
+      profile = new({ dir: dir }.merge(params))
+      profile.save
+    end
+
     def self.load(dir, params={})
       dir = Path.new(dir)
       new(
