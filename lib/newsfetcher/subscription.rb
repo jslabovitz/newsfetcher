@@ -47,6 +47,10 @@ module NewsFetcher
       relative_dir.to_s
     end
 
+    def base_id
+      relative_dir.basename.to_s
+    end
+
     def info_file
       @dir / InfoFileName
     end

@@ -37,6 +37,7 @@ class Item
     fields = {
       'p' => @subscription.relative_dir.dirname.each_filename.to_a.join('.'),
       'i' => @subscription.id,
+      'b' => @subscription.base_id,
       't' => @title,
     }
     mail = Mail.new
