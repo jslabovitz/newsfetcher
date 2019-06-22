@@ -1,6 +1,5 @@
 require 'date'
 require 'logger'
-require 'sdbm'
 require 'uri'
 require 'yaml'
 

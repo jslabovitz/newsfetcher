@@ -79,6 +79,10 @@ class Item
     end
   end
 
+  def age
+    Time.now - @date
+  end
+
   def is_html?(str)
     str =~ /(<[a-z]+>)|(\&\S+;)/i
   end

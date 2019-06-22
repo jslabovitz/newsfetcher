@@ -9,22 +9,21 @@ module NewsFetcher
     attr_accessor :history
 
     def self.load(profile:, dir:)
-      history = load_history(dir / HistoryFileName)
       new(
         {
           profile: profile,
           dir: dir,
-          history: history,
+          history: load_history(dir / HistoryFileName),
         }.merge(NewsFetcher.load_yaml(dir / InfoFileName))
       )
     end
 
     def self.load_history(path)
-      history = {}
-      SDBM.open(path) do |db|
-        history = db.map { |k, v| [k, Time.parse(v)] }.to_h
-      end
-      history
+      Hash[
+        path.readlines.map { |_| _.chomp.split(/\s+/, 2) }.map do |timestamp, id|
+          [id, Time.parse(timestamp)]
+        end
+      ]
     end
 
     def initialize(params={})
@@ -104,13 +103,13 @@ module NewsFetcher
     end
 
     def process(&block)
-      SDBM.open(history_file) do |history|
+      history_file.open('a') do |file|
         feed = parse_feed
         feed_items(feed).each do |item|
-          unless history[item.id]
-            yield(item)
-            history[item.id] = item.date.to_s
-          end
+          next if @history[item.id] || item.age > DefaultDormantTime
+          yield(item)
+          @history[item.id] = item.date.to_s
+          file.puts [item.date.iso8601, item.id].join(' ')
         end
       end
     end
@@ -138,8 +137,7 @@ module NewsFetcher
     def reset
       [
         feed_file,
-        history_file.add_extension('.dir'),
-        history_file.add_extension('.pag'),
+        history_file,
       ].each do |file|
         file.unlink if file.exist?
       end

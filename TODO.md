@@ -3,12 +3,9 @@
 
 ## Improvements (soon)
 
-- Rework history:
-  - Use plain-text file instead of SDBM file.
-  - Simply append ID/timestamp.
-  - Read history only when needed.
-  - Ignore entries older than certain date (~1 month, configurable).
-  - Add 'prune' command to prune out old history (rewrite file).
+- Read history only when needed.
+
+- Add 'prune' command to prune out old history (rewrite file).
 
 - Add per-feed locks to avoid access by multiple processes/threads.
 
@@ -39,7 +36,7 @@
   - Fetch HTML page for feed.
   - Verify that feed matches <link> element.
 
-- Add dormancy period as class default (constant), per-profile, and per-feed.
+- Add dormancy period as default, configured per-profile, or per-feed.
 
 - Release to rubygems.
   - Reset git history.
