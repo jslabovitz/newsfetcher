@@ -5,6 +5,13 @@
 
 - Read history only when needed.
 
+- Move history functions to separate class?
+  - load
+  - save
+  - prune
+  - update
+  - query
+
 - Add 'prune' command to prune out old history (rewrite file).
 
 - Add per-feed locks to avoid access by multiple processes/threads.
