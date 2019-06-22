@@ -126,9 +126,10 @@ module NewsFetcher
         else
           days = nil
         end
-        puts "%8s | %10s | %-40.40s | %-40.40s" % [
+        puts "%8s | %10s | %5d | %-40.40s | %-40.40s" % [
           subscription.status,
           days ? "#{days} days" : 'never',
+          subscription.history.length,
           subscription.title,
           subscription.id,
         ]
