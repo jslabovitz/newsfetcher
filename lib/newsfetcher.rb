@@ -110,6 +110,9 @@ module NewsFetcher
       node.remove_attribute('class') if node['class']
       node.remove_attribute('id') if node['id']
     end
+    if !is_html?(content)
+      content = html_fragment { |h| h.pre(content) }.to_html
+    end
     Loofah.fragment(content).
       scrub!(:prune).
       scrub!(remove_beacon).
