@@ -48,10 +48,6 @@ module NewsFetcher
       gsub(/\s+/, '-')
   end
 
-  def self.is_html?(str)
-    str =~ /(<[a-z]+>)|(\&\S+;)/i
-  end
-
   def self.get(uri, headers=nil)
     begin
       connection = Faraday.new(
@@ -90,61 +86,6 @@ module NewsFetcher
     obj = YAML.load(path.read)
     raise Error, "Bad file: #{path}" unless obj && !obj.empty?
     obj
-  end
-
-  def self.parse_content(content)
-    remove_feedflare = Loofah::Scrubber.new do |node|
-      node.remove if node.name == 'div' && node['class'] == 'feedflare'
-    end
-    remove_beacon = Loofah::Scrubber.new do |node|
-      node.remove if node.name == 'img' && node['height'] == '1' && node['width'] == '1'
-    end
-    remove_font = Loofah::Scrubber.new do |node|
-      node.replace(node.children) if %w{font big small}.include?(node.name)
-    end
-    remove_form = Loofah::Scrubber.new do |node|
-      node.replace(node.children) if node.name == 'form'
-    end
-    remove_styling = Loofah::Scrubber.new do |node|
-      node.remove_attribute('style') if node['style']
-      node.remove_attribute('class') if node['class']
-      node.remove_attribute('id') if node['id']
-    end
-    if !is_html?(content)
-      content = html_fragment { |h| h.pre(content) }.to_html
-    end
-    Loofah.fragment(content).
-      scrub!(:prune).
-      scrub!(remove_beacon).
-      scrub!(remove_feedflare).
-      scrub!(remove_font).
-      scrub!(remove_form).
-      scrub!(remove_styling)
-  end
-
-  def self.html_document(&block)
-    doc = Nokogiri::HTML::Document.new
-    doc.encoding = 'UTF-8'
-    Nokogiri::HTML::Builder.with(doc) do |html|
-      html.html do
-        yield(html) if block_given?
-      end
-    end
-    doc
-  end
-
-  def self.html_fragment(&block)
-    fragment = Nokogiri::HTML::DocumentFragment.parse('')
-    Nokogiri::HTML::Builder.with(fragment) do |html|
-      yield(html) if block_given?
-    end
-    fragment
-  end
-
-  def self.replace_fields(str, fields)
-    str.to_s.gsub(/%(\w)/) do
-      fields[$1] or raise "Unknown tag: #{$1.inspect}"
-    end
   end
 
   def self.log_formatter(severity, datetime, progname, msg)
