@@ -61,7 +61,7 @@ class Item
           html.text(@subscription_title)
         end
         html.h1 do
-          if is_html?(@title)
+          if NewsFetcher.is_html?(@title)
             html << @title
           else
             html.text(@title)
@@ -81,10 +81,6 @@ class Item
 
   def age
     Time.now - @date
-  end
-
-  def is_html?(str)
-    str =~ /(<[a-z]+>)|(\&\S+;)/i
   end
 
   DefaultKeys = %i{id date subscription_title subscription_description title url author image content}

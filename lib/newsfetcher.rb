@@ -48,6 +48,10 @@ module NewsFetcher
       gsub(/\s+/, '-')
   end
 
+  def self.is_html?(str)
+    str =~ /(<[a-z]+>)|(\&\S+;)/i
+  end
+
   def self.get(uri, headers=nil)
     begin
       connection = Faraday.new(
