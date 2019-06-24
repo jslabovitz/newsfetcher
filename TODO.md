@@ -18,14 +18,19 @@
   - save
   - init
 
-- Add 'prune' command to prune out old history (rewrite file).
+- Move all class methods in NewsFetcher module to Profile.
 
-- Add per-feed locks to avoid access by multiple processes/threads.
+- Move 'discover' to new tool.
+
+- Avoid use of NewsFetcher module constants.
+  - Set instance variables to defaults.
+
+- Add 'prune' command to prune out old history (rewrite file).
 
 - Combine list/show/show-message commands.
   - Use flags to control what is shown.
 
-- Merge main NewsFetcher module with Profile?
+- Add per-feed locks to avoid access by multiple processes/threads.
 
 
 ## Features (later)
