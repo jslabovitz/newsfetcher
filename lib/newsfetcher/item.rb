@@ -156,7 +156,7 @@ class Item
   end
 
   def is_html?(str)
-    str =~ /(<[a-z]+>)|(\&\S+;)/i
+    str =~ /(<[a-z]+)|(\&\S+;)/i
   end
 
 end
