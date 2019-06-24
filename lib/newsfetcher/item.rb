@@ -67,7 +67,7 @@ class Item
             html.text(@title)
           end
         end
-        html.h2 { html.a(PublicSuffix.domain(@url.host), href: @url) }
+        html.h2 { html.a(PublicSuffix.domain(@url.host), href: @url) } if @url
         html.h3(@author) if @author
         html.div(class: 'content') { html << render_content }
         if @subscription_description
