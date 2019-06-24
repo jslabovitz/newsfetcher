@@ -77,6 +77,30 @@ module NewsFetcher
       @dir / SubscriptionsDirName
     end
 
+    def get(uri, headers=nil)
+      begin
+        connection = Faraday.new(
+          url: uri,
+          headers: headers || {},
+          request: { timeout: DownloadTimeout },
+          ssl: { verify: false },
+        ) do |conn|
+          conn.use(FaradayMiddleware::FollowRedirects, limit: DownloadFollowRedirectLimit)
+          conn.adapter(*Faraday.default_adapter)
+        end
+        response = connection.get
+        if response.status == 304
+          nil
+        elsif response.success?
+          response
+        else
+          raise Error, "Unexpected status: #{response.status}"
+        end
+      rescue Faraday::Error, Zlib::BufError, Error => e
+        raise Error, "Couldn't get #{uri}: #{e}"
+      end
+    end
+
     def send_item(item)
       mail = item.make_email
       @logger.info { "#{item.subscription.id}: Sending #{item.title.inspect}" }
@@ -106,8 +130,8 @@ module NewsFetcher
     end
 
     def discover_feed(uri)
-      response = NewsFetcher.get(uri)
       uri = URI.parse(uri)
+      response = get(uri)
       html = Nokogiri::HTML::Document.parse(response.body)
       html.xpath('//link[@rel="alternate"]').each do |link|
         href = uri.merge(URI.parse(link['href']))

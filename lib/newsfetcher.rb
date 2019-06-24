@@ -30,30 +30,6 @@ module NewsFetcher
   SubscriptionsDirName = 'subscriptions'
   StylesheetFile = Path.new(__FILE__).dirname / '../message/stylesheet.css'
 
-  def self.get(uri, headers=nil)
-    begin
-      connection = Faraday.new(
-        url: uri,
-        headers: headers || {},
-        request: { timeout: DownloadTimeout },
-        ssl: { verify: false },
-      ) do |conn|
-        conn.use(FaradayMiddleware::FollowRedirects, limit: DownloadFollowRedirectLimit)
-        conn.adapter(*Faraday.default_adapter)
-      end
-      response = connection.get
-      if response.status == 304
-        nil
-      elsif response.success?
-        response
-      else
-        raise Error, "Unexpected status: #{response.status}"
-      end
-    rescue Faraday::Error, Zlib::BufError, Error => e
-      raise Error, "Couldn't get #{uri}: #{e}"
-    end
-  end
-
   def self.save_yaml(path, obj)
     hash = Hash[
       obj.reject { |k, v| v.nil? }.map { |k, v| [k.to_s, v.to_s] }
