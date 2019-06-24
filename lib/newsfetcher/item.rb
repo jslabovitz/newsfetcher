@@ -30,7 +30,7 @@ class Item
     @url = URI.parse(entry.url) if entry.url
     @author = entry.respond_to?(:author) ? entry.author : nil
     @image = entry.respond_to?(:image) ? entry.image : nil
-    @content = parse_content(entry.content || entry.summary).to_html
+    @content = entry.content || entry.summary || ''
   end
 
   def make_email
@@ -69,7 +69,7 @@ class Item
         end
         html.h2 { html.a(PublicSuffix.domain(@url.host), href: @url) }
         html.h3(@author) if @author
-        html.div(class: 'content') { html << @content }
+        html.div(class: 'content') { html << render_content }
         if @subscription_description
           html.div(class: 'bar') do
             html.text(@subscription_description)
@@ -98,7 +98,7 @@ class Item
     end
   end
 
-  def parse_content(content)
+  def render_content
     remove_feedflare = Loofah::Scrubber.new do |node|
       node.remove if node.name == 'div' && node['class'] == 'feedflare'
     end
@@ -116,16 +116,18 @@ class Item
       node.remove_attribute('class') if node['class']
       node.remove_attribute('id') if node['id']
     end
-    if !is_html?(content)
-      content = html_fragment { |h| h.pre(content) }.to_html
+    if is_html?(@content)
+      Loofah.fragment(@content).
+        scrub!(:prune).
+        scrub!(remove_beacon).
+        scrub!(remove_feedflare).
+        scrub!(remove_font).
+        scrub!(remove_form).
+        scrub!(remove_styling).
+        to_html
+    else
+      html_fragment { |h| h.pre(@content) }.to_html
     end
-    Loofah.fragment(content).
-      scrub!(:prune).
-      scrub!(remove_beacon).
-      scrub!(remove_feedflare).
-      scrub!(remove_font).
-      scrub!(remove_form).
-      scrub!(remove_styling)
   end
 
   def html_document(&block)
