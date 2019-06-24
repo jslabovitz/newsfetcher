@@ -97,7 +97,7 @@ module NewsFetcher
 
     def add_subscription(uri:, path: nil)
       uri = URI.parse(uri)
-      key = NewsFetcher.uri_to_key(uri)
+      key = Subscription.uri_to_key(uri)
       path = Path.new(path ? "#{path}/#{key}" : key)
       subscription = Subscription.new(dir: subscriptions_dir / path, link: uri, profile: self)
       raise Error, "Subscription already exists (as #{subscription.id}): #{uri}" if subscription.exist?
