@@ -30,8 +30,6 @@ module NewsFetcher
   SubscriptionsDirName = 'subscriptions'
   StylesheetFile = Path.new(__FILE__).dirname / '../message/stylesheet.css'
 
-  class Error < Exception; end
-
   def self.uri_to_key(uri)
     uri = URI.parse(uri)  unless uri.kind_of?(URI)
     [
