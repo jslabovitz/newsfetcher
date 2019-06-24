@@ -12,6 +12,7 @@ require 'path'
 require 'public_suffix'
 require 'simple-command'
 
+require 'newsfetcher/error'
 require 'newsfetcher/item'
 require 'newsfetcher/profile'
 require 'newsfetcher/subscription'

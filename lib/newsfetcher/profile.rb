@@ -13,7 +13,7 @@ module NewsFetcher
 
     def self.init(dir, params)
       dir = Path.new(dir)
-      raise "#{dir} already exists" if dir.exist?
+      raise Error, "#{dir} already exists" if dir.exist?
       dir.mkpath
       profile = new({ dir: dir }.merge(params))
       profile.save

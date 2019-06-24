@@ -151,7 +151,7 @@ class Item
 
   def replace_fields(str, fields)
     str.to_s.gsub(/%(\w)/) do
-      fields[$1] or raise "Unknown tag: #{$1.inspect}"
+      fields[$1] or raise Error, "Unknown tag: #{$1.inspect}"
     end
   end
 
