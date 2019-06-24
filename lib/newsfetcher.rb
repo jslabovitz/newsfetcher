@@ -83,12 +83,4 @@ module NewsFetcher
     obj
   end
 
-  def self.log_formatter(severity, datetime, progname, msg)
-    "%s %5s: %s\n" % [
-      datetime.strftime('%FT%T%:z'),
-      severity,
-      msg,
-    ]
-  end
-
 end

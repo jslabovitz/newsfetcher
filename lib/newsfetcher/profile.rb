@@ -37,7 +37,10 @@ module NewsFetcher
       params.each { |k, v| send("#{k}=", v) if v }
       @logger = Logger.new(STDERR,
         level: @log_level,
-        formatter: NewsFetcher.method(:log_formatter).to_proc)
+        formatter: proc { |severity, datetime, progname, msg|
+          "%s %5s: %s\n" % [datetime.strftime('%FT%T%:z'), severity, msg]
+        },
+      )
     end
 
     def save
