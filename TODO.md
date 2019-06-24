@@ -18,8 +18,6 @@
   - save
   - init
 
-- Move all class methods in NewsFetcher module to Profile.
-
 - Move 'discover' to new tool.
 
 - Avoid use of NewsFetcher module constants.
