@@ -29,10 +29,6 @@ module NewsFetcher
   SubscriptionsDirName = 'subscriptions'
   StylesheetFile = Path.new(__FILE__).dirname / '../message/stylesheet.css'
 
-  Feedjira.configure do |config|
-    config.strip_whitespace = true
-  end
-
   class Error < Exception; end
 
   def self.uri_to_key(uri)

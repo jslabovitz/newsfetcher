@@ -118,6 +118,7 @@ module NewsFetcher
       raise Error, "No feed file" unless feed_file.exist?
       feed = feed_file.read
       begin
+        Feedjira.configure { |c| c.strip_whitespace = true }
         Feedjira::Feed.parse(feed)
       rescue => e
         raise Error, "Can't parse feed from #{feed_file}: #{e}"
