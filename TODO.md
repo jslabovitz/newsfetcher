@@ -12,6 +12,12 @@
   - update
   - query
 
+- Move info functions to separate class? (like Cocoa bundle?)
+  - to_yaml
+  - load
+  - save
+  - init
+
 - Add 'prune' command to prune out old history (rewrite file).
 
 - Add per-feed locks to avoid access by multiple processes/threads.
