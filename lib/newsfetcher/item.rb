@@ -126,7 +126,12 @@ class Item
         scrub!(remove_styling).
         to_html
     else
-      html_fragment { |h| h.pre(@content) }.to_html
+      html_fragment do |html|
+        @content.split("\n").each_with_index do |line, i|
+          html.br unless i == 0
+          html.text(line)
+        end
+      end.to_html
     end
   end
 
