@@ -55,9 +55,7 @@ class Item
         html.style { html << @style }
       end
       html.body do
-        html.div(class: 'bar') do
-          html.text(@subscription_title)
-        end
+        html.div(@subscription_title, class: 'header')
         html.h1 do
           if is_html?(@title)
             html << @title
