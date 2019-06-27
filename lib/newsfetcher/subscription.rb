@@ -19,11 +19,15 @@ module NewsFetcher
     end
 
     def self.load_history(path)
-      Hash[
-        path.readlines.map { |_| _.chomp.split(/\s+/, 2) }.map do |timestamp, id|
-          [id, Time.parse(timestamp)]
-        end
-      ]
+      if path.exist?
+        Hash[
+          path.readlines.map { |_| _.chomp.split(/\s+/, 2) }.map do |timestamp, id|
+            [id, Time.parse(timestamp)]
+          end
+        ]
+      else
+        {}
+      end
     end
 
     def self.uri_to_key(uri)
@@ -42,6 +46,7 @@ module NewsFetcher
     end
 
     def initialize(params={})
+      @history = {}
       params.each { |k, v| send("#{k}=", v) if v }
     end
 
