@@ -8,7 +8,6 @@ class Item
   attr_accessor :id
   attr_accessor :date
   attr_accessor :subscription_title
-  attr_accessor :subscription_description
   attr_accessor :title
   attr_accessor :url
   attr_accessor :author
@@ -25,7 +24,6 @@ class Item
     @id = @id.to_s
     @date = entry.published || Time.now
     @subscription_title = subscription.title || feed.title || 'untitled'
-    @subscription_description = feed.respond_to?(:description) ? feed.description : nil
     @title = (t = entry.title.to_s.strip).empty? ? 'untitled' : t
     @url = URI.parse(entry.url) if entry.url
     @author = entry.respond_to?(:author) ? entry.author : nil
@@ -70,11 +68,6 @@ class Item
         html.h2 { html.a(PublicSuffix.domain(@url.host), href: @url) } if @url
         html.h3(@author) if @author
         html.div(class: 'content') { html << render_content }
-        if @subscription_description
-          html.div(class: 'bar') do
-            html.text(@subscription_description)
-          end
-        end
       end
     end
   end
@@ -83,7 +76,7 @@ class Item
     Time.now - @date
   end
 
-  DefaultKeys = %i{id date subscription_title subscription_description title url author image content}
+  DefaultKeys = %i{id date subscription_title title url author image content}
 
   def show(keys)
     keys ||= DefaultKeys
