@@ -68,7 +68,7 @@ class Item
         end
         if @url
           html.h3 do
-            html.a(@url.to_s.sub(%r{^https?://}, ''), href: @url)
+            html.a(pretty_url(@url), href: @url)
           end
         end
         html.div(class: 'content') { html << render_content }
@@ -159,6 +159,10 @@ class Item
 
   def is_html?(str)
     str =~ /(<[a-z]+)|(\&\S+;)/i
+  end
+
+  def pretty_url(url)
+    @url.to_s.sub(%r{^https?://}, '').sub(/^www\./, '')
   end
 
 end
