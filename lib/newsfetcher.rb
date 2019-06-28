@@ -9,7 +9,6 @@ require 'loofah'
 require 'mail'
 require 'nokogiri'
 require 'path'
-require 'public_suffix'
 require 'simple-command'
 
 require 'newsfetcher/error'

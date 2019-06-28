@@ -63,8 +63,14 @@ class Item
             html.text(@title)
           end
         end
-        html.h2 { html.a(PublicSuffix.domain(@url.host), href: @url) } if @url
-        html.h3(@author) if @author
+        if @author
+          html.h2(@author)
+        end
+        if @url
+          html.h3 do
+            html.a(@url.to_s.sub(%r{^https?://}, ''), href: @url)
+          end
+        end
         html.div(class: 'content') { html << render_content }
       end
     end
