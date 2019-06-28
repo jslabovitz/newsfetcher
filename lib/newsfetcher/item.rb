@@ -162,7 +162,11 @@ class Item
   end
 
   def pretty_url(url)
-    @url.to_s.sub(%r{^https?://}, '').sub(/^www\./, '')
+    @url.
+      to_s.
+      sub(%r{^https?://}, '').
+      sub(/^www\./, '').
+      sub(/\?.*/, '')
   end
 
 end
