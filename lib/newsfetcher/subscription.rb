@@ -184,7 +184,9 @@ module NewsFetcher
       feed = parse_feed
       feed_items(feed).each do |item|
         email = item.make_email
-        puts email.body.to_s
+        puts email.header
+        puts
+        puts email.body
       end
     end
 
