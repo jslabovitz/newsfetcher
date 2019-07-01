@@ -36,7 +36,7 @@ class Item
       'p' => @subscription.relative_dir.dirname.each_filename.to_a.join('.'),
       'i' => @subscription.id,
       'b' => @subscription.base_id,
-      't' => @title,
+      't' => strip_html(@title),
     }
     mail = Mail.new
     mail.date =         @date
@@ -154,6 +154,16 @@ class Item
   def replace_fields(str, fields)
     str.to_s.gsub(/%(\w)/) do
       fields[$1] or raise Error, "Unknown tag: #{$1.inspect}"
+    end
+  end
+
+  def strip_html(str)
+    if is_html?(str)
+      Loofah.fragment(str).
+        scrub!(:whitewash).
+        text
+    else
+      str
     end
   end
 
