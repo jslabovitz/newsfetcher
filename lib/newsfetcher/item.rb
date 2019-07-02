@@ -159,9 +159,9 @@ class Item
 
   def strip_html(str)
     if is_html?(str)
-      Loofah.fragment(str).
-        scrub!(:whitewash).
-        text
+      Loofah.
+        fragment(str).
+        text(encode_special_chars: false)
     else
       str
     end
