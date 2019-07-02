@@ -13,21 +13,9 @@ module NewsFetcher
         {
           profile: profile,
           dir: dir,
-          history: load_history(dir / HistoryFileName),
+          history: History.new(dir / HistoryFileName),
         }.merge(NewsFetcher.load_yaml(dir / InfoFileName))
       )
-    end
-
-    def self.load_history(path)
-      if path.exist?
-        Hash[
-          path.readlines.map { |_| _.chomp.split(/\s+/, 2) }.map do |timestamp, id|
-            [id, Time.parse(timestamp)]
-          end
-        ]
-      else
-        {}
-      end
     end
 
     def self.uri_to_key(uri)
@@ -46,7 +34,6 @@ module NewsFetcher
     end
 
     def initialize(params={})
-      @history = {}
       params.each { |k, v| send("#{k}=", v) if v }
     end
 
@@ -78,10 +65,6 @@ module NewsFetcher
       @dir / FeedFileName
     end
 
-    def history_file
-      @dir / HistoryFileName
-    end
-
     def last_modified
       feed_file.exist? ? feed_file.mtime : nil
     end
@@ -97,7 +80,7 @@ module NewsFetcher
     end
 
     def latest_item_timestamp
-      @history.values.sort.last
+      @history.latest&.last
     end
 
     def status
@@ -123,14 +106,11 @@ module NewsFetcher
     end
 
     def process(&block)
-      history_file.open('a') do |file|
-        feed = parse_feed
-        feed_items(feed).each do |item|
-          next if @history[item.id] || item.age > DefaultDormantTime
-          yield(item)
-          @history[item.id] = item.date.to_s
-          file.puts [item.date.iso8601, item.id].join(' ')
-        end
+      feed = parse_feed
+      feed_items(feed).each do |item|
+        next if @history[item.id] || item.age > DefaultDormantTime
+        yield(item)
+        @history[item.id] = item.date
       end
     end
 
@@ -156,12 +136,8 @@ module NewsFetcher
     end
 
     def reset
-      [
-        feed_file,
-        history_file,
-      ].each do |file|
-        file.unlink if file.exist?
-      end
+      feed_file.unlink if file.exist?
+      @history.reset
     end
 
     def remove

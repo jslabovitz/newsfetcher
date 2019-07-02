@@ -3,15 +3,6 @@
 
 ## Improvements (soon)
 
-- Read history only when needed.
-
-- Move history functions to separate class?
-  - load
-  - save
-  - prune
-  - update
-  - query
-
 - Move info functions to separate class? (like Cocoa bundle?)
   - to_yaml
   - load
