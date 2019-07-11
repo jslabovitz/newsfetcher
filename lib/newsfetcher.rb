@@ -4,6 +4,7 @@ require 'uri'
 require 'yaml'
 
 require 'faraday'
+require 'faraday_middleware'
 require 'feedjira'
 require 'loofah'
 require 'mail'

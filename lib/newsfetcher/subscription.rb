@@ -119,7 +119,7 @@ module NewsFetcher
       feed = feed_file.read
       begin
         Feedjira.configure { |c| c.strip_whitespace = true }
-        Feedjira::Feed.parse(feed)
+        Feedjira.parse(feed)
       rescue => e
         raise Error, "Can't parse feed from #{feed_file}: #{e}"
       end

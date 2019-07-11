@@ -17,7 +17,9 @@ Gem::Specification.new do |s|
   s.require_path  = 'lib'
 
   s.add_dependency 'faraday', '~> 0'
-  s.add_dependency 'feedjira', '~> 2'
+  s.add_dependency 'faraday_middleware', '~> 0'
+  s.add_dependency 'feedjira', '~> 3'
+  s.add_dependency 'hashstruct', '~> 0'
   s.add_dependency 'loofah', '~> 2'
   s.add_dependency 'mail', '~> 2'
   s.add_dependency 'path', '~> 2'
