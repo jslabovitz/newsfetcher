@@ -4,9 +4,8 @@
 ## Improvements (soon)
 
 - Change #make_email to #to_mail
-  - Pass in style, etc. by argument rather than instance variables.
-  - Have subscription be authority for title, mail_from/to, etc.
-  - Remove @profile & @feed entirely.
+  - Have subscription be authority for title, mail_from/to, style, etc.
+  - Remove instance variables: @profile, @feed, @style
 
 - Change from Faraday to HTTParty?
 
