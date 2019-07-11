@@ -14,27 +14,19 @@ module NewsFetcher
     def self.init(dir, params)
       dir = Path.new(dir)
       raise Error, "#{dir} already exists" if dir.exist?
-      dir.mkpath
       profile = new({ dir: dir }.merge(params))
-      profile.save
-    end
-
-    def self.load(dir, params={})
-      dir = Path.new(dir)
-      new(
-        {
-          dir: dir,
-          style: StylesheetFile.read,
-        }.merge(NewsFetcher.load_yaml(dir / InfoFileName)).merge(params)
-      )
     end
 
     def initialize(params={})
       @max_threads = DefaultMaxThreads
+      @style = StylesheetFile.read
       @delivery_method = [:sendmail]
       @mail_subject = '[%b] %t'
       @log_level = Logger::INFO
       params.each { |k, v| send("#{k}=", v) if v }
+      raise Error, "dir not set" unless @dir
+      @bundle = Bundle.new(@dir)
+      @bundle.info.each { |k, v| send("#{k}=", v) }
       @logger = Logger.new(STDERR,
         level: @log_level,
         formatter: proc { |severity, datetime, progname, msg|
@@ -44,13 +36,9 @@ module NewsFetcher
     end
 
     def save
-      NewsFetcher.save_yaml(info_file,
-        mail_from: @mail_from,
-        mail_to: @mail_to)
-    end
-
-    def info_file
-      (@dir / InfoFileName)
+      @bundle.info.mail_from = @mail_from
+      @bundle.info.mail_to = @mail_to
+      @bundle.save
     end
 
     def dir=(dir)
@@ -108,15 +96,8 @@ module NewsFetcher
       mail.deliver!
     end
 
-    def subscriptions(args=[])
-      if args.empty?
-        dirs = subscriptions_dir.glob("**/#{InfoFileName}").map(&:dirname)
-      else
-        dirs = args.map { |a| (a =~ %r{^[/~.]}) ? Path.new(a) : (subscriptions_dir / a) }
-      end
-      dirs.map do |dir|
-        Subscription.load(profile: self, dir: dir)
-      end
+    def subscriptions(ids=[])
+      Subscription.find(dir: subscriptions_dir, profile: self, ids: ids)
     end
 
     def add_subscription(uri:, path: nil)

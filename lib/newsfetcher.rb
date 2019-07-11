@@ -6,12 +6,14 @@ require 'yaml'
 require 'faraday'
 require 'faraday_middleware'
 require 'feedjira'
+require 'hashstruct'
 require 'loofah'
 require 'mail'
 require 'nokogiri'
 require 'path'
 require 'simple-command'
 
+require 'newsfetcher/bundle'
 require 'newsfetcher/error'
 require 'newsfetcher/history'
 require 'newsfetcher/item'
@@ -20,7 +22,6 @@ require 'newsfetcher/subscription'
 
 module NewsFetcher
 
-  InfoFileName = 'info.yaml'
   FeedFileName = 'feed'
   HistoryFileName = 'history'
   DownloadTimeout = 30
@@ -30,21 +31,5 @@ module NewsFetcher
   DefaultProfileDir = '~/.newsfetcher'
   SubscriptionsDirName = 'subscriptions'
   StylesheetFile = Path.new(__FILE__).dirname / '../message/stylesheet.css'
-
-  def self.save_yaml(path, obj)
-    hash = Hash[
-      obj.reject { |k, v| v.nil? }.map { |k, v| [k.to_s, v.to_s] }
-    ]
-    path.dirname.mkpath unless path.dirname.exist?
-    path.write(hash.to_yaml(line_width: -1))
-  end
-
-  def self.load_yaml(path)
-    path = path.expand_path
-    raise Error, "File does not exist: #{path}" unless path.exist?
-    obj = YAML.load(path.read)
-    raise Error, "Bad file: #{path}" unless obj && !obj.empty?
-    obj
-  end
 
 end

@@ -8,14 +8,19 @@ module NewsFetcher
     attr_accessor :dir
     attr_accessor :history
 
-    def self.load(profile:, dir:)
-      new(
-        {
-          profile: profile,
-          dir: dir,
-          history: History.new(dir / HistoryFileName),
-        }.merge(NewsFetcher.load_yaml(dir / InfoFileName))
-      )
+    def self.find(dir:, profile:, ids: nil)
+      if ids && !ids.empty?
+        bundles = ids.map { |a| (a =~ %r{^[/~.]}) ? Path.new(a) : (dir / a) }.map { |d| Bundle.new(d) }
+      else
+        bundles = Bundle.bundles(dir)
+      end
+      bundles.map do |bundle|
+        new(bundle.info.merge(profile: profile, dir: bundle.dir))
+      end
+    end
+
+    def self.load(params={})
+      new(params)
     end
 
     def self.uri_to_key(uri)
@@ -35,6 +40,9 @@ module NewsFetcher
 
     def initialize(params={})
       params.each { |k, v| send("#{k}=", v) if v }
+      raise Error, "dir not set" unless @dir
+      @bundle = Bundle.new(@dir)
+      @history = History.new(dir / HistoryFileName)
     end
 
     def dir=(dir)
@@ -57,10 +65,6 @@ module NewsFetcher
       relative_dir.basename.to_s
     end
 
-    def info_file
-      @dir / InfoFileName
-    end
-
     def feed_file
       @dir / FeedFileName
     end
@@ -74,9 +78,9 @@ module NewsFetcher
     end
 
     def save
-      NewsFetcher.save_yaml(info_file,
-        title: @title,
-        link: @link)
+      @bundle.info.title = @title
+      @bundle.info.link = @link
+      @bundle.save
     end
 
     def latest_item_timestamp

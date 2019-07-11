@@ -9,7 +9,7 @@ module NewsFetcher
         global dir: DefaultProfileDir, log_level: nil do
           @dir = Path.new(@dir)
           if @dir.exist?
-            @profile = Profile.load(Path.new(@dir), log_level: @log_level && @log_level.to_sym)
+            @profile = Profile.new(dir: @dir, log_level: @log_level && @log_level.to_sym)
           end
         end
 
