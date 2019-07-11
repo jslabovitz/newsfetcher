@@ -3,11 +3,12 @@
 
 ## Improvements (soon)
 
-- Move info functions to separate class? (like Cocoa bundle?)
-  - to_yaml
-  - load
-  - save
-  - init
+- Change #make_email to #to_mail
+  - Pass in style, etc. by argument rather than instance variables.
+  - Have subscription be authority for title, mail_from/to, etc.
+  - Remove @profile & @feed entirely.
+
+- Change from Faraday to HTTParty?
 
 - Move 'discover' to new tool.
 
