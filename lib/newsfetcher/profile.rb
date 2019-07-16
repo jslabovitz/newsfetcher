@@ -45,8 +45,10 @@ module NewsFetcher
       @dir = Path.new(dir)
     end
 
-    def mailer=(location)
-      @delivery_method = [:sendmail, location: location]
+    def delivery=(info)
+      info = info.dup
+      method = info.delete(:method) or raise Error, "No delivery method defined"
+      @delivery_method = [method.to_sym, info]
     end
 
     def mail_from=(address)
