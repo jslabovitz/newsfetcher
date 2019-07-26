@@ -1,41 +1,23 @@
-## Bugs (now)
-
-
-## Improvements (soon)
-
 - Change #make_email to #to_mail
   - Have subscription be authority for title, mail_from/to, style, etc.
   - Remove instance variables: @profile, @feed, @style
 
 - Change from Faraday to HTTParty?
 
-- Move 'discover' to new tool.
-
 - Avoid use of NewsFetcher module constants.
   - Set instance variables to defaults.
 
-- Add 'prune' command to prune out old history (rewrite file).
+- Add 'prune' command to prune out old history.
+  - Rewrite history file.
 
 - Combine list/show/show-message commands.
   - Use flags to control what is shown.
 
 - Add per-feed locks to avoid access by multiple processes/threads.
 
-
-## Features (later)
-
-- Look into minimizing styles:
-    https://stackoverflow.com/questions/4829254/best-practices-for-styling-html-emails
-    https://24ways.org/2009/rock-solid-html-emails
-  - Use inline styles (attributes).
-  - Don't link style sheets.
-  - Do not use <style> tag (GMail strips that tag and contents).
-  - Or punt and just let user deal with it?
-
 - Expand testing:
-    - Write actual test classes/methods.
-    - Use Mail::TestMailer to test results.
-    - Use Mail::FileDelivery to save files.
+  - Use Mail::TestMailer to test results.
+  - Use Mail::FileDelivery to save files.
 
 - Allow stylesheets to be added/changed.
 
@@ -45,7 +27,9 @@
 
 - Add dormancy period as default, configured per-profile, or per-feed.
 
-- Release to rubygems.
-  - Reset git history.
+- Release:
   - Write README documentation.
   - Bump version to 1.0.
+  - Reset git history.
+  - Push to github.
+  - Release to rubygems.
