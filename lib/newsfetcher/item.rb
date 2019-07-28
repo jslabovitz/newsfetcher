@@ -27,7 +27,7 @@ module NewsFetcher
       @date = entry.published || Time.now
       @subscription_title = subscription.title || feed.title || 'untitled'
       @title = (t = entry.title.to_s.strip).empty? ? 'untitled' : t
-      @url = URI.parse(entry.url) if entry.url
+      @url = entry.url
       @author = entry.respond_to?(:author) ? entry.author : nil
       @image = entry.respond_to?(:image) ? entry.image : nil
       @content = entry.content || entry.summary || ''
@@ -70,7 +70,7 @@ module NewsFetcher
           end
           if @url
             html.h3 do
-              html.a(pretty_url(@url), href: @url)
+              html.a(pretty_url, href: @url)
             end
           end
           html.div(class: 'content') { html << render_content }
@@ -173,12 +173,15 @@ module NewsFetcher
       str =~ /(<[a-z]+)|(\&\S+;)/i
     end
 
-    def pretty_url(url)
-      @url.
-        to_s.
-        sub(%r{^https?://}, '').
-        sub(/^www\./, '').
-        sub(/\?.*/, '')
+    def pretty_url
+      if @url
+        @url.
+          sub(%r{^https?://}, '').
+          sub(/^www\./, '').
+          sub(/\?.*/, '')
+      else
+        ''
+      end
     end
 
   end
