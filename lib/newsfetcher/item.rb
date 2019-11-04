@@ -175,10 +175,15 @@ module NewsFetcher
 
     def pretty_url
       if @url
-        @url.
-          sub(%r{^https?://}, '').
-          sub(/^www\./, '').
-          sub(/\?.*/, '')
+        uri = Addressable::URI.parse(@url)
+        if uri.query
+          uri.query_values = uri.query_values.tap do |query|
+            query.delete_if { |k, v| k =~ /^utm_/ || k == 'icid' }
+          end
+          uri.query = nil if uri.query_values.empty?
+        end
+        uri.host = uri.host.sub(/^www\./, '')
+        uri.to_s.sub(%r{^https?://}, '')
       else
         ''
       end
