@@ -1,8 +1,8 @@
 require 'date'
 require 'logger'
-require 'uri'
 require 'yaml'
 
+require 'addressable/uri'
 require 'faraday'
 require 'faraday_middleware'
 require 'feedjira'
@@ -31,5 +31,9 @@ module NewsFetcher
   DefaultProfileDir = '~/.newsfetcher'
   SubscriptionsDirName = 'subscriptions'
   StylesheetFile = Path.new(__FILE__).dirname / '../message/stylesheet.css'
+
+  def self.verify_uri!(uri)
+    raise Error, "Invalid URI: #{uri}" unless uri.absolute? && uri.scheme && uri.host
+  end
 
 end

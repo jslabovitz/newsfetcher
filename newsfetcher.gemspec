@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
   s.require_path  = 'lib'
 
+  s.add_dependency 'addressable', '~> 2'
   s.add_dependency 'faraday', '~> 0'
   s.add_dependency 'faraday_middleware', '~> 0'
   s.add_dependency 'feedjira', '~> 3'

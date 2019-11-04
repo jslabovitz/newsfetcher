@@ -103,7 +103,8 @@ module NewsFetcher
     end
 
     def add_subscription(uri:, path: nil)
-      uri = URI.parse(uri)
+      uri = Addressable::URI.parse(uri)
+      NewsFetcher.verify_uri!(uri)
       key = Subscription.uri_to_key(uri)
       path = Path.new(path ? "#{path}/#{key}" : key)
       subscription = Subscription.new(dir: subscriptions_dir / path, link: uri, profile: self)
@@ -113,11 +114,12 @@ module NewsFetcher
     end
 
     def discover_feed(uri)
-      uri = URI.parse(uri)
+      uri = Addressable::URI.parse(uri)
+      NewsFetcher.verify_uri!(uri)
       response = get(uri)
       html = Nokogiri::HTML::Document.parse(response.body)
       html.xpath('//link[@rel="alternate"]').each do |link|
-        href = uri.merge(URI.parse(link['href']))
+        href = uri.merge(Addressable::URI.parse(link['href']))
         puts "%s (%s) %p" % [
           href,
           link['type'],

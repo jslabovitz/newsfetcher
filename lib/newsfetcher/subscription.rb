@@ -24,7 +24,7 @@ module NewsFetcher
     end
 
     def self.uri_to_key(uri)
-      uri = URI.parse(uri) unless uri.kind_of?(URI)
+      uri = Addressable::URI.parse(uri)
       host = uri.host.to_s.sub(/^(www|ssl|en|feeds|rss|blogs?|news).*?\./i, '').sub(/\.(com|org|net|info|edu|co\.uk|wordpress\.com|blogspot\.com)$/i, '')
       host = '' if host == 'feedburner'
       path = uri.path.to_s.gsub(/\b(\.?feeds?|index|atom|rss|rss2|xml|php|blog|posts|default)\b/i, '')
@@ -50,7 +50,7 @@ module NewsFetcher
     end
 
     def link=(link)
-      @link = link.kind_of?(URI) ? link : URI.parse(link)
+      @link = link.kind_of?(Addressable::URI) ? link : Addressable::URI.parse(link)
     end
 
     def relative_dir
