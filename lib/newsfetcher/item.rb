@@ -23,13 +23,13 @@ module NewsFetcher
       @style = profile.style
       @subscription = subscription
       @id = entry.entry_id || entry.url or raise Error, "Can't determine entry ID"
-      @id = @id.to_s
+      @id = @id.to_s.strip
       @date = entry.published || Time.now
       @subscription_title = subscription.title || feed.title || 'untitled'
       @title = (t = entry.title.to_s.strip).empty? ? 'untitled' : t
-      @url = entry.url
-      @author = entry.respond_to?(:author) ? entry.author : nil
-      @image = entry.respond_to?(:image) ? entry.image : nil
+      @url = entry.url ? Addressable::URI.parse(entry.url.strip) : nil
+      @author = entry.respond_to?(:author) ? entry.author.to_s.strip : nil
+      @image = entry.respond_to?(:image) ? entry.image.to_s.strip : nil
       @content = entry.content || entry.summary || ''
     end
 
@@ -175,15 +175,15 @@ module NewsFetcher
 
     def pretty_url
       if @url
-        uri = Addressable::URI.parse(@url)
-        if uri.query
-          uri.query_values = uri.query_values.tap do |query|
+        url2 = @url.dup
+        if url2.query
+          url2.query_values = url2.query_values.tap do |query|
             query.delete_if { |k, v| k =~ /^utm_/ || k == 'icid' }
           end
-          uri.query = nil if uri.query_values.empty?
+          url2.query = nil if url2.query_values.empty?
         end
-        uri.host = uri.host.sub(/^www\./, '')
-        uri.to_s.sub(%r{^https?://}, '')
+        url2.host = url2.host.sub(/^www\./, '')
+        url2.to_s.sub(%r{^https?://}, '')
       else
         ''
       end
