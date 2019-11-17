@@ -119,7 +119,7 @@ module NewsFetcher
       response = get(uri)
       html = Nokogiri::HTML::Document.parse(response.body)
       html.xpath('//link[@rel="alternate"]').each do |link|
-        href = uri.merge(Addressable::URI.parse(link['href']))
+        href = uri.join(Addressable::URI.parse(link['href']))
         puts "%s (%s) %p" % [
           href,
           link['type'],
