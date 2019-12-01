@@ -101,7 +101,7 @@ module NewsFetcher
     end
 
     def update_feed
-      response = @profile.get(@link, if_modified_since: last_modified)
+      response = NewsFetcher.get(@link, if_modified_since: last_modified)
       case response[:status]
       when :not_modified
         # ignore

@@ -67,60 +67,6 @@ module NewsFetcher
       @dir / SubscriptionsDirName
     end
 
-    def get(uri, if_modified_since: nil)
-      resp = {}
-      headers = {}
-      headers[:if_modified_since] = if_modified_since.rfc2822 if if_modified_since
-      redirects = 0
-      loop do
-        connection = Faraday.new(
-          url: uri,
-          headers: headers,
-          request: { timeout: DownloadTimeout },
-          ssl: { verify: false })
-        begin
-          response = connection.get
-        rescue StandardError => e
-          raise Error, "Couldn't get #{uri}: #{e}"
-        end
-        case response.status
-        when 200...300
-          resp[:status] = :loaded
-          resp[:content] = response.body
-          resp[:last_modified] = Time.parse(response.headers[:last_modified] || response.headers[:date])
-          break
-        when 304
-          resp[:status] = :not_modified
-          break
-        when 300...400
-          new_uri = uri.join(Addressable::URI.parse(response.headers[:location]))
-          begin
-            NewsFetcher.verify_uri!(new_uri)
-          rescue Error => e
-            resp[:status] = :failed
-            resp[:message] = "Bad redirected URI: #{new_uri}"
-            break
-          end
-          @logger.debug { "#{uri}: Following #{response.status} redirect to #{new_uri}" }
-          redirects += 1
-          if redirects > DownloadFollowRedirectLimit
-            resp[:status] = :failed
-            resp[:message] = "Too many redirects"
-            break
-          end
-          resp[:redirect] = new_uri if response.status == 301
-          uri = new_uri
-        when 400..600
-          resp[:status] = :failed
-          resp[:message] = "Server error: #{response.status}"
-        else
-          resp[:status] = :failed
-          resp[:message] = "Unexpected status: #{response.status}"
-        end
-      end
-      resp
-    end
-
     def send_item(item)
       @logger.info { "#{item.subscription.id}: Sending #{item.title.inspect}" }
       mail = item.make_email
@@ -146,7 +92,7 @@ module NewsFetcher
     def discover_feed(uri)
       uri = Addressable::URI.parse(uri)
       NewsFetcher.verify_uri!(uri)
-      response = get(uri)
+      response = NewsFetcher.get(uri)
       case response[:status]
       when :loaded
         html = Nokogiri::HTML::Document.parse(response[:content])
