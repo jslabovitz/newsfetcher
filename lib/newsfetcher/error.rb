@@ -1,6 +1,6 @@
 module NewsFetcher
 
-  class Error < Exception
+  class Error < StandardError
   end
 
 end
