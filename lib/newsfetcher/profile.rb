@@ -67,31 +67,58 @@ module NewsFetcher
       @dir / SubscriptionsDirName
     end
 
-    def get(uri, headers=nil)
+    def get(uri, if_modified_since: nil)
+      resp = {}
+      headers = {}
+      headers[:if_modified_since] = if_modified_since.rfc2822 if if_modified_since
       redirects = 0
       loop do
         connection = Faraday.new(
           url: uri,
-          headers: headers || {},
+          headers: headers,
           request: { timeout: DownloadTimeout },
           ssl: { verify: false })
-        response = connection.get
+        begin
+          response = connection.get
+        rescue StandardError => e
+          raise Error, "Couldn't get #{uri}: #{e}"
+        end
         case response.status
         when 200...300
-          return response
+          resp[:status] = :loaded
+          resp[:content] = response.body
+          resp[:last_modified] = Time.parse(response.headers[:last_modified] || response.headers[:date])
+          break
         when 304
-          return nil
+          resp[:status] = :not_modified
+          break
         when 300...400
           new_uri = uri.join(Addressable::URI.parse(response.headers[:location]))
+          begin
+            NewsFetcher.verify_uri!(new_uri)
+          rescue Error => e
+            resp[:status] = :failed
+            resp[:message] = "Bad redirected URI: #{new_uri}"
+            break
+          end
           @logger.debug { "#{uri}: Following #{response.status} redirect to #{new_uri}" }
           redirects += 1
-          raise Error, "Too many redirects" if redirects > DownloadFollowRedirectLimit
+          if redirects > DownloadFollowRedirectLimit
+            resp[:status] = :failed
+            resp[:message] = "Too many redirects"
+            break
+          end
+          resp[:redirect] = new_uri if response.status == 301
           uri = new_uri
-          @logger.warn { "#{uri}: Moved to #{new_uri} -- update subscription" } if response.status == 301
+        when 400..600
+          resp[:status] = :failed
+          resp[:message] = "Server error: #{response.status}"
         else
-          raise Error, "Unexpected status: #{response.status}"
+          resp[:status] = :failed
+          resp[:message] = "Unexpected status: #{response.status}"
         end
       end
+      resp
     end
 
     def send_item(item)
@@ -120,11 +147,18 @@ module NewsFetcher
       uri = Addressable::URI.parse(uri)
       NewsFetcher.verify_uri!(uri)
       response = get(uri)
-      html = Nokogiri::HTML::Document.parse(response.body)
-      html.xpath('//link[@rel="alternate"]').each do |link|
-        puts "%s (%s)" % [link['title'], link['type']]
-        puts uri.join(Addressable::URI.parse(link['href']))
-        puts
+      case response[:status]
+      when :loaded
+        html = Nokogiri::HTML::Document.parse(response[:content])
+        html.xpath('//link[@rel="alternate"]').each do |link|
+          puts "%s (%s)" % [link['title'], link['type']]
+          puts uri.join(Addressable::URI.parse(link['href']))
+          puts
+        end
+      when :failed
+        raise Error, "Failed to load: #{response[:message]}"
+      else
+        raise Error, "Unknown response: #{response.inspect}"
       end
     end
 
