@@ -68,26 +68,29 @@ module NewsFetcher
     end
 
     def get(uri, headers=nil)
-      begin
+      redirects = 0
+      loop do
         connection = Faraday.new(
           url: uri,
           headers: headers || {},
           request: { timeout: DownloadTimeout },
-          ssl: { verify: false },
-        ) do |conn|
-          conn.use(FaradayMiddleware::FollowRedirects, limit: DownloadFollowRedirectLimit)
-          conn.adapter(*Faraday.default_adapter)
-        end
+          ssl: { verify: false })
         response = connection.get
-        if response.status == 304
-          nil
-        elsif response.success?
-          response
+        case response.status
+        when 200...300
+          return response
+        when 304
+          return nil
+        when 300...400
+          new_uri = uri.join(Addressable::URI.parse(response.headers[:location]))
+          @logger.debug { "#{uri}: Following #{response.status} redirect to #{new_uri}" }
+          redirects += 1
+          raise Error, "Too many redirects" if redirects > DownloadFollowRedirectLimit
+          uri = new_uri
+          @logger.warn { "#{uri}: Moved to #{new_uri} -- update subscription" } if response.status == 301
         else
           raise Error, "Unexpected status: #{response.status}"
         end
-      rescue Faraday::Error, Zlib::BufError, Error => e
-        raise Error, "Couldn't get #{uri}: #{e}"
       end
     end
 

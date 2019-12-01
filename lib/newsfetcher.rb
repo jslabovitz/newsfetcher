@@ -4,7 +4,6 @@ require 'yaml'
 
 require 'addressable/uri'
 require 'faraday'
-require 'faraday_middleware'
 require 'feedjira'
 require 'hashstruct'
 require 'loofah'

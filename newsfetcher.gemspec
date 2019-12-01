@@ -18,7 +18,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'addressable', '~> 2'
   s.add_dependency 'faraday', '~> 0'
-  s.add_dependency 'faraday_middleware', '~> 0'
   s.add_dependency 'feedjira', '~> 3'
   s.add_dependency 'hashstruct', '~> 1'
   s.add_dependency 'loofah', '~> 2'
