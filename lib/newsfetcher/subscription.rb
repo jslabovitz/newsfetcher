@@ -108,7 +108,7 @@ module NewsFetcher
       when :loaded
         @profile.logger.debug { "#{id}: Loaded feed: #{@link}" }
         if response[:redirect]
-          @profile.logger.warn { "#{id}: Feed has moved to #{response[:redirect]}" }
+          @profile.logger.warn { "#{id}: Feed has moved from #{@link} to #{response[:redirect]}" }
         end
         feed_file.write(response[:content])
         feed_file.utime(response[:last_modified], response[:last_modified])
