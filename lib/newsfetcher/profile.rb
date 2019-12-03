@@ -118,14 +118,9 @@ module NewsFetcher
       status = [status] unless status.kind_of?(Array)
       sort ||= :id
       find_subscriptions(ids: args, status: status, sort: sort).each do |subscription|
-        if (t = subscription.latest_item_timestamp)
-          days = (Date.today - t.to_date).to_i
-        else
-          days = nil
-        end
         puts "%8s | %10s | %5d | %-40.40s | %-40.40s" % [
           subscription.status,
-          days ? "#{days} days" : 'never',
+          (age = subscription.age) ? "#{age.to_i} days" : 'never',
           subscription.history.length,
           subscription.title,
           subscription.id,

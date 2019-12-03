@@ -87,6 +87,14 @@ module NewsFetcher
       @history.latest&.last
     end
 
+    def age
+      if (t = latest_item_timestamp)
+        Date.today - t.to_date
+      else
+        nil
+      end
+    end
+
     def status
       last = latest_item_timestamp
       if last
