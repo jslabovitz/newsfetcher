@@ -8,15 +8,20 @@ module NewsFetcher
     attr_accessor :info_file
     attr_accessor :info
 
-    def self.bundles(dir, info_filename=InfoFilename)
-      dir.glob("**/#{info_filename}").map(&:dirname).map do |bundle_dir|
+    def self.bundles(dir:, ids: nil)
+      if ids.nil? || ids.empty?
+        dirs = dir.glob("**/#{InfoFilename}").map(&:dirname)
+      else
+        dirs = ids.map { |id| dir / id }
+      end
+      dirs.map do |bundle_dir|
         new(bundle_dir)
       end
     end
 
-    def initialize(dir, info_filename=InfoFilename)
+    def initialize(dir)
       @dir = Path.new(dir).expand_path
-      @info_file = @dir / info_filename
+      @info_file = @dir / InfoFilename
       if @info_file.exist?
         @info = HashStruct.new(YAML.load(@info_file.read))
       else

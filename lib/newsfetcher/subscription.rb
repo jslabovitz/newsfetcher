@@ -8,13 +8,8 @@ module NewsFetcher
     attr_accessor :dir
     attr_accessor :history
 
-    def self.find(dir:, profile:, ids: nil)
-      if ids && !ids.empty?
-        bundles = ids.map { |a| (a =~ %r{^[/~.]}) ? Path.new(a) : (dir / a) }.map { |d| Bundle.new(d) }
-      else
-        bundles = Bundle.bundles(dir)
-      end
-      bundles.map do |bundle|
+    def self.find(profile:, ids: nil)
+      Bundle.bundles(dir: profile.subscriptions_dir, ids: ids).map do |bundle|
         new(bundle.info.merge(profile: profile, dir: bundle.dir))
       end
     end
