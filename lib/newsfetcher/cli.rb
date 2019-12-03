@@ -19,11 +19,12 @@ module NewsFetcher
           Profile.init(@dir, mail_from: @mail_from, mail_to: @mail_to)
         end
 
-        command 'list', status: nil, sort: nil do |args|
+        command 'list', status: nil, sort: nil, details: false do |args|
           raise Error, "Profile not loaded" unless @profile
           @profile.list(args,
             status: @status ? [@status.split(',').map(&:to_sym)] : nil,
-            sort: @sort ? @sort.to_sym : nil)
+            sort: @sort ? @sort.to_sym : nil,
+            details: @details)
         end
 
         command 'discover' do |args|

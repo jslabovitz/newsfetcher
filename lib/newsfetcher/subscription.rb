@@ -188,6 +188,38 @@ module NewsFetcher
       end
     end
 
+    DetailsFields = [
+      [ 'ID', proc { |s| s.id } ],
+      [ 'Title', proc { |s| s.title } ],
+      [ 'Link', proc { |s| s.link } ],
+      [ 'Items', proc { |s| s.history.length } ],
+      [ 'Status', proc { |s| s.status } ],
+      [ 'Last modified', proc { |s| s.last_modified } ],
+      [ 'Age', proc { |s| s.age ? "#{s.age.to_i} days" : 'never' } ],
+    ]
+    DetailsFieldsMaxWidth = DetailsFields.map { |i| i.first.length }.max
+
+    def list_details
+      DetailsFields.each do |label, prc|
+        puts '%*s: %s' % [
+          DetailsFieldsMaxWidth,
+          label,
+          prc.call(self),
+        ]
+      end
+      puts
+    end
+
+    def list_summary
+      puts "%8s | %10s | %5d | %-40.40s | %-40.40s" % [
+        status,
+        (a = age) ? "#{a.to_i} days" : 'never',
+        history.length,
+        title,
+        id,
+      ]
+    end
+
   end
 
 end

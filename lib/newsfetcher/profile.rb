@@ -113,18 +113,16 @@ module NewsFetcher
       end
     end
 
-    def list(args, status: nil, sort: nil)
+    def list(args, status: nil, sort: nil, details: false)
       status ||= [:active, :dormant, :never]
       status = [status] unless status.kind_of?(Array)
       sort ||= :id
       find_subscriptions(ids: args, status: status, sort: sort).each do |subscription|
-        puts "%8s | %10s | %5d | %-40.40s | %-40.40s" % [
-          subscription.status,
-          (age = subscription.age) ? "#{age.to_i} days" : 'never',
-          subscription.history.length,
-          subscription.title,
-          subscription.id,
-        ]
+        if details
+          subscription.list_details
+        else
+          subscription.list_summary
+        end
       end
     end
 
