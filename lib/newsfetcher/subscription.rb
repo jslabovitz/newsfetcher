@@ -8,16 +8,6 @@ module NewsFetcher
     attr_accessor :dir
     attr_accessor :history
 
-    def self.find(profile:, ids: nil)
-      Bundle.bundles(dir: profile.subscriptions_dir, ids: ids).map do |bundle|
-        new(bundle.info.merge(profile: profile, dir: bundle.dir))
-      end
-    end
-
-    def self.load(params={})
-      new(params)
-    end
-
     def self.uri_to_key(uri)
       uri = Addressable::URI.parse(uri)
       host = uri.host.to_s.sub(/^(www|ssl|en|feeds|rss|blogs?|news).*?\./i, '').sub(/\.(com|org|net|info|edu|co\.uk|wordpress\.com|blogspot\.com)$/i, '')

@@ -78,7 +78,10 @@ module NewsFetcher
       status ||= [:active, :dormant, :never]
       status = [status].flatten
       sort ||= :id
-      Subscription.find(profile: self, ids: ids)
+      subscriptions = Bundle.bundles(dir: subscriptions_dir, ids: ids).map do |bundle|
+        Subscription.new(bundle.info.merge(profile: self, dir: bundle.dir))
+      end
+      subscriptions
         .select { |s| status.include?(s.status) }
         .sort_by { |s| s.send(sort).to_s }
     end
