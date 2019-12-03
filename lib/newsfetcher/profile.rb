@@ -74,8 +74,13 @@ module NewsFetcher
       mail.deliver!
     end
 
-    def subscriptions(ids=[])
+    def find_subscriptions(ids: nil, status: nil, sort: nil)
+      status ||= [:active, :dormant, :never]
+      status = [status].flatten
+      sort ||= :id
       Subscription.find(dir: subscriptions_dir, profile: self, ids: ids)
+        .select { |s| status.include?(s.status) }
+        .sort_by { |s| s.send(sort).to_s }
     end
 
     def add_subscription(uri:, path: nil)
@@ -112,7 +117,7 @@ module NewsFetcher
       status ||= [:active, :dormant, :never]
       status = [status] unless status.kind_of?(Array)
       sort ||= :id
-      subscriptions(args).select { |s| status.include?(s.status) }.sort_by { |s| s.send(sort).to_s }.each do |subscription|
+      find_subscriptions(ids: args, status: status, sort: sort).each do |subscription|
         if (t = subscription.latest_item_timestamp)
           days = (Date.today - t.to_date).to_i
         else
@@ -130,7 +135,7 @@ module NewsFetcher
 
     def update(args)
       threads = []
-      subscriptions(args).each do |subscription|
+      find_subscriptions(ids: args).each do |subscription|
         if threads.length >= @max_threads
           @logger.debug { "Waiting for #{threads.length} threads to finish" }
           threads.map(&:join)
@@ -153,31 +158,31 @@ module NewsFetcher
     end
 
     def reset(args)
-      subscriptions(args).each do |subscription|
+      find_subscriptions(ids: args).each do |subscription|
         subscription.reset
       end
     end
 
     def fix(args)
-      subscriptions(args).each do |subscription|
+      find_subscriptions(ids: args).each do |subscription|
         subscription.fix
       end
     end
 
     def remove(args)
-      subscriptions(args).each do |subscription|
+      find_subscriptions(ids: args).each do |subscription|
         subscription.remove
       end
     end
 
     def show(args, keys: nil)
-      subscriptions(args).each do |subscription|
+      find_subscriptions(ids: args).each do |subscription|
         subscription.show(keys)
       end
     end
 
     def show_message(args)
-      subscriptions(args).each do |subscription|
+      find_subscriptions(ids: args).each do |subscription|
         subscription.show_message
       end
     end
