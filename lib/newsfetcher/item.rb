@@ -57,7 +57,9 @@ module NewsFetcher
           html.style { html << @style }
         end
         html.body do
-          html.div(@subscription_title, class: 'header')
+          html.div(class: 'header') do
+            html.text('%s [%s]' % [@subscription_title, @subscription.id])
+          end
           html.h1 do
             if is_html?(@title)
               html << @title
