@@ -1,3 +1,9 @@
+- Rework templating system:
+  - Use ERB instead of custom '%x' code.
+    - Bind to Item.
+  - Replace #render with .erb file.
+  - Make CSS into .erb file.
+
 - Change #make_email to #to_mail
   - Have subscription be authority for title, mail_from/to, style, etc.
   - Remove instance variables: @profile, @feed, @style
