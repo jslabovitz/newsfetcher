@@ -2,11 +2,10 @@
   - Use ERB instead of custom '%x' code.
     - Bind to Item.
   - Replace #render with .erb file.
-  - Make CSS into .erb file.
 
 - Change #make_email to #to_mail
-  - Have subscription be authority for title, mail_from/to, style, etc.
-  - Remove instance variables: @profile, @feed, @style
+  - Have subscription be authority for title, mail_from/to, etc.
+  - Remove instance variables: @profile, @feed
 
 - Change from Faraday to HTTParty?
 
@@ -24,8 +23,6 @@
 - Expand testing:
   - Use Mail::TestMailer to test results.
   - Use Mail::FileDelivery to save files.
-
-- Allow stylesheets to be added/changed.
 
 - Add check/validate command:
   - Fetch HTML page for feed.
