@@ -10,6 +10,7 @@ require 'loofah'
 require 'mail'
 require 'nokogiri'
 require 'path'
+require 'sassc'
 require 'simple-command'
 
 require 'newsfetcher/bundle'

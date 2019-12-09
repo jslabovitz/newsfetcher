@@ -5,7 +5,6 @@ module NewsFetcher
     attr_accessor :feed
     attr_accessor :entry
     attr_accessor :profile
-    attr_accessor :style
     attr_accessor :subscription
     attr_accessor :id
     attr_accessor :date
@@ -20,7 +19,6 @@ module NewsFetcher
       @feed = feed
       @entry = entry
       @profile = profile
-      @style = profile.style
       @subscription = subscription
       @id = entry.entry_id || entry.url or raise Error, "Can't determine entry ID"
       @id = @id.to_s.strip
@@ -54,7 +52,9 @@ module NewsFetcher
     def render
       html_document do |html|
         html.head do
-          html.style { html << @style }
+          @profile.styles.each do |style|
+            html.style { html << style }
+          end
         end
         html.body do
           html.div(class: 'header') do

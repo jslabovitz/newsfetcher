@@ -7,7 +7,8 @@ module NewsFetcher
     attr_accessor :mail_to
     attr_accessor :mail_subject
     attr_accessor :max_threads
-    attr_accessor :style
+    attr_accessor :stylesheets
+    attr_accessor :styles
     attr_accessor :logger
     attr_accessor :log_level
 
@@ -19,20 +20,37 @@ module NewsFetcher
 
     def initialize(params={})
       @max_threads = DefaultMaxThreads
-      @style = StylesheetFile.read
       @delivery_method = [:sendmail]
       @mail_subject = '[%b] %t'
       @log_level = Logger::INFO
+      @stylesheets = []
       params.each { |k, v| send("#{k}=", v) if v }
+      read_info
+      setup_logger
+      setup_styles
+    end
+
+    def read_info
       raise Error, "dir not set" unless @dir
       @bundle = Bundle.new(@dir)
       @bundle.info.each { |k, v| send("#{k}=", v) }
+    end
+
+    def setup_logger
       @logger = Logger.new(STDERR,
         level: @log_level,
         formatter: proc { |severity, datetime, progname, msg|
           "%s %5s: %s\n" % [datetime.strftime('%FT%T%:z'), severity, msg]
         },
       )
+    end
+
+    def setup_styles
+      @stylesheets << StylesheetFile
+      @styles = @stylesheets.map do |file|
+        file = @dir / file if file.relative?
+        SassC::Engine.new(file.read, syntax: :scss, style: :compressed).render
+      end
     end
 
     def save
@@ -57,6 +75,10 @@ module NewsFetcher
 
     def mail_to=(address)
       @mail_to = Mail::Address.new(address)
+    end
+
+    def stylesheets=(files)
+      @stylesheets = files.map { |f| Path.new(f) }
     end
 
     def id
