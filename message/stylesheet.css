@@ -1,14 +1,16 @@
+body {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
 a {
   text-decoration: none;
 }
 
 img {
   max-width: 100%;
+  width: 100% !important;
   height: auto;
-}
-
-body {
-  font-size: 100%;
 }
 
 .header {

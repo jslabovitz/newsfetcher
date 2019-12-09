@@ -52,6 +52,8 @@ module NewsFetcher
     def render
       html_document do |html|
         html.head do
+          html.meta(name: 'x-apple-disable-message-reformatting')
+          html.meta(name: 'viewport', content: 'width=device-width, initial-scale=1')
           @profile.styles.each do |style|
             html.style { html << style }
           end
