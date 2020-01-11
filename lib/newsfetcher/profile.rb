@@ -96,6 +96,19 @@ module NewsFetcher
       mail.deliver!
     end
 
+    def make_outline(ids)
+      #FIXME: only handles one-level outline
+      outline = {}
+      find_subscriptions(ids: ids).each do |subscription|
+        subpaths = subscription.id.split('/')
+        subpaths.pop
+        raise Error, "Multilevel OPML not supported: #{subpaths.inspect}" if subpaths.length > 1
+        outline[subpaths.first] ||= []
+        outline[subpaths.first] << subscription
+      end
+      outline
+    end
+
     def find_subscriptions(ids: nil, status: nil, sort: nil)
       status ||= [:active, :dormant, :never]
       status = [status].flatten
@@ -202,6 +215,36 @@ module NewsFetcher
     def show_message(args)
       find_subscriptions(ids: args).each do |subscription|
         subscription.show_message
+      end
+    end
+
+    def export(args)
+      opml = Nokogiri::XML::Builder.new do |xml|
+        xml.opml(version: '1.1') do
+          xml.head do
+            xml.title('Subscriptions')
+          end
+          xml.body do
+            node_to_opml(make_outline(args), xml)
+          end
+        end
+      end.doc
+      print opml
+    end
+
+    def node_to_opml(node, xml)
+      node.each do |folder, subscriptions|
+        xml.outline(text: folder) do
+          subscriptions.each do |subscription|
+            feed = subscription.parse_feed
+            xml.outline(
+              type: 'rss',
+              version: 'RSS',
+              text: feed.title,
+              title: feed.title,
+              xmlUrl: subscription.link)
+          end
+        end
       end
     end
 
