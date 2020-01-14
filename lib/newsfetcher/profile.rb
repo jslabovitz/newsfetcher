@@ -140,8 +140,9 @@ module NewsFetcher
       when :loaded
         html = Nokogiri::HTML::Document.parse(response[:content])
         html.xpath('//link[@rel="alternate"]').each do |link|
-          puts "%s (%s)" % [link['title'], link['type']]
+          puts link['title'] unless link['title'].to_s.empty?
           puts uri.join(Addressable::URI.parse(link['href']))
+          puts link['type']
           puts
         end
       when :failed
