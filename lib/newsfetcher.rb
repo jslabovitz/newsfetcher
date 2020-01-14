@@ -49,8 +49,10 @@ module NewsFetcher
         ssl: { verify: false })
       begin
         response = connection.get
+      rescue Faraday::ConnectionFailed => e
+        raise Error, "Couldn't connect to #{uri}: #{e.message} [#{e.class}]"
       rescue StandardError => e
-        raise Error, "Couldn't get #{uri}: #{e}"
+        raise Error, "Couldn't get #{uri}: #{e.message} [#{e.class}]"
       end
       case response.status
       when 200...300
