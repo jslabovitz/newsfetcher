@@ -216,6 +216,17 @@ module NewsFetcher
       end
     end
 
+    def import(files)
+      files.map { |f| Path.new(f) }.each do |file|
+        opml = Nokogiri::XML(file.read)
+        opml.xpath('/opml/body/*/outline').each do |entry|
+          uri = Addressable::URI.parse(entry['xmlUrl'])
+          #FIXME: only adds to top level
+          add_subscription(uri: uri)
+        end
+      end
+    end
+
     def export(args)
       opml = Nokogiri::XML::Builder.new do |xml|
         xml.opml(version: '1.1') do
