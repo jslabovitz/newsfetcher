@@ -135,20 +135,17 @@ module NewsFetcher
     def discover_feed(uri)
       uri = Addressable::URI.parse(uri)
       NewsFetcher.verify_uri!(uri)
-      response = NewsFetcher.get(uri)
-      case response[:status]
-      when :loaded
-        html = Nokogiri::HTML::Document.parse(response[:content])
-        html.xpath('//link[@rel="alternate"]').each do |link|
-          puts link['title'] unless link['title'].to_s.empty?
-          puts uri.join(Addressable::URI.parse(link['href']))
-          puts link['type']
-          puts
-        end
-      when :failed
-        raise Error, "Failed to load: #{response[:message]}"
-      else
-        raise Error, "Unknown response: #{response.inspect}"
+      begin
+        response = NewsFetcher.get(uri)
+      rescue Error => e
+        raise Error, "Failed to get #{@link}: #{e}"
+      end
+      html = Nokogiri::HTML::Document.parse(response[:content])
+      html.xpath('//link[@rel="alternate"]').each do |link|
+        puts link['title'] unless link['title'].to_s.empty?
+        puts uri.join(Addressable::URI.parse(link['href']))
+        puts link['type']
+        puts
       end
     end
 

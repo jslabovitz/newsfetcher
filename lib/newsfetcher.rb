@@ -56,36 +56,26 @@ module NewsFetcher
       end
       case response.status
       when 200...300
-        resp[:status] = :loaded
         resp[:content] = response.body
         resp[:last_modified] = Time.parse(response.headers[:last_modified] || response.headers[:date])
         break
       when 304
-        resp[:status] = :not_modified
-        break
+        return nil
       when 300...400
         new_uri = uri.join(Addressable::URI.parse(response.headers[:location]))
         begin
           verify_uri!(new_uri)
         rescue Error => e
-          resp[:status] = :failed
-          resp[:message] = "Bad redirected URI: #{new_uri}"
-          break
+          raise Error, "Bad redirected URI: #{new_uri}"
         end
         redirects += 1
-        if redirects > DownloadFollowRedirectLimit
-          resp[:status] = :failed
-          resp[:message] = "Too many redirects"
-          break
-        end
+        raise Error, "Too many redirects" if redirects > DownloadFollowRedirectLimit
         resp[:redirect] = new_uri if response.status == 301
         uri = new_uri
-      when 400..600
-        resp[:status] = :failed
-        resp[:message] = "Server error: #{response.status}"
+      when 500...600
+        raise Error, "Server error: #{response.status}"
       else
-        resp[:status] = :failed
-        resp[:message] = "Unexpected status: #{response.status}"
+        raise Error, "Unexpected status: #{response.status}"
       end
     end
     resp

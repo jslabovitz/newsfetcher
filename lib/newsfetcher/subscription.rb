@@ -94,21 +94,18 @@ module NewsFetcher
     end
 
     def update_feed
-      response = NewsFetcher.get(@link, if_modified_since: last_modified)
-      case response[:status]
-      when :not_modified
-        # ignore
-      when :loaded
+      begin
+        response = NewsFetcher.get(@link, if_modified_since: last_modified)
+      rescue Error => e
+        raise Error, "Failed to get #{@link}: #{e}"
+      end
+      if response
         @profile.logger.debug { "#{id}: Loaded feed: #{@link}" }
         if response[:redirect]
           @profile.logger.warn { "#{id}: Feed has moved from #{@link} to #{response[:redirect]}" }
         end
         feed_file.write(response[:content])
         feed_file.utime(response[:last_modified], response[:last_modified])
-      when :failed
-        raise Error, "Failed to load: #{response[:message]}"
-      else
-        raise Error, "Unknown response: #{response.inspect}"
       end
     end
 
