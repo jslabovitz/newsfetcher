@@ -110,14 +110,13 @@ module NewsFetcher
     end
 
     def find_subscriptions(ids: nil, status: nil, sort: nil)
-      status ||= [:active, :dormant, :never]
-      status = [status].flatten
+      status = [status].flatten.compact if status
       sort ||= :id
       subscriptions = Bundle.bundles(dir: subscriptions_dir, ids: ids).map do |bundle|
         Subscription.new(bundle.info.merge(profile: self, dir: bundle.dir))
       end
       subscriptions
-        .select { |s| status.include?(s.status) }
+        .select { |s| status.nil? || status.include?(s.status) }
         .sort_by { |s| s.send(sort).to_s }
     end
 
@@ -150,8 +149,7 @@ module NewsFetcher
     end
 
     def list(args, status: nil, sort: nil, details: false)
-      status ||= [:active, :dormant, :never]
-      status = [status] unless status.kind_of?(Array)
+      status = [status].flatten.compact if status
       sort ||= :id
       find_subscriptions(ids: args, status: status, sort: sort).each do |subscription|
         if details
