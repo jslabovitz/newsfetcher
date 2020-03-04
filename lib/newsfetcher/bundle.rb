@@ -15,6 +15,7 @@ module NewsFetcher
         dirs = ids.map { |id| dir / id }
       end
       dirs.map do |bundle_dir|
+        raise Error, "Bundle not found: #{bundle_dir.inspect}" unless bundle_dir.exist?
         new(bundle_dir)
       end
     end
