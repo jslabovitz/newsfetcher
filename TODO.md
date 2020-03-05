@@ -1,3 +1,6 @@
+- Debug case where CLI setting doesn't override profile setting.
+  - eg, log_level
+
 - Rework templating system:
   - Use ERB instead of custom '%x' code.
     - Bind to Item.
