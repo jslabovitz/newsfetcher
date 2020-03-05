@@ -94,6 +94,7 @@ module NewsFetcher
     end
 
     def update_feed
+      raise Error, "Link not defined" unless @link
       begin
         response = NewsFetcher.get(@link, if_modified_since: last_modified)
       rescue Error => e
