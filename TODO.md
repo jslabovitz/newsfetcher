@@ -15,9 +15,6 @@
 - Add 'prune' command to prune out old history.
   - Rewrite history file.
 
-- Combine list/show/show-message commands.
-  - Use flags to control what is shown.
-
 - Add per-feed locks to avoid access by multiple processes/threads.
 
 - Expand testing:

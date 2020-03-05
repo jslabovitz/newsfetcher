@@ -151,25 +151,6 @@ module NewsFetcher
     def fix
     end
 
-    def show(keys)
-      feed = parse_feed
-      puts; puts '%s:' % (@title || feed.title)
-      feed_items(feed).each do |item|
-        item.show(keys)
-        puts
-      end
-    end
-
-    def show_message
-      feed = parse_feed
-      feed_items(feed).each do |item|
-        email = item.make_email
-        puts email.header
-        puts
-        puts email.body
-      end
-    end
-
     DetailsFields = [
       [ 'ID', proc { |s| s.id } ],
       [ 'Title', proc { |s| s.title } ],
@@ -181,7 +162,7 @@ module NewsFetcher
     ]
     DetailsFieldsMaxWidth = DetailsFields.map { |i| i.first.length }.max
 
-    def list_details
+    def show_details
       DetailsFields.each do |label, prc|
         puts '%*s: %s' % [
           DetailsFieldsMaxWidth,
@@ -192,7 +173,7 @@ module NewsFetcher
       puts
     end
 
-    def list_summary
+    def show_summary
       puts "%8s | %10s | %5d | %-40.40s | %-40.40s" % [
         status,
         (a = age) ? "#{a.to_i} days" : 'never',

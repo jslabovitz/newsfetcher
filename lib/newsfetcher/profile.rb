@@ -148,14 +148,14 @@ module NewsFetcher
       end
     end
 
-    def list(args, status: nil, sort: nil, details: false)
+    def show(args, status: nil, sort: nil, details: false)
       status = [status].flatten.compact if status
       sort ||= :id
       find_subscriptions(ids: args, status: status, sort: sort).each do |subscription|
         if details
-          subscription.list_details
+          subscription.show_details
         else
-          subscription.list_summary
+          subscription.show_summary
         end
       end
     end
@@ -199,18 +199,6 @@ module NewsFetcher
     def remove(args)
       find_subscriptions(ids: args).each do |subscription|
         subscription.remove
-      end
-    end
-
-    def show(args, keys: nil)
-      find_subscriptions(ids: args).each do |subscription|
-        subscription.show(keys)
-      end
-    end
-
-    def show_message(args)
-      find_subscriptions(ids: args).each do |subscription|
-        subscription.show_message
       end
     end
 

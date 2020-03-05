@@ -19,9 +19,9 @@ module NewsFetcher
           Profile.init(@dir, mail_from: @mail_from, mail_to: @mail_to)
         end
 
-        command 'list', status: nil, sort: nil, details: false do |args|
+        command 'show', status: nil, sort: nil, details: false do |args|
           raise Error, "Profile not loaded" unless @profile
-          @profile.list(args,
+          @profile.show(args,
             status: @status ? [@status.split(',').map(&:to_sym)] : nil,
             sort: @sort ? @sort.to_sym : nil,
             details: @details)
@@ -57,17 +57,6 @@ module NewsFetcher
         command 'reset' do |subscription_ids|
           raise Error, "Profile not loaded" unless @profile
           @profile.reset(subscription_ids)
-        end
-
-        command 'show', keys: nil do |subscription_ids|
-          raise Error, "Profile not loaded" unless @profile
-          @keys = @keys.split(',').map(&:to_sym) if @keys
-          @profile.show(subscription_ids, keys: @keys)
-        end
-
-        command 'show-message' do |subscription_ids|
-          raise Error, "Profile not loaded" unless @profile
-          @profile.show_message(subscription_ids)
         end
 
         command 'import' do |files|
