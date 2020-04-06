@@ -68,22 +68,17 @@ module NewsFetcher
       @bundle.save
     end
 
-    def latest_item_timestamp
-      @history.latest&.last
-    end
-
     def age
-      if (t = latest_item_timestamp)
-        Date.today - t.to_date
+      if (timestamp = @history.latest&.last)
+        Time.now - timestamp
       else
         nil
       end
     end
 
     def status
-      last = latest_item_timestamp
-      if last
-        if (Time.now - last) > DefaultDormantTime
+      if (a = age)
+        if a > DefaultDormantTime
           :dormant
         else
           :active
@@ -152,36 +147,52 @@ module NewsFetcher
     def fix
     end
 
-    DetailsFields = [
-      [ 'ID', proc { |s| s.id } ],
-      [ 'Title', proc { |s| s.title } ],
-      [ 'Link', proc { |s| s.link } ],
-      [ 'Items', proc { |s| s.history.length } ],
-      [ 'Status', proc { |s| s.status } ],
-      [ 'Last modified', proc { |s| s.last_modified } ],
-      [ 'Age', proc { |s| s.age ? "#{s.age.to_i} days" : 'never' } ],
-    ]
-    DetailsFieldsMaxWidth = DetailsFields.map { |i| i.first.length }.max
+    FieldFormatters = {
+      items: proc { |s|
+        s.history.length
+      },
+      age: proc { |s|
+        if (a = s.age)
+          '%d days' % (a / 60 / 60 / 24)
+        else
+          'never'
+        end
+      },
+    }
+
+    FieldLabels = {
+      id: 'ID',
+      title: 'Title',
+      link: 'Link',
+      items: 'Items',
+      status: 'Status',
+      last_modified: 'Last modified',
+      age: 'Age',
+    }
+    FieldLabelsMaxWidth = FieldLabels.map { |k, v| v.length }.max
 
     def show_details
-      DetailsFields.each do |label, prc|
+      FieldLabels.each do |key, label|
         puts '%*s: %s' % [
-          DetailsFieldsMaxWidth,
+          FieldLabelsMaxWidth,
           label,
-          prc.call(self),
+          show_field(key),
         ]
       end
       puts
     end
 
     def show_summary
-      puts "%8s | %10s | %5d | %-40.40s | %-40.40s" % [
-        status,
-        (a = age) ? "#{a.to_i} days" : 'never',
-        history.length,
-        title,
-        id,
-      ]
+      puts "%8s | %10s | %5d | %-40.40s | %-40.40s" %
+        %i{status age items title id}.map { |key| show_field(key) }
+    end
+
+    def show_field(key)
+      if (p = FieldFormatters[key])
+        p.call(self)
+      else
+        send(key)
+      end
     end
 
   end
