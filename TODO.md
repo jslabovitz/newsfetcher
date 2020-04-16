@@ -1,3 +1,12 @@
+- Rename 'history' file to 'seen'?
+  - Fix data format to be lines of JSON?
+
+- Keep track of errors.
+  - If error occurs when fetching feed, append to 'errors' file.
+    - Save date, error code, etc.
+    - If number of errors exceeds maximum, log error; else ignore.
+  - Otherwise delete 'errors' file on success.
+
 - Debug case where CLI setting doesn't override profile setting.
   - eg, log_level
 
