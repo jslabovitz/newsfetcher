@@ -106,7 +106,9 @@ module NewsFetcher
               html.a(pretty_url, href: @url)
             end
           end
-          html.div(class: 'content') { html << render_content }
+          if @content
+            html.div(class: 'content') { html << render_content }
+          end
         end
       end
     end
