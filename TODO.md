@@ -1,3 +1,6 @@
+- Fix broken export functionality.
+  - Or remove entirely.
+
 - Rename 'history' file to 'seen'?
   - Fix data format to be lines of JSON?
 
