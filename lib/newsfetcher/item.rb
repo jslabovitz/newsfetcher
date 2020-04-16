@@ -2,33 +2,62 @@ module NewsFetcher
 
   class Item
 
-    attr_accessor :feed
-    attr_accessor :entry
     attr_accessor :profile
     attr_accessor :subscription
-    attr_accessor :id
-    attr_accessor :date
-    attr_accessor :subscription_title
-    attr_accessor :title
-    attr_accessor :url
-    attr_accessor :author
-    attr_accessor :image
-    attr_accessor :content
+    attr_reader   :id
+    attr_reader   :date
+    attr_reader   :subscription_title
+    attr_reader   :title
+    attr_reader   :url
+    attr_reader   :author
+    attr_reader   :content
 
-    def initialize(feed:, entry:, profile:, subscription:)
-      @feed = feed
-      @entry = entry
+    def initialize(profile:, subscription:, **params)
       @profile = profile
       @subscription = subscription
-      @id = entry.entry_id || entry.url or raise Error, "Can't determine entry ID"
-      @id = @id.to_s.strip
-      @date = entry.published || Time.now
-      @subscription_title = subscription.title || feed.title || 'untitled'
-      @title = (t = entry.title.to_s.strip).empty? ? 'untitled' : t
-      @url = entry.url ? Addressable::URI.parse(entry.url.strip) : nil
-      @author = entry.respond_to?(:author) ? entry.author.to_s.strip : nil
-      @image = entry.respond_to?(:image) ? entry.image.to_s.strip : nil
-      @content = entry.content || entry.summary || ''
+      params.each { |k, v| send("#{k}=", v) }
+    end
+
+    def id=(id)
+      @id = (s = id.to_s.strip).empty? ? nil : s
+    end
+
+    def date=(date)
+      @date = case date
+      when String
+        Time.parse(date)
+      when Time, nil
+        date
+      else
+        raise "Unknown date value: #{date.inspect}"
+      end
+    end
+
+    def subscription_title=(title)
+      @subscription_title = (s = title.to_s.strip).empty? ? nil : s
+    end
+
+    def title=(title)
+      @title = (s = title.to_s.strip).empty? ? nil : s
+    end
+
+    def url=(url)
+      @url = case url
+      when String
+        Addressable::URI.parse(url.strip)
+      when Addressable::URI, URI, nil
+        url
+      else
+        raise "Unknown URL value: #{url.inspect}"
+      end
+    end
+
+    def author=(author)
+      @author = (s = author.to_s.strip).empty? ? nil : s
+    end
+
+    def content=(content)
+      @content = (s = content.to_s.strip).empty? ? nil : s
     end
 
     def make_email

@@ -171,10 +171,8 @@ module NewsFetcher
         threads << Thread.new do
           @logger.debug { "Started thread for #{subscription.id}" }
           begin
-            subscription.update_feed
-            subscription.process do |item|
-              send_item(item)
-            end
+            subscription.update
+            subscription.process
           rescue Error => e
             @logger.error { "#{subscription.id}: #{e}" }
           end

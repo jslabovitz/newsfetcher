@@ -88,7 +88,7 @@ module NewsFetcher
       end
     end
 
-    def update_feed
+    def update
       raise Error, "Link not defined" unless @link
       begin
         response = NewsFetcher.get(@link, if_modified_since: last_modified)
@@ -105,33 +105,63 @@ module NewsFetcher
       end
     end
 
-    def process(&block)
-      feed = parse_feed
-      feed_items(feed).each do |item|
+    def process
+      raise Error, "No feed file" unless feed_file.exist?
+      feed_data = feed_file.read
+      items = case feed_data
+      when /^</
+        process_xml_feed(feed_data)
+      when /^\{/
+        process_json_feed(feed_data)
+      else
+        raise Error, "Unknown feed type"
+      end
+      items.each do |item|
+        raise "No item ID" unless item.id
         next if @history[item.id] || item.age > DefaultDormantTime
-        yield(item)
+        @profile.send_item(item)
         @history[item.id] = item.date
       end
     end
 
-    def parse_feed
-      raise Error, "No feed file" unless feed_file.exist?
-      feed = feed_file.read
+    def process_xml_feed(data)
       begin
         Feedjira.configure { |c| c.strip_whitespace = true }
-        Feedjira.parse(feed)
+        feed = Feedjira.parse(data)
       rescue => e
-        raise Error, "Can't parse feed from #{feed_file}: #{e}"
+        raise Error, "Can't parse XML feed: #{e}"
+      end
+      feed.entries.map do |entry|
+        Item.new(
+          subscription: self,
+          profile: @profile,
+          id: entry.entry_id || entry.url,
+          date: entry.published || Time.now,
+          subscription_title: @title || feed.title || 'untitled',
+          title: entry.title,
+          url: entry.url,
+          author: entry.respond_to?(:author) ? entry.author : nil,
+          content: entry.content || entry.summary || '')
       end
     end
 
-    def feed_items(feed)
-      feed.entries.collect do |entry|
+    def process_json_feed(data)
+      begin
+        feed = JSON.parse(data)
+      rescue => e
+        raise Error, "Can't parse JSON feed: #{e}"
+      end
+      feed['items'].map do |item|
         Item.new(
-          feed: feed,
-          entry: entry,
           subscription: self,
-          profile: @profile)
+          profile: @profile,
+          id: item['id'] || item['url'],
+          date: item['date_published'] || Time.now,
+          subscription_title: @title || feed['title'],
+          title: item['title'],
+          url: item['url'],
+          author: item['author'] && item['author']['name'],
+          content: item['content_html'] || item['summary'])
       end
     end
 
