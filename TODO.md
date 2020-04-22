@@ -10,9 +10,6 @@
     - If number of errors exceeds maximum, log error; else ignore.
   - Otherwise delete 'errors' file on success.
 
-- Debug case where CLI setting doesn't override profile setting.
-  - eg, log_level
-
 - Rework templating system:
   - Use ERB instead of custom '%x' code.
     - Bind to Item.

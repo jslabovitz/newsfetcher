@@ -18,22 +18,27 @@ module NewsFetcher
       profile = new({ dir: dir }.merge(params))
     end
 
-    def initialize(params={})
+    def initialize(dir:, **params)
       @max_threads = DefaultMaxThreads
       @delivery_method = [:sendmail]
       @mail_subject = '[%b] %t'
-      @log_level = Logger::INFO
+      @log_level = :info
       @stylesheets = []
-      params.each { |k, v| send("#{k}=", v) if v }
+      @dir = Path.new(dir)
       read_info
+      set(params)
       setup_logger
       setup_styles
+    end
+
+    def set(params={})
+      params.each { |k, v| send("#{k}=", v) if v }
     end
 
     def read_info
       raise Error, "dir not set" unless @dir
       @bundle = Bundle.new(@dir)
-      @bundle.info.each { |k, v| send("#{k}=", v) }
+      set(@bundle.info)
     end
 
     def setup_logger

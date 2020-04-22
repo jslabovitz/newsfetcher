@@ -8,9 +8,7 @@ module NewsFetcher
 
         global dir: DefaultProfileDir, log_level: nil do
           @dir = Path.new(@dir)
-          if @dir.exist?
-            @profile = Profile.new(dir: @dir, log_level: @log_level && @log_level.to_sym)
-          end
+          @profile = Profile.new(dir: @dir, log_level: @log_level && @log_level.downcase.to_sym)
         end
 
         command 'init', mail_from: nil, mail_to: nil do |args|
