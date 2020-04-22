@@ -1,5 +1,9 @@
-- Fix broken export functionality.
-  - Or remove entirely.
+- After parsing feed, write current feed info to file in bundle
+  - title, link, updated, etc.
+  - read this file when initializing subscription
+  - (to avoid re-parsing feed just to get title, for example)
+  - write items as well?
+    - possibly integrate/replace history file?
 
 - Rename 'history' file to 'seen'?
   - Fix data format to be lines of JSON?
