@@ -107,16 +107,7 @@ module NewsFetcher
 
     def process
       raise Error, "No feed file" unless feed_file.exist?
-      feed_data = feed_file.read
-      items = case feed_data
-      when /^</
-        process_xml_feed(feed_data)
-      when /^\{/
-        process_json_feed(feed_data)
-      else
-        raise Error, "Unknown feed type"
-      end
-      items.each do |item|
+      feed_items.each do |item|
         raise "No item ID" unless item.id
         next if @history[item.id] || item.age > DefaultDormantTime
         @profile.send_item(item)
@@ -124,7 +115,19 @@ module NewsFetcher
       end
     end
 
-    def process_xml_feed(data)
+    def feed_items
+      feed_data = feed_file.read
+      items = case feed_data
+      when /^</
+        read_xml_feed(feed_data)
+      when /^\{/
+        read_json_feed(feed_data)
+      else
+        raise Error, "Unknown feed type"
+      end
+    end
+
+    def read_xml_feed(data)
       begin
         Feedjira.configure { |c| c.strip_whitespace = true }
         feed = Feedjira.parse(data)
@@ -145,7 +148,7 @@ module NewsFetcher
       end
     end
 
-    def process_json_feed(data)
+    def read_json_feed(data)
       begin
         feed = JSON.parse(data)
       rescue => e

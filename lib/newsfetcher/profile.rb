@@ -234,12 +234,12 @@ module NewsFetcher
       node.each do |folder, subscriptions|
         xml.outline(text: folder) do
           subscriptions.each do |subscription|
-            feed = subscription.parse_feed
+            item = subscription.feed_items.first
             xml.outline(
               type: 'rss',
               version: 'RSS',
-              text: feed.title,
-              title: feed.title,
+              text: item.subscription_title,
+              title: item.subscription_title,
               xmlUrl: subscription.link)
           end
         end
