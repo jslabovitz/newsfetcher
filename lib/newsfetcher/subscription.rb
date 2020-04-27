@@ -3,9 +3,9 @@ module NewsFetcher
   class Subscription
 
     attr_accessor :title
-    attr_accessor :link
+    attr_reader   :link
     attr_accessor :profile
-    attr_accessor :dir
+    attr_reader   :dir
     attr_accessor :history
 
     def self.uri_to_key(uri)
@@ -24,6 +24,7 @@ module NewsFetcher
     end
 
     def initialize(params={})
+      @title = @link = @profile = @dir = @history = nil
       params.each { |k, v| send("#{k}=", v) if v }
       raise Error, "dir not set" unless @dir
       @bundle = Bundle.new(@dir)

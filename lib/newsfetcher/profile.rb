@@ -2,12 +2,12 @@ module NewsFetcher
 
   class Profile
 
-    attr_accessor :dir
-    attr_accessor :mail_from
-    attr_accessor :mail_to
+    attr_reader   :dir
+    attr_reader   :mail_from
+    attr_reader   :mail_to
     attr_accessor :mail_subject
     attr_accessor :max_threads
-    attr_accessor :stylesheets
+    attr_reader   :stylesheets
     attr_accessor :styles
     attr_accessor :logger
     attr_accessor :log_level
@@ -15,7 +15,7 @@ module NewsFetcher
     def self.init(dir, params)
       dir = Path.new(dir)
       raise Error, "#{dir} already exists" if dir.exist?
-      profile = new({ dir: dir }.merge(params))
+      new(**{ dir: dir }.merge(params))
     end
 
     def initialize(dir:, **params)
