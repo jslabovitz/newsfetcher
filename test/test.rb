@@ -1,3 +1,5 @@
+$VERBOSE = false
+
 require 'minitest/autorun'
 require 'minitest/power_assert'
 
@@ -13,7 +15,7 @@ module NewsFetcher
       @site_uri = 'http://johnlabovitz.com'
       @feed_uri = 'http://johnlabovitz.com/feed.xml'
       @email = 'johnl@johnlabovitz.com'
-      @log_level = :debug
+      @log_level = :error
       @dir.rmtree if @dir.exist?
       Profile.init(@dir,
         mail_from: @email,
