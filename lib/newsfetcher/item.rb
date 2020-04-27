@@ -190,7 +190,8 @@ module NewsFetcher
 
     def replace_fields(str, fields)
       str.to_s.gsub(/%(\w)/) do
-        fields[$1] or raise Error, "Unknown tag: #{$1.inspect}"
+        raise Error, "Unknown tag: #{$1.inspect}" unless fields.has_key?($1)
+        fields[$1] || ''
       end
     end
 
