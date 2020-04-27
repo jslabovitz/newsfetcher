@@ -134,6 +134,7 @@ module NewsFetcher
       raise Error, "Subscription already exists (as #{subscription.id}): #{uri}" if subscription.exist?
       subscription.save
       @logger.info { "Saved new subscription to #{subscription.id}" }
+      subscription
     end
 
     def discover_feed(uri)
