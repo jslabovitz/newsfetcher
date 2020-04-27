@@ -168,7 +168,7 @@ module NewsFetcher
     end
 
     def reset
-      feed_file.unlink if file.exist?
+      feed_file.unlink if feed_file.exist?
       @history.reset
     end
 
