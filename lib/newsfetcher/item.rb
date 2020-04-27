@@ -2,18 +2,15 @@ module NewsFetcher
 
   class Item
 
-    attr_accessor :profile
     attr_accessor :subscription
     attr_reader   :id
     attr_reader   :date
-    attr_reader   :subscription_title
     attr_reader   :title
     attr_reader   :url
     attr_reader   :author
     attr_reader   :content
 
-    def initialize(profile:, subscription:, **params)
-      @profile = profile
+    def initialize(subscription:, **params)
       @subscription = subscription
       params.each { |k, v| send("#{k}=", v) }
     end
@@ -31,10 +28,6 @@ module NewsFetcher
       else
         raise "Unknown date value: #{date.inspect}"
       end
-    end
-
-    def subscription_title=(title)
-      @subscription_title = (s = title.to_s.strip).empty? ? nil : s
     end
 
     def title=(title)
@@ -69,9 +62,9 @@ module NewsFetcher
       }
       mail = Mail.new
       mail.date =         @date
-      mail.from =         @profile.mail_from
-      mail.to =           replace_fields(@profile.mail_to, fields)
-      mail.subject =      replace_fields(@profile.mail_subject, fields)
+      mail.from =         @subscription.profile.mail_from
+      mail.to =           replace_fields(@subscription.profile.mail_to, fields)
+      mail.subject =      replace_fields(@subscription.profile.mail_subject, fields)
       mail.content_type = 'text/html'
       mail.charset      = 'utf-8'
       mail.body         = render.to_html
@@ -83,13 +76,13 @@ module NewsFetcher
         html.head do
           html.meta(name: 'x-apple-disable-message-reformatting')
           html.meta(name: 'viewport', content: 'width=device-width, initial-scale=1')
-          @profile.styles.each do |style|
+          @subscription.profile.styles.each do |style|
             html.style { html << style }
           end
         end
         html.body do
           html.div(class: 'header') do
-            html.text('%s [%s]' % [@subscription_title, @subscription.id])
+            html.text('%s [%s]' % [@subscription.title, @subscription.id])
           end
           html.h1 do
             if is_html?(@title)
@@ -117,7 +110,7 @@ module NewsFetcher
       Time.now - @date
     end
 
-    DefaultKeys = %i{id date subscription_title title url author image content}
+    DefaultKeys = %i{id date title url author image content}
 
     def show(keys)
       keys ||= DefaultKeys

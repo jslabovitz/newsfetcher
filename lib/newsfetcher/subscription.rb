@@ -106,18 +106,18 @@ module NewsFetcher
     end
 
     def process
-      raise Error, "No feed file" unless feed_file.exist?
-      feed_items.each do |item|
-        raise "No item ID" unless item.id
+      read_feed
+      @items.each do |item|
         next if @history[item.id] || item.age > DefaultDormantTime
         @profile.send_item(item)
         @history[item.id] = item.date
       end
     end
 
-    def feed_items
+    def read_feed
+      raise Error, "No feed file" unless feed_file.exist?
       feed_data = feed_file.read
-      items = case feed_data
+      case feed_data
       when /^</
         read_xml_feed(feed_data)
       when /^\{/
@@ -134,13 +134,12 @@ module NewsFetcher
       rescue => e
         raise Error, "Can't parse XML feed: #{e}"
       end
-      feed.entries.map do |entry|
+      @title ||= feed.title || 'untitled'
+      @items = feed.entries.map do |entry|
         Item.new(
           subscription: self,
-          profile: @profile,
           id: entry.entry_id || entry.url,
           date: entry.published || Time.now,
-          subscription_title: @title || feed.title || 'untitled',
           title: entry.title,
           url: entry.url,
           author: entry.respond_to?(:author) ? entry.author : nil,
@@ -154,13 +153,12 @@ module NewsFetcher
       rescue => e
         raise Error, "Can't parse JSON feed: #{e}"
       end
-      feed['items'].map do |item|
+      @title ||= feed['title'] || 'untitled'
+      @items = feed['items'].map do |item|
         Item.new(
           subscription: self,
-          profile: @profile,
           id: item['id'] || item['url'],
           date: item['date_published'] || Time.now,
-          subscription_title: @title || feed['title'],
           title: item['title'],
           url: item['url'],
           author: item['author'] && item['author']['name'],
