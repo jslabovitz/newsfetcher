@@ -8,7 +8,4 @@
 /spec/reports/
 /tmp/
 
-test/Mail
-test/profile/**/feed
-test/profile/**/*.dir
-test/profile/**/*.pag
+test/.newsfetcher
