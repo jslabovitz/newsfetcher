@@ -24,7 +24,7 @@ module NewsFetcher
       @mail_subject = '[%b] %t'
       @log_level = :info
       @stylesheets = []
-      @dir = Path.new(dir)
+      @dir = Path.new(dir).expand_path
       read_info
       set(params)
       setup_logger
@@ -65,7 +65,7 @@ module NewsFetcher
     end
 
     def dir=(dir)
-      @dir = Path.new(dir)
+      @dir = Path.new(dir).expand_path
     end
 
     def delivery=(info)
