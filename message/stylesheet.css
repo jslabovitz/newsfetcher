@@ -13,14 +13,6 @@ img {
   height: auto;
 }
 
-.header {
-  margin: 1em 0 1em 0;
-  padding: 0.5em;
-  background-color: LightGray;
-}
-
-.content {}
-
 h1 {
   font-size: 150%;
 }
@@ -32,6 +24,14 @@ h2 {
 h3 {
   font-size: 100%;
 }
+
+.header {
+  margin: 1em 0 1em 0;
+  padding: 0.5em;
+  background-color: LightGray;
+}
+
+.content {}
 
 .blockquote {
   margin: 1em;
