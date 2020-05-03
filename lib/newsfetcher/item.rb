@@ -143,6 +143,12 @@ module NewsFetcher
         node.remove_attribute('class') if node['class']
         node.remove_attribute('id') if node['id']
       end
+      replace_blockquote = Loofah::Scrubber.new do |node|
+        if node.name == 'blockquote'
+          node.name = 'div'
+          node['class'] = 'blockquote'
+        end
+      end
       if is_html?(@content)
         Loofah.fragment(@content).
           scrub!(:prune).
@@ -151,6 +157,7 @@ module NewsFetcher
           scrub!(remove_font).
           scrub!(remove_form).
           scrub!(remove_styling).
+          scrub!(replace_blockquote).
           to_html
       else
         html_fragment do |html|
