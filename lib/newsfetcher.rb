@@ -57,6 +57,7 @@ module NewsFetcher
       case response.status
       when 200...300
         resp[:content] = response.body
+        resp[:content_type] = response.headers[:content_type]
         resp[:last_modified] = Time.parse(response.headers[:last_modified] || response.headers[:date])
         break
       when 304
