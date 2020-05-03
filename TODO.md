@@ -1,4 +1,9 @@
-- After parsing feed, write current feed info to file in bundle
+- Auto-discover on 'add'.
+
+- Move import/export logic into add/show.
+  - Add --format option: 'opml', 'json', 'details', 'summary' (default)
+
+- After parsing feed, write current feed info to file in bundle.
   - title, link, updated, etc.
   - read this file when initializing subscription
   - (to avoid re-parsing feed just to get title, for example)
