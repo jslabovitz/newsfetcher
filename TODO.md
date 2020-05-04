@@ -1,3 +1,16 @@
+- Move Profile#add_subscription and Profile.discover_feed into Subscription
+  - as class methods?
+
+- Detect JSON/XML/etc. based on content-type?
+
+- Use ETag instead of If-Last-Modified?
+  - support latter if former is not available?
+  - for I-L-M, always send back *exact* string received from server in last request (don't parse/convert/etc.)
+  - https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.3.4
+
+- Don't depend on Last-Modified date.
+  - better to use heuristics to understand last update based on item dates
+
 - Auto-discover on 'add'.
 
 - Move import/export logic into add/show.
