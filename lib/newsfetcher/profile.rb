@@ -139,13 +139,10 @@ module NewsFetcher
 
     def discover_feed(uri)
       uri = Addressable::URI.parse(uri)
-      NewsFetcher.verify_uri!(uri)
-      begin
-        response = NewsFetcher.get(uri)
-      rescue Error => e
-        raise Error, "Failed to get #{@link}: #{e}"
-      end
-      html = Nokogiri::HTML::Document.parse(response[:content])
+      raise Error, "Bad URI: #{uri}" unless uri.absolute?
+      result = NewsFetcher.get(uri)
+      raise Error, "Failed to get #{@link}: #{result.inspect}" unless result.type == :successful
+      html = Nokogiri::HTML::Document.parse(result.content)
       html.xpath('//link[@rel="alternate"]').each do |link|
         puts link['title'] unless link['title'].to_s.empty?
         puts uri.join(Addressable::URI.parse(link['href']))
