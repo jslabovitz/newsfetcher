@@ -127,7 +127,7 @@ module NewsFetcher
 
     def add_subscription(uri:, path: nil)
       uri = Addressable::URI.parse(uri)
-      NewsFetcher.verify_uri!(uri)
+      raise Error, "Bad URI: #{uri}" unless uri.absolute?
       key = Subscription.uri_to_key(uri)
       path = Path.new(path ? "#{path}/#{key}" : key)
       subscription = Subscription.new(dir: subscriptions_dir / path, link: uri, profile: self)
