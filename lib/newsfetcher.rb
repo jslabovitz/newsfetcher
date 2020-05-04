@@ -22,7 +22,7 @@ require 'newsfetcher/subscription'
 
 module NewsFetcher
 
-  FeedFileName = 'feed'
+  ResultFileName = 'result.json'
   HistoryFileName = 'history'
   DownloadTimeout = 30
   DownloadFollowRedirectLimit = 5
@@ -36,50 +36,54 @@ module NewsFetcher
     raise Error, "Invalid URI: #{uri}" unless uri.absolute? && uri.scheme && uri.host
   end
 
-  def self.get(uri, if_modified_since: nil)
-    resp = {}
-    headers = {}
-    headers[:if_modified_since] = if_modified_since.rfc2822 if if_modified_since
+  def self.get(uri, headers: nil)
     redirects = 0
     loop do
+      result = HashStruct.new(location: uri)
       connection = Faraday.new(
         url: uri,
-        headers: headers,
+        headers: headers || {},
         request: { timeout: DownloadTimeout },
         ssl: { verify: false })
       begin
         response = connection.get
-      rescue Faraday::ConnectionFailed => e
-        raise Error, "Couldn't connect to #{uri}: #{e.message} [#{e.class}]"
-      rescue StandardError => e
-        raise Error, "Couldn't get #{uri}: #{e.message} [#{e.class}]"
+      rescue Faraday::ConnectionFailed, Zlib::BufError, StandardError => e
+        return result.merge(type: :error, reason: e)
       end
-      case response.status
-      when 200...300
-        resp[:content] = response.body
-        resp[:content_type] = response.headers[:content_type]
-        resp[:last_modified] = Time.parse(response.headers[:last_modified] || response.headers[:date])
-        break
-      when 304
-        return nil
-      when 300...400
-        new_uri = uri.join(Addressable::URI.parse(response.headers[:location]))
-        begin
-          verify_uri!(new_uri)
-        rescue Error => e
-          raise Error, "Bad redirected URI: #{new_uri}"
-        end
+      result_type = http_status_result_type(response.status)
+      if result_type == :redirection
         redirects += 1
-        raise Error, "Too many redirects" if redirects > DownloadFollowRedirectLimit
-        resp[:redirect] = new_uri if response.status == 301
-        uri = new_uri
-      when 500...600
-        raise Error, "Server error: #{response.status}"
-      else
-        raise Error, "Unexpected status: #{response.status}"
+        if redirects > DownloadFollowRedirectLimit
+          return result.merge(type: :error, reason: "Too many redirects")
+        end
+        uri = uri.join(Addressable::URI.parse(response.headers[:location]))
+        next
       end
+      return result.merge(
+        type: result_type,
+        status: response.status,
+        headers: response.headers,
+        content: response.body.force_encoding(Encoding::UTF_8))
     end
-    resp
+  end
+
+  def self.http_status_result_type(code)
+    case code
+    when 100...200
+      :informational
+    when 200...300
+      :successful
+    when 304
+      :not_modified
+    when 300...400
+      :redirection
+    when 400...500
+      :client_error
+    when 500...600
+      :server_error
+    else
+      :unknown_status
+    end
   end
 
 end

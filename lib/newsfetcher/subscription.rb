@@ -51,12 +51,8 @@ module NewsFetcher
       relative_dir.basename.to_s
     end
 
-    def feed_file
-      @dir / FeedFileName
-    end
-
-    def last_modified
-      feed_file.exist? ? feed_file.mtime : nil
+    def result_file
+      @dir / ResultFileName
     end
 
     def exist?
@@ -91,18 +87,24 @@ module NewsFetcher
 
     def update
       raise Error, "Link not defined" unless @link
-      begin
-        response = NewsFetcher.get(@link, if_modified_since: last_modified)
-      rescue Error => e
-        raise Error, "Failed to get #{@link}: #{e}"
-      end
-      if response
-        @profile.logger.debug { "#{id}: Loaded feed: #{@link}" }
-        if response[:redirect]
-          @profile.logger.warn { "#{id}: Feed has moved from #{@link} to #{response[:redirect]}" }
+      headers = {}
+      if result_file.exist?
+        result = read_result_file
+        if (date = (result.headers.date rescue nil))
+          headers = { if_modified_since: date.rfc2822 }
         end
-        feed_file.write(response[:content])
-        feed_file.utime(response[:last_modified], response[:last_modified])
+      end
+      result = NewsFetcher.get(@link, headers: headers)
+      if result.location != @link
+        @profile.logger.warn { "#{id}: Feed has moved from #{@link} to #{result.location}" }
+      end
+      case result.type
+      when :not_modified
+        # skip
+      when :successful
+        result_file.write(result.to_json)
+      else
+        raise "#{id}: Unexpected result: #{result.inspect}"
       end
     end
 
@@ -116,16 +118,20 @@ module NewsFetcher
     end
 
     def read_feed
-      raise Error, "No feed file" unless feed_file.exist?
-      feed_data = feed_file.read
-      case feed_data
+      result = read_result_file
+      case result.content
       when /^</
-        read_xml_feed(feed_data)
+        read_xml_feed(result.content)
       when /^\{/
-        read_json_feed(feed_data)
+        read_json_feed(result.content)
       else
-        raise Error, "Unknown feed type"
+        raise Error, "Unknown content type for feed: #{(result.content[0..9] + '...').inspect}"
       end
+    end
+
+    def read_result_file
+      raise Error, "No result file" unless result_file.exist?
+      HashStruct.new(JSON.parse(result_file.read))
     end
 
     def read_xml_feed(data)
@@ -168,7 +174,7 @@ module NewsFetcher
     end
 
     def reset
-      feed_file.unlink if feed_file.exist?
+      result_file.unlink if result_file.exist?
       @history.reset
     end
 
@@ -198,7 +204,6 @@ module NewsFetcher
       link: 'Link',
       items: 'Items',
       status: 'Status',
-      last_modified: 'Last modified',
       age: 'Age',
     }
     FieldLabelsMaxWidth = FieldLabels.map { |k, v| v.length }.max
