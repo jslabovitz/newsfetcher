@@ -4,6 +4,7 @@ module NewsFetcher
 
     attr_accessor :title
     attr_reader   :link
+    attr_accessor :ignore
     attr_accessor :profile
     attr_reader   :dir
     attr_accessor :history
@@ -37,6 +38,10 @@ module NewsFetcher
 
     def link=(link)
       @link = link.kind_of?(Addressable::URI) ? link : Addressable::URI.parse(link)
+    end
+
+    def ignore=(ignore)
+      @ignore = [ignore].flatten.map { |r| Regexp.new(r) }
     end
 
     def relative_dir
@@ -85,6 +90,10 @@ module NewsFetcher
       end
     end
 
+    def should_ignore_item?(item)
+      @ignore && @ignore.find { |r| item.url.to_s =~ r }
+    end
+
     def update
       raise Error, "Link not defined" unless @link
       headers = {}
@@ -111,7 +120,14 @@ module NewsFetcher
     def process
       read_feed
       @items.each do |item|
-        next if @history[item.id] || item.age > DefaultDormantTime
+        if @history[item.id] || item.age > DefaultDormantTime
+          @profile.logger.warn { "#{id}: Skipping obsolete item: #{item.url}" }
+          next
+        end
+        if should_ignore_item?(item)
+          @profile.logger.warn { "#{id}: Skipping ignored item: #{item.url}" }
+          next
+        end
         @profile.send_item(item)
         @history[item.id] = item.date
       end
