@@ -3,6 +3,10 @@
 
 - Detect JSON/XML/etc. based on content-type?
 
+- Make new class to encompass both all feed data, including Item.
+  - concepts: issue, edition, delivery, package
+  - Subscription class manages this new class, but does not contain it
+
 - Use ETag instead of If-Last-Modified?
   - support latter if former is not available?
   - for I-L-M, always send back *exact* string received from server in last request (don't parse/convert/etc.)
