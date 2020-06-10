@@ -121,7 +121,7 @@ module NewsFetcher
       read_feed
       @items.each do |item|
         if @history[item.id] || item.age > DefaultDormantTime
-          @profile.logger.debug { "#{id}: Skipping obsolete item: #{item.url}" }
+          @profile.logger.info { "#{id}: Skipping obsolete item: #{item.url}" }
           next
         end
         if should_ignore_item?(item)
