@@ -113,7 +113,7 @@ module NewsFetcher
       when :successful
         result_file.write(result.to_json)
       else
-        raise "#{id}: Unexpected result: #{result.inspect}"
+        raise Error, "#{id}: Unexpected result: #{result.inspect}"
       end
     end
 

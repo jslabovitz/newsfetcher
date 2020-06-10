@@ -26,7 +26,7 @@ module NewsFetcher
       when Time, nil
         date
       else
-        raise "Unknown date value: #{date.inspect}"
+        raise Error, "Unknown date value: #{date.inspect}"
       end
     end
 
@@ -41,7 +41,7 @@ module NewsFetcher
       when Addressable::URI, URI, nil
         url
       else
-        raise "Unknown URL value: #{url.inspect}"
+        raise Error, "Unknown URL value: #{url.inspect}"
       end
     end
 
