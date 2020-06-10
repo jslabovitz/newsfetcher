@@ -125,10 +125,11 @@ module NewsFetcher
           next
         end
         if should_ignore_item?(item)
+          #FIXME: change to info
           @profile.logger.warn { "#{id}: Skipping ignored item: #{item.url}" }
-          next
+        else
+          @profile.send_item(item)
         end
-        @profile.send_item(item)
         @history[item.id] = item.date
       end
     end
