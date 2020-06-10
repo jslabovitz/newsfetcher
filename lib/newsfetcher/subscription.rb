@@ -125,8 +125,7 @@ module NewsFetcher
           next
         end
         if should_ignore_item?(item)
-          #FIXME: change to info
-          @profile.logger.warn { "#{id}: Skipping ignored item: #{item.url}" }
+          @profile.logger.info { "#{id}: Skipping ignored item: #{item.url}" }
         else
           @profile.send_item(item)
         end
