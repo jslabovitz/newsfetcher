@@ -129,6 +129,22 @@ module NewsFetcher
       remove_feedflare = Loofah::Scrubber.new do |node|
         node.remove if node.name == 'div' && node['class'] == 'feedflare'
       end
+      remove_vox_footer = Loofah::Scrubber.new do |node|
+        if node.text == 'Help keep Vox free for all'
+          n = node
+          while (n = n.previous)
+            if n.name == 'hr'
+              n.remove
+              break
+            end
+          end
+          while node.next
+            node.next.remove
+          end
+          node.remove
+          Loofah::Scrubber::STOP
+        end
+      end
       remove_beacon = Loofah::Scrubber.new do |node|
         node.remove if node.name == 'img' && node['height'] == '1' && node['width'] == '1'
       end
@@ -154,6 +170,7 @@ module NewsFetcher
           scrub!(:prune).
           scrub!(remove_beacon).
           scrub!(remove_feedflare).
+          scrub!(remove_vox_footer).
           scrub!(remove_font).
           scrub!(remove_form).
           scrub!(remove_styling).
