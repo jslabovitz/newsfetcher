@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.require_path  = 'lib'
 
   s.add_dependency 'addressable', '~> 2'
-  s.add_dependency 'faraday', '~> 0'
+  s.add_dependency 'faraday', '~> 1'
   s.add_dependency 'feedjira', '~> 3'
   s.add_dependency 'hashstruct', '~> 1'
   s.add_dependency 'loofah', '~> 2'
@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'sassc', '~> 2'
   s.add_dependency 'simple-command', '~> 0'
 
-  s.add_development_dependency 'bundler', '~> 2.1'
-  s.add_development_dependency 'rake', '~> 12'
+  s.add_development_dependency 'bundler', '~> 2'
+  s.add_development_dependency 'rake', '~> 13'
   s.add_development_dependency 'rubygems-tasks', '~> 0'
 end
