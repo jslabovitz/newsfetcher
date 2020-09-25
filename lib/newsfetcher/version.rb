@@ -1,5 +1,5 @@
 module NewsFetcher
 
-  VERSION = '0.38'
+  VERSION = '0.30'
 
 end
