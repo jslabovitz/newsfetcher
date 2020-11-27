@@ -9,19 +9,21 @@ module NewsFetcher
     attr_reader   :dir
     attr_accessor :history
 
+    def self.name_to_key(name)
+      name.
+        downcase.
+        gsub(/[^a-z0-9]+/, ' ').  # non-alphanumeric
+        strip.
+        gsub(/\s+/, '-')
+    end
+
     def self.uri_to_key(uri)
       uri = Addressable::URI.parse(uri)
       host = uri.host.to_s.sub(/^(www|ssl|en|feeds|rss|blogs?|news).*?\./i, '').sub(/\.(com|org|net|info|edu|co\.uk|wordpress\.com|blogspot\.com)$/i, '')
       host = '' if host == 'feedburner'
       path = uri.path.to_s.gsub(/\b(\.?feeds?|index|atom|rss|rss2|xml|php|blog|posts|default)\b/i, '')
       query = uri.query.to_s.gsub(/\b(format|feed|type|q)=(atom|rss\.xml|rss2?|xml)/i, '')
-      [host, path, query].
-        reject(&:empty?).
-        join('-').
-        downcase.
-        gsub(/[^a-z0-9]+/, ' ').  # non-alphanumeric
-        strip.
-        gsub(/\s+/, '-')
+      name_to_key([host, path, query].reject(&:empty?).join('-'))
     end
 
     def initialize(params={})
