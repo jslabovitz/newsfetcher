@@ -125,10 +125,10 @@ module NewsFetcher
         .sort_by { |s| s.send(sort).to_s }
     end
 
-    def add_subscription(uri:, path: nil)
+    def add_subscription(uri:, path: nil, key: nil)
       uri = Addressable::URI.parse(uri)
       raise Error, "Bad URI: #{uri}" unless uri.absolute?
-      key = Subscription.uri_to_key(uri)
+      key ||= Subscription.uri_to_key(uri)
       path = Path.new(path ? "#{path}/#{key}" : key)
       subscription = Subscription.new(dir: subscriptions_dir / path, link: uri, profile: self)
       raise Error, "Subscription already exists (as #{subscription.id}): #{uri}" if subscription.exist?
