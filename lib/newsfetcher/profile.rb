@@ -214,6 +214,20 @@ module NewsFetcher
       end
     end
 
+    def import_youtube(files)
+      files.map { |f| Path.new(f) }.each do |file|
+        json = JSON.parse(file.read)
+        json.each do |entry|
+          channel_id = entry['snippet']['resourceId']['channelId']
+          uri = Addressable::URI.parse("https://www.youtube.com/feeds/videos.xml?channel_id=#{channel_id}")
+          key = Subscription.name_to_key(entry['snippet']['title'])
+          #FIXME: always imports to top-level 'youtube' path
+          path = 'youtube'
+          add_subscription(uri: uri, path: path, key: key)
+        end
+      end
+    end
+
     def export(args)
       opml = Nokogiri::XML::Builder.new do |xml|
         xml.opml(version: '1.1') do

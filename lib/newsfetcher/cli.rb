@@ -62,6 +62,11 @@ module NewsFetcher
           @profile.import(files)
         end
 
+        command 'import-youtube' do |files|
+          raise Error, "Profile not loaded" unless @profile
+          @profile.import_youtube(files)
+        end
+
         command 'export' do |subscription_ids|
           raise Error, "Profile not loaded" unless @profile
           @profile.export(subscription_ids)
