@@ -95,6 +95,7 @@ module NewsFetcher
     end
 
     def send_item(item)
+;;warn "[#{__FILE__}:#{__LINE__}]"
       @logger.info { "#{item.subscription.id}: Sending #{item.title.inspect}" }
       mail = item.make_email
       mail.delivery_method(*@delivery_method)
