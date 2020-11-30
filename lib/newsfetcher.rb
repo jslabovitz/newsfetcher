@@ -42,7 +42,7 @@ module NewsFetcher
         request: { timeout: DownloadTimeout },
         ssl: { verify: false })
       begin
-        response = connection.get
+        response = silence_warnings { connection.get }
       rescue Faraday::ConnectionFailed, Zlib::BufError, StandardError => e
         return result.merge(type: :error, reason: e)
       end
@@ -80,6 +80,14 @@ module NewsFetcher
     else
       :unknown_status
     end
+  end
+
+  def self.silence_warnings(&block)
+    warn_level = $VERBOSE
+    $VERBOSE = nil
+    result = block.call
+    $VERBOSE = warn_level
+    result
   end
 
 end
