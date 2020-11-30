@@ -34,27 +34,21 @@ module NewsFetcher
 
   def self.get(uri, headers: nil)
     redirects = 0
-;;warn "[#{__FILE__}:#{__LINE__}]"
     loop do
       result = HashStruct.new(location: uri)
-;;warn "[#{__FILE__}:#{__LINE__}]"
-      connection = Faraday.new(
-        url: uri,
-        headers: headers || {},
-        request: { timeout: DownloadTimeout },
-        ssl: { verify: false })
-;;warn "[#{__FILE__}:#{__LINE__}]"
-      begin
-;;warn "[#{__FILE__}:#{__LINE__}]"
-        response = silence_warnings { connection.get }
-;;warn "[#{__FILE__}:#{__LINE__}]"
-      rescue Faraday::ConnectionFailed, Zlib::BufError, StandardError => e
-;;warn "[#{__FILE__}:#{__LINE__}]"
-        return result.merge(type: :error, reason: e)
+      response = silence_warnings do
+        connection = Faraday.new(
+          url: uri,
+          headers: headers || {},
+          request: { timeout: DownloadTimeout },
+          ssl: { verify: false })
+        begin
+          connection.get
+        rescue Faraday::ConnectionFailed, Zlib::BufError, StandardError => e
+          return result.merge(type: :error, reason: e)
+        end
       end
-;;warn "[#{__FILE__}:#{__LINE__}]"
       result_type = http_status_result_type(response.status)
-;;warn "[#{__FILE__}:#{__LINE__}]"
       if result_type == :redirection
         redirects += 1
         if redirects > DownloadFollowRedirectLimit
@@ -63,7 +57,6 @@ module NewsFetcher
         uri = uri.join(Addressable::URI.parse(response.headers[:location]))
         next
       end
-;;warn "[#{__FILE__}:#{__LINE__}]"
       return result.merge(
         type: result_type,
         status: response.status,
