@@ -99,20 +99,16 @@ module NewsFetcher
     def update
       raise Error, "Link not defined" unless @link
       headers = {}
-;;warn "[#{__FILE__}:#{__LINE__}]"
       if result_file.exist?
         result = read_result_file
         if (date = (result.headers.date rescue nil))
           headers = { if_modified_since: date.rfc2822 }
         end
       end
-;;warn "[#{__FILE__}:#{__LINE__}]"
       result = NewsFetcher.get(@link, headers: headers)
-;;warn "[#{__FILE__}:#{__LINE__}]"
       if result.location != @link
         @profile.logger.warn { "#{id}: Feed has moved from #{@link} to #{result.location}" }
       end
-;;warn "[#{__FILE__}:#{__LINE__}]"
       case result.type
       when :not_modified
         # skip
@@ -121,25 +117,19 @@ module NewsFetcher
       else
         raise Error, "#{id}: Unexpected result: #{result.inspect}"
       end
-;;warn "[#{__FILE__}:#{__LINE__}]"
     end
 
     def process
-;;warn "[#{__FILE__}:#{__LINE__}]"
       read_feed
-;;warn "[#{__FILE__}:#{__LINE__}]"
       @items.each do |item|
         if @history[item.id] || item.age > DefaultDormantTime
           @profile.logger.info { "#{id}: Skipping obsolete item: #{item.url}" }
           next
         end
-;;warn "[#{__FILE__}:#{__LINE__}]"
         if should_ignore_item?(item)
           @profile.logger.info { "#{id}: Skipping ignored item: #{item.url}" }
         else
-;;warn "[#{__FILE__}:#{__LINE__}]"
           @profile.send_item(item)
-;;warn "[#{__FILE__}:#{__LINE__}]"
         end
         @history[item.id] = item.date
       end
