@@ -10,7 +10,6 @@ require 'loofah'
 require 'mail'
 require 'nokogiri'
 require 'path'
-require 'pry' rescue nil
 require 'sassc'
 require 'set_params'
 require 'simple-command'
