@@ -21,13 +21,12 @@ module NewsFetcher
       @email = 'johnl@johnlabovitz.com'
       @log_level = :error
       @dir.rmtree if @dir.exist?
-      Profile.init(@dir,
+      @profile = Profile.init(@dir,
         mail_from: @email,
         mail_to: @email,
         log_level: @log_level)
-      @profile = Profile.new(
-        dir: @dir,
-        log_level: @log_level)
+      @profile.save
+      @profile = Profile.new(dir: @dir)
       @subscription = @profile.add_subscription(
         uri: @feed_uri,
         path: 'tech')
