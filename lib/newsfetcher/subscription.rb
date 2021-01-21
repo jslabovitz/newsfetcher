@@ -100,9 +100,9 @@ module NewsFetcher
       raise Error, "Link not defined" unless @link
       headers = {}
       if result_file.exist?
-        result = read_result_file
-        if (date = (result.headers.date rescue nil))
-          headers = { if_modified_since: date.rfc2822 }
+        result = Result.load(result_file)
+        if (date = (result.headers[:date] rescue nil))
+          headers = { if_modified_since: date }
         end
       end
       result = NewsFetcher.get(@link, headers: headers)
@@ -113,7 +113,7 @@ module NewsFetcher
       when :not_modified
         # skip
       when :successful
-        result_file.write(result.to_json)
+        result.save(result_file)
       else
         raise Error, "#{id}: Unexpected result: #{result.inspect}"
       end
@@ -136,7 +136,7 @@ module NewsFetcher
     end
 
     def read_feed
-      result = read_result_file
+      result = Result.load(result_file)
       case result.content
       when /^</
         read_xml_feed(result.content)
@@ -145,11 +145,6 @@ module NewsFetcher
       else
         raise Error, "Unknown content type for feed: #{(result.content[0..9] + '...').inspect}"
       end
-    end
-
-    def read_result_file
-      raise Error, "No result file" unless result_file.exist?
-      HashStruct.new(JSON.parse(result_file.read))
     end
 
     def read_xml_feed(data)

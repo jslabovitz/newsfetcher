@@ -11,6 +11,7 @@ require 'mail'
 require 'nokogiri'
 require 'path'
 require 'sassc'
+require 'set_params'
 require 'simple-command'
 
 require 'newsfetcher/bundle'
@@ -18,6 +19,7 @@ require 'newsfetcher/error'
 require 'newsfetcher/history'
 require 'newsfetcher/item'
 require 'newsfetcher/profile'
+require 'newsfetcher/result'
 require 'newsfetcher/subscription'
 
 module NewsFetcher
@@ -35,7 +37,7 @@ module NewsFetcher
   def self.get(uri, headers: nil)
     redirects = 0
     loop do
-      result = HashStruct.new(location: uri)
+      result = Result.new(location: uri)
       response = silence_warnings do
         connection = Faraday.new(
           url: uri,
@@ -45,23 +47,27 @@ module NewsFetcher
         begin
           connection.get
         rescue Faraday::ConnectionFailed, Zlib::BufError, StandardError => e
-          return result.merge(type: :error, reason: e)
+          result.type = :error
+          result.reason = e
+          return result
         end
       end
       result_type = http_status_result_type(response.status)
       if result_type == :redirection
         redirects += 1
         if redirects > DownloadFollowRedirectLimit
-          return result.merge(type: :error, reason: "Too many redirects")
+          result.type = :error
+          result.reason = "Too many redirects"
+          return result
         end
         uri = uri.join(Addressable::URI.parse(response.headers[:location]))
         next
       end
-      return result.merge(
-        type: result_type,
-        status: response.status,
-        headers: response.headers,
-        content: response.body.force_encoding(Encoding::UTF_8))
+      result.type = result_type
+      result.status = response.status
+      result.headers = response.headers
+      result.content = response.body.force_encoding(Encoding::UTF_8)
+      return result
     end
   end
 
