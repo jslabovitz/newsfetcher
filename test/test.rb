@@ -16,8 +16,8 @@ module NewsFetcher
 
     def setup
       @dir = Path.new('test/.newsfetcher')
-      @site_uri = 'http://johnlabovitz.com'
-      @feed_uri = 'http://johnlabovitz.com/feed.xml'
+      @site_uri = 'http://rubyweekly.com'
+      @feed_uri = 'http://rubyweekly.com/rss/'
       @email = 'johnl@johnlabovitz.com'
       @log_level = :error
       @dir.rmtree if @dir.exist?
@@ -30,7 +30,7 @@ module NewsFetcher
         log_level: @log_level)
       @subscription = @profile.add_subscription(
         uri: @feed_uri,
-        path: 'personal')
+        path: 'tech')
     end
 
     def shutdown
