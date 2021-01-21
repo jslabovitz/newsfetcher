@@ -28,6 +28,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'simple-command', '~> 0'
 
   s.add_development_dependency 'bundler', '~> 2'
+  s.add_development_dependency 'minitest'
+  s.add_development_dependency 'minitest-power_assert'
+  s.add_development_dependency 'pry', '~> 0.13'
+  s.add_development_dependency 'pry-byebug'
   s.add_development_dependency 'rake', '~> 13'
   s.add_development_dependency 'rubygems-tasks', '~> 0'
 end
