@@ -106,10 +106,9 @@ module NewsFetcher
         end
       end
       result = NewsFetcher.get(@link, headers: headers)
-      if result.location != @link
-        @profile.logger.warn { "#{id}: Feed has moved from #{@link} to #{result.location}" }
-      end
       case result.type
+      when :moved
+        @profile.logger.warn { "#{id}: Feed has moved from #{@link}: #{result.reason}" }
       when :not_modified
         # skip
       when :successful

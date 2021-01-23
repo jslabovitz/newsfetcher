@@ -37,7 +37,6 @@ module NewsFetcher
   def self.get(uri, headers: nil)
     redirects = 0
     loop do
-      result = Result.new(location: uri)
       response = silence_warnings do
         connection = Faraday.new(
           url: uri,
@@ -47,27 +46,25 @@ module NewsFetcher
         begin
           connection.get
         rescue Faraday::ConnectionFailed, Zlib::BufError, StandardError => e
-          result.type = :error
-          result.reason = e
-          return result
+          return Result.new(type: :error, reason: e)
         end
       end
-      result_type = http_status_result_type(response.status)
-      if result_type == :redirection
+      case (result_type = http_status_result_type(response.status))
+      when :moved
+        return Result.new(type: result_type, reason: "Permanently moved to #{response.headers[:location]}")
+      when :redirection
         redirects += 1
         if redirects > DownloadFollowRedirectLimit
-          result.type = :error
-          result.reason = "Too many redirects"
-          return result
+          return Result.new(type: :error, reason: 'Too many redirects')
         end
         uri = uri.join(Addressable::URI.parse(response.headers[:location]))
-        next
+      else
+        return Result.new(
+          type: result_type,
+          status: response.status,
+          headers: response.headers,
+          content: response.body.force_encoding(Encoding::UTF_8))
       end
-      result.type = result_type
-      result.status = response.status
-      result.headers = response.headers
-      result.content = response.body.force_encoding(Encoding::UTF_8)
-      return result
     end
   end
 
@@ -77,6 +74,8 @@ module NewsFetcher
       :informational
     when 200...300
       :successful
+    when 302
+      :moved
     when 304
       :not_modified
     when 300...400

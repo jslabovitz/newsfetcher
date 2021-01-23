@@ -17,7 +17,7 @@ module NewsFetcher
     end
 
     def location=(location)
-      @location = Addressable::URI.parse(location)
+      # ignored (FIXME: remove from result files)
     end
 
     def type=(type)
@@ -26,7 +26,6 @@ module NewsFetcher
 
     def to_hash
       {
-        location: @location,
         type: @type,
         reason: @reason,
         status: @status,
