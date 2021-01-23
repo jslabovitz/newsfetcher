@@ -16,8 +16,8 @@ module NewsFetcher
 
     def setup
       @dir = Path.new('test/.newsfetcher')
-      @site_uri = 'http://rubyweekly.com'
-      @feed_uri = 'http://rubyweekly.com/rss/'
+      @site_uri = 'https://rubyweekly.com'
+      @feed_uri = 'https://cprss.s3.amazonaws.com/rubyweekly.com.xml'
       @email = 'johnl@johnlabovitz.com'
       @log_level = :error
       @dir.rmtree if @dir.exist?
