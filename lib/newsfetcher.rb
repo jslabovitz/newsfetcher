@@ -46,7 +46,7 @@ module NewsFetcher
         begin
           connection.get
         rescue Faraday::ConnectionFailed, Zlib::BufError, StandardError => e
-          return Result.new(type: :network_error, reason: "#{e.message} (#{e.class})"
+          return Result.new(type: :network_error, reason: "#{e.message} (#{e.class})")
         end
       end
       case (result_type = http_status_result_type(response.status))
