@@ -108,13 +108,13 @@ module NewsFetcher
       result = NewsFetcher.get(@link, headers: headers)
       case result.type
       when :moved
-        @profile.logger.warn { "#{id}: Feed has moved from #{@link}: #{result.reason}" }
+        @profile.logger.warn { "Feed has moved from #{@link}: #{result.reason}" }
       when :not_modified
         # skip
       when :successful
         result.save(result_file)
       else
-        raise Error, "#{id}: Unexpected result: #{result.inspect}"
+        raise Error, "Failed request: #{result.reason} (type=#{result.type.type}, status=#{result.status.inspect})"
       end
     end
 

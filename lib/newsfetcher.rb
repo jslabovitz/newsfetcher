@@ -46,7 +46,7 @@ module NewsFetcher
         begin
           connection.get
         rescue Faraday::ConnectionFailed, Zlib::BufError, StandardError => e
-          return Result.new(type: :error, reason: e)
+          return Result.new(type: :network_error, reason: e.full_message)
         end
       end
       case (result_type = http_status_result_type(response.status))
@@ -55,7 +55,7 @@ module NewsFetcher
       when :redirection
         redirects += 1
         if redirects > DownloadFollowRedirectLimit
-          return Result.new(type: :error, reason: 'Too many redirects')
+          return Result.new(type: :redirect_error, reason: 'Too many redirects')
         end
         uri = uri.join(Addressable::URI.parse(response.headers[:location]))
       else
