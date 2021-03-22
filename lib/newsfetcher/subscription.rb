@@ -114,7 +114,7 @@ module NewsFetcher
       when :successful
         result.save(result_file)
       else
-        raise Error, "Failed request: #{result.reason} (type=#{result.type.inspect}, status=#{result.status.inspect})"
+        raise Error, "Failed request [#{result.type}]: #{result.reason}"
       end
     end
 
