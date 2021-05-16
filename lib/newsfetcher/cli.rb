@@ -72,6 +72,11 @@ module NewsFetcher
           @profile.export(subscription_ids)
         end
 
+        command 'edit' do |subscription_ids|
+          raise Error, "Profile not loaded" unless @profile
+          @profile.edit(subscription_ids)
+        end
+
       end
 
     end

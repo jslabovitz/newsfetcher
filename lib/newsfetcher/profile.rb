@@ -258,6 +258,12 @@ module NewsFetcher
       end
     end
 
+    def edit(args)
+      find_subscriptions(ids: args).each do |subscription|
+        subscription.edit
+      end
+    end
+
   end
 
 end

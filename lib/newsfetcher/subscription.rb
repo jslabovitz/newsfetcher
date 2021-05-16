@@ -197,6 +197,12 @@ module NewsFetcher
     def fix
     end
 
+    def edit
+      system(
+        ENV['EDITOR'] || 'vi',
+        @bundle.info_file.to_s)
+    end
+
     FieldFormatters = {
       items: proc { |s|
         s.history.length
