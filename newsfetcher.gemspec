@@ -17,10 +17,10 @@ Gem::Specification.new do |s|
   s.require_path  = 'lib'
 
   s.add_dependency 'addressable', '~> 2.8'
-  s.add_dependency 'faraday', '~> 1.6'
+  s.add_dependency 'faraday', '~> 1.7'
   s.add_dependency 'feedjira', '~> 3.2'
   s.add_dependency 'hashstruct', '~> 1.3'
-  s.add_dependency 'loofah', '~> 2.11'
+  s.add_dependency 'loofah', '~> 2.12'
   s.add_dependency 'mail', '~> 2.7'
   s.add_dependency 'path', '~> 2.0'
   s.add_dependency 'sassc', '~> 2.4'
