@@ -28,8 +28,12 @@ module NewsFetcher
       load unless @entries
       @file.open('a') do |io|
         @entries[id] = timestamp.to_s
-        io.puts [timestamp.iso8601, id].join(' ')
+        write(io, id: id, timestamp: timestamp)
       end
+    end
+
+    def write(io, id:, timestamp:)
+      io.puts [timestamp.iso8601, id].join(' ')
     end
 
     def latest
@@ -45,6 +49,19 @@ module NewsFetcher
     def reset
       @entries = nil
       @file.unlink if @file.exist?
+    end
+
+    def prune(before: nil, after: nil)
+      load unless @entries
+      return if @entries.empty?
+      @entries.delete_if do |id, timestamp|
+        (before && timestamp < before) || (after && timestamp > after)
+      end
+      @file.open('w') do |io|
+        @entries.each do |id, timestamp|
+          write(io, id: id, timestamp: timestamp)
+        end
+      end
     end
 
   end

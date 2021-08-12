@@ -203,6 +203,13 @@ module NewsFetcher
         @bundle.info_file.to_s)
     end
 
+    def prune(before: nil, after: nil)
+      if before.nil? && after.nil?
+        before = Time.now - DefaultDormantTime
+      end
+      @history.prune(before: before, after: after)
+    end
+
     FieldFormatters = {
       items: proc { |s|
         s.history.length

@@ -50,9 +50,6 @@
 - Avoid use of NewsFetcher module constants.
   - Set instance variables to defaults.
 
-- Add 'prune' command to prune out old history.
-  - Rewrite history file.
-
 - Add per-feed locks to avoid access by multiple processes/threads.
 
 - Expand testing:

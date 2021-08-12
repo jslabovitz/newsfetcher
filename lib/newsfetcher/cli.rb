@@ -77,6 +77,13 @@ module NewsFetcher
           @profile.edit(subscription_ids)
         end
 
+        command 'prune', before: nil, after: nil do |subscription_ids|
+          raise Error, "Profile not loaded" unless @profile
+          @profile.prune(subscription_ids,
+            before: @before && @before.to_time,
+            after: @after && @after.to_time)
+        end
+
       end
 
     end
