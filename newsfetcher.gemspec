@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'path', '~> 2.0'
   s.add_dependency 'sassc', '~> 2.4'
   s.add_dependency 'set_params', '~> 0.1'
-  s.add_dependency 'simple-command', '~> 0.3'
+  s.add_dependency 'simple-command', '~> 0.4'
 
   s.add_development_dependency 'bundler', '~> 2.2'
   s.add_development_dependency 'minitest', '~> 5.14'
