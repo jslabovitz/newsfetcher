@@ -1,6 +1,19 @@
 #!/usr/bin/env ruby
 
-require 'newsfetcher'
-require 'newsfetcher/cli'
+require 'NewsFetcher'
 
-NewsFetcher::CLI.run(ARGV)
+SimpleCommand::Commander.new(
+  'add' => NewsFetcher::Commands::Add,
+  'discover' => NewsFetcher::Commands::Discover,
+  'edit' => NewsFetcher::Commands::Edit,
+  'export' => NewsFetcher::Commands::Export,
+  'fix' => NewsFetcher::Commands::Fix,
+  'import' => NewsFetcher::Commands::Import,
+  'import-youtube' => NewsFetcher::Commands::ImportYoutube,
+  'init' => NewsFetcher::Commands::Init,
+  'prune' => NewsFetcher::Commands::Prune,
+  'remove' => NewsFetcher::Commands::Remove,
+  'reset' => NewsFetcher::Commands::Reset,
+  'show' => NewsFetcher::Commands::Show,
+  'update' => NewsFetcher::Commands::Update,
+).run(ARGV)

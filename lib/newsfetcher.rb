@@ -14,14 +14,6 @@ require 'sassc'
 require 'set_params'
 require 'simple-command'
 
-require 'newsfetcher/bundle'
-require 'newsfetcher/error'
-require 'newsfetcher/history'
-require 'newsfetcher/item'
-require 'newsfetcher/profile'
-require 'newsfetcher/result'
-require 'newsfetcher/subscription'
-
 module NewsFetcher
 
   ResultFileName = 'result.json'
@@ -33,6 +25,21 @@ module NewsFetcher
   DefaultProfileDir = '~/.newsfetcher'
   SubscriptionsDirName = 'subscriptions'
   StylesheetFile = Path.new(__FILE__).dirname / '../message/stylesheet.css'
+
+end
+
+require 'newsfetcher/bundle'
+require 'newsfetcher/error'
+require 'newsfetcher/history'
+require 'newsfetcher/item'
+require 'newsfetcher/profile'
+require 'newsfetcher/result'
+require 'newsfetcher/subscription'
+
+require 'newsfetcher/command'
+Path.new(__FILE__).dirname.glob('newsfetcher/commands/*.rb').each { |p| require p }
+
+module NewsFetcher
 
   def self.get(uri, headers: nil)
     redirects = 0
