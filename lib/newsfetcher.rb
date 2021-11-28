@@ -69,6 +69,7 @@ module NewsFetcher
         return Result.new(
           type: result_type,
           status: response.status,
+          reason: response.reason_phrase,
           headers: response.headers,
           content: response.body.force_encoding(Encoding::UTF_8))
       end
