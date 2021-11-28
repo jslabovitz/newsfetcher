@@ -1,3 +1,6 @@
+- Detect duplicate entries
+  - eg, video/cineuropa-en
+
 - Move Profile#add_subscription and Profile.discover_feed into Subscription
   - as class methods?
 
