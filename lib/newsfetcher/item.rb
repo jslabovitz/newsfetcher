@@ -110,9 +110,9 @@ module NewsFetcher
       Time.now - @date
     end
 
-    DefaultKeys = %i{id date title url author image content}
+    DefaultKeys = %i{id date title url author content}
 
-    def show(keys)
+    def show(keys=nil)
       keys ||= DefaultKeys
       keys.each do |key|
         value = send(key)
