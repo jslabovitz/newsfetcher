@@ -122,10 +122,13 @@ module NewsFetcher
       read_feed
       @items.each do |item|
         if should_ignore_item?(item)
-          @profile.logger.debug { "#{id}: Skipping ignored item: #{item.url}" }
-        elsif @history[item.id] || item.age > DefaultDormantTime
-          @profile.logger.debug { "#{id}: Skipping obsolete item: #{item.url}" }
+          @profile.logger.debug { "#{id}: Skipping ignored item: #{item.to_info}" }
+        elsif item.age > DefaultDormantTime
+          @profile.logger.debug { "#{id}: Skipping obsolete item: #{item.to_info}" }
+        elsif @history[item.id]
+          @profile.logger.debug { "#{id}: Skipping seen item: #{item.to_info}" }
         else
+          @profile.logger.debug { "#{id}: Sending item: #{item.to_info}" }
           @profile.send_item(item)
           @history[item.id] = item.date
         end

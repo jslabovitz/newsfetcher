@@ -53,6 +53,14 @@ module NewsFetcher
       @content = (s = content.to_s.strip).empty? ? nil : s
     end
 
+    def to_info
+      %i[id date title author url].map do |key|
+        value = send(key)
+        value = '-' if value.nil?
+        '%s="%s"' % [key, value]
+      end.join(', ')
+    end
+
     def make_email
       fields = {
         'p' => @subscription.relative_dir.dirname.each_filename.to_a.join('.'),
@@ -67,6 +75,13 @@ module NewsFetcher
       mail.subject =      replace_fields(@subscription.profile.mail_subject, fields)
       mail.content_type = 'text/html'
       mail.charset      = 'utf-8'
+      {
+        'ID' => @id,
+        'Date' => @date,
+        'Title' => @title,
+        'Author' => @author,
+        'URL' => @url,
+      }.compact.each { |k, v| mail["X-Newsfetcher-#{k}"] = v.to_s }
       mail.body         = render.to_html
       mail
     end
