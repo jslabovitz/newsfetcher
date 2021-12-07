@@ -113,8 +113,9 @@ module NewsFetcher
               html.text(@title)
             end
           end
-          if @author
-            html.h2(@author)
+          html.h2 do
+            html.text(@author + ', ') if @author
+            html.text(@date.strftime('%e %B %Y').strip)
           end
           if @url
             html.h3 do
