@@ -54,8 +54,8 @@ module NewsFetcher
     end
 
     def digest
-      # NOTE: we *don't* include ID, as we're trying to avoid different IDs that map to the same item
-      str = %i[date title author url content].map { |k| [k, send(k)] }.to_h.to_s
+      # NOTE: we *don't* include date or ID, as we're trying to avoid sending similar items
+      str = [@title, @author, @url, @content].join(',')
       digest = OpenSSL::Digest.digest('SHA384', str)
       digest.unpack('H*').join
     end
