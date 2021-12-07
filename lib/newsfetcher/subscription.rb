@@ -73,8 +73,8 @@ module NewsFetcher
     end
 
     def age
-      if (timestamp = @history.latest&.last)
-        Time.now - timestamp
+      if (date = @items&.map(&:date).sort.last)
+        Time.now - date
       else
         nil
       end
