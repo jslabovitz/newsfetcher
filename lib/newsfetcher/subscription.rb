@@ -125,12 +125,15 @@ module NewsFetcher
           @profile.logger.debug { "#{id}: Skipping ignored item: #{item.to_info}" }
         elsif item.age > DefaultDormantTime
           @profile.logger.debug { "#{id}: Skipping obsolete item: #{item.to_info}" }
-        elsif @history[item.id]
-          @profile.logger.debug { "#{id}: Skipping seen item: #{item.to_info}" }
         else
-          @profile.logger.debug { "#{id}: Sending item: #{item.to_info}" }
-          @profile.send_item(item)
-          @history[item.id] = item.date
+          digest = item.digest
+          if @history[digest]
+            @profile.logger.debug { "#{id}: Skipping seen item: #{item.to_info}" }
+          else
+            @profile.logger.debug { "#{id}: Sending item: #{item.to_info}" }
+            @profile.send_item(item)
+            @history[digest] = item.date
+          end
         end
       end
     end
@@ -196,6 +199,11 @@ module NewsFetcher
     end
 
     def fix
+      read_feed
+      @history.reset
+      @items.each do |item|
+        @history[item.digest] = item.date
+      end
     end
 
     def edit

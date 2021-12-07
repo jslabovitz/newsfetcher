@@ -53,6 +53,13 @@ module NewsFetcher
       @content = (s = content.to_s.strip).empty? ? nil : s
     end
 
+    def digest
+      # NOTE: we *don't* include ID, as we're trying to avoid different IDs that map to the same item
+      str = %i[date title author url content].map { |k| [k, send(k)] }.to_h.to_s
+      digest = OpenSSL::Digest.digest('SHA384', str)
+      digest.unpack('H*').join
+    end
+
     def to_info
       %i[id date title author url].map do |key|
         value = send(key)
