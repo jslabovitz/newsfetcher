@@ -125,16 +125,16 @@ module NewsFetcher
             end
           end
           html.h2 do
-            [@author, @date.strftime('%e %B %Y')]
-              .map(&:to_s)
-              .map(&:strip)
-              .reject(&:empty?)
-              .join(' • ')
+            html.text(
+              [@author, @date.strftime('%e %B %Y')]
+                .map(&:to_s)
+                .map(&:strip)
+                .reject(&:empty?)
+                .join(' • ')
+            )
           end
-          if @url
-            html.h3 do
-              html.a(pretty_url, href: @url)
-            end
+          html.h3 do
+            html.a(pretty_url, href: @url)
           end
           if @content
             html.div(class: 'content') { html << render_content }
