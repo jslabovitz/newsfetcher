@@ -17,6 +17,16 @@ module NewsFetcher
 
     def id=(id)
       @id = (s = id.to_s.strip).empty? ? nil : s
+      # drop 'www.' prefix from ID if necessary
+      if @id
+        begin
+          uri = Addressable::URI.parse(@id)
+          uri.host = uri.host.sub(/^www\./, '')
+          @id = uri.to_s
+        rescue
+          nil
+        end
+      end
     end
 
     def date=(date)
@@ -53,11 +63,12 @@ module NewsFetcher
       @content = (s = content.to_s.strip).empty? ? nil : s
     end
 
-    def digest
-      # NOTE: we *don't* include date or ID, as we're trying to avoid sending similar items
-      str = [@title, @author, @url, @content].join(',')
-      digest = OpenSSL::Digest.digest('SHA384', str)
-      digest.unpack('H*').join
+    def eql?(other)
+      @id.eql?(other.id)
+    end
+
+    def ==(other)
+      @id == other.id
     end
 
     def to_info

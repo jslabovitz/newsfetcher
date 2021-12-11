@@ -7,7 +7,6 @@ module NewsFetcher
     attr_accessor :ignore
     attr_accessor :profile
     attr_reader   :dir
-    attr_accessor :history
 
     def self.name_to_key(name)
       name.
@@ -27,11 +26,10 @@ module NewsFetcher
     end
 
     def initialize(params={})
-      @title = @link = @profile = @dir = @history = nil
+      @title = @link = @profile = @dir = nil
       params.each { |k, v| send("#{k}=", v) if v }
       raise Error, "dir not set" unless @dir
       @bundle = Bundle.new(@dir)
-      @history = History.new(dir / HistoryFileName)
     end
 
     def dir=(dir)
@@ -93,105 +91,42 @@ module NewsFetcher
     end
 
     def should_ignore_item?(item)
-      @ignore && @ignore.find { |r| item.url.to_s =~ r }
+      item.age > DefaultDormantTime || (@ignore && @ignore.find { |r| item.url.to_s =~ r })
     end
 
     def update
       raise Error, "Link not defined" unless @link
       headers = {}
+      old_result = nil
       if result_file.exist?
-        result = Result.load(result_file)
-        if (date = (result.headers[:date] rescue nil))
+        old_result = Result.load(result_file, subscription: self)
+        if (date = (old_result.headers[:date] rescue nil))
           headers = { if_modified_since: date }
         end
       end
-      result = NewsFetcher.get(@link, headers: headers)
-      case result.type
+      new_result = Result.get(@link, headers: headers, subscription: self)
+      case new_result.type
       when :moved
-        @profile.logger.warn { "Feed has moved from #{@link}: #{result.reason}" }
+        @profile.logger.warn { "Feed has moved from #{@link}: #{new_result.reason}" }
       when :not_modified
         # skip
       when :successful
-        result.save(result_file)
-      else
-        raise Error, "Failed request [#{result.type}]: #{result.reason} (#{result.status})"
-      end
-    end
-
-    def process
-      read_feed
-      @items.each do |item|
-        if should_ignore_item?(item)
-          @profile.logger.debug { "#{id}: Skipping ignored item: #{item.to_info}" }
-        elsif item.age > DefaultDormantTime
-          @profile.logger.debug { "#{id}: Skipping obsolete item: #{item.to_info}" }
-        else
-          digest = item.digest
-          if @history[digest]
-            @profile.logger.debug { "#{id}: Skipping seen item: #{item.to_info}" }
-          else
-            @profile.logger.debug { "#{id}: Sending item: #{item.to_info}" }
-            @profile.send_item(item)
-            @history[digest] = item.date
-          end
+        @title = new_result.title || 'untitled'
+        old_items = old_result.items_hash
+        new_items = new_result.items_hash
+        new_items.delete_if { |id, item| old_items[id] || should_ignore_item?(item) }
+        new_items.values.each do |item|
+          @profile.logger.debug { "#{id}: Sending item: #{item.to_info}" }
+          @profile.send_item(item)
         end
-      end
-    end
-
-    def read_feed
-      result = Result.load(result_file)
-      case result.content
-      when /^</
-        read_xml_feed(result.content)
-      when /^\{/
-        read_json_feed(result.content)
       else
-        raise Error, "Unknown content type for feed: #{(result.content[0..9] + '...').inspect}"
+        raise Error, "Failed request [#{new_result.type}]: #{new_result.reason} (#{new_result.status})"
       end
-    end
-
-    def read_xml_feed(data)
-      begin
-        Feedjira.configure { |c| c.strip_whitespace = true }
-        feed = Feedjira.parse(data)
-      rescue => e
-        raise Error, "Can't parse XML feed: #{e}"
-      end
-      @title ||= feed.title || 'untitled'
-      @items = feed.entries.map do |entry|
-        Item.new(
-          subscription: self,
-          id: entry.entry_id || entry.url,
-          date: entry.published || Time.now,
-          title: entry.title,
-          url: entry.url,
-          author: entry.respond_to?(:author) ? entry.author : nil,
-          content: entry.content || entry.summary || '')
-      end
-    end
-
-    def read_json_feed(data)
-      begin
-        feed = JSON.parse(data)
-      rescue => e
-        raise Error, "Can't parse JSON feed: #{e}"
-      end
-      @title ||= feed['title'] || 'untitled'
-      @items = feed['items'].map do |item|
-        Item.new(
-          subscription: self,
-          id: item['id'] || item['url'],
-          date: item['date_published'] || Time.now,
-          title: item['title'],
-          url: item['url'],
-          author: item['author'] && item['author']['name'],
-          content: item['content_html'] || item['summary'])
-      end
+      new_result.save(result_file)
     end
 
     def reset
       result_file.unlink if result_file.exist?
-      @history.reset
     end
 
     def remove
@@ -199,11 +134,6 @@ module NewsFetcher
     end
 
     def fix
-      read_feed
-      @history.reset
-      @items.each do |item|
-        @history[item.digest] = item.date
-      end
     end
 
     def edit

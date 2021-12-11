@@ -175,7 +175,6 @@ module NewsFetcher
           @logger.debug { "Started thread for #{subscription.id}" }
           begin
             subscription.update
-            subscription.process
           rescue Error => e
             @logger.error { "#{subscription.id}: #{e}" }
           end
