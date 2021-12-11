@@ -263,12 +263,6 @@ module NewsFetcher
       end
     end
 
-    def prune(args, **params)
-      find_subscriptions(ids: args).each do |subscription|
-        subscription.prune(**params)
-      end
-    end
-
   end
 
 end
