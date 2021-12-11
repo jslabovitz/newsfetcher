@@ -1,12 +1,13 @@
+- Fix broken 'show' command:
+  - Read 'result' in Subscription, to be able to show items info.
+
+- Rename Result class to Feed?
+
 - Move Profile#add_subscription and Profile.discover_feed into Subscription
   - as class methods?
 
 - Detect JSON/XML/etc. based on content-type
   - if not application/json or application/xml, then look for leading <, {
-
-- Make new class to encompass all feed data, including Item.
-  - concepts: issue, edition, delivery, package
-  - Subscription class manages this new class, but does not contain it
 
 - Use ETag instead of If-Last-Modified?
   - support latter if former is not available?
@@ -17,15 +18,9 @@
 - Move import/export logic into add/show.
   - Add --format option: 'opml', 'json', 'details', 'summary' (default)
 
-- After parsing feed, write current feed info to file in bundle.
-  - title, link, updated, etc.
-  - read this file when initializing subscription
-  - (to avoid re-parsing feed just to get title, for example)
-
 - Rework templating system:
-  - Use ERB instead of custom '%x' code.
-    - Bind to Item.
-  - Replace #render with .erb file.
+  - use ERB instead of custom '%x' code -- bind to Item
+  - replace #render with .erb file
 
 - Change #make_email to #to_mail
   - Have subscription be authority for title, mail_from/to, etc.
