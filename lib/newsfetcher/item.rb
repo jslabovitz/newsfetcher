@@ -125,11 +125,11 @@ module NewsFetcher
             end
           end
           html.h2 do
-            if @author
-              html.text(@author)
-              html.br
-            end
-            html.text(@date.strftime('%e %B %Y').strip)
+            [@author, @date.strftime('%e %B %Y')]
+              .map(&:to_s)
+              .map(&:strip)
+              .reject(&:empty?)
+              .join(' • ')
           end
           if @url
             html.h3 do
