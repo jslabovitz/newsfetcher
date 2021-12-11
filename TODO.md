@@ -1,19 +1,16 @@
 - Move Profile#add_subscription and Profile.discover_feed into Subscription
   - as class methods?
 
-- Detect JSON/XML/etc. based on content-type?
+- Detect JSON/XML/etc. based on content-type
+  - if not application/json or application/xml, then look for leading <, {
 
-- Make new class to encompass both all feed data, including Item.
+- Make new class to encompass all feed data, including Item.
   - concepts: issue, edition, delivery, package
   - Subscription class manages this new class, but does not contain it
 
 - Use ETag instead of If-Last-Modified?
   - support latter if former is not available?
-  - for I-L-M, always send back *exact* string received from server in last request (don't parse/convert/etc.)
   - https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.3.4
-
-- Don't depend on Last-Modified date.
-  - better to use heuristics to understand last update based on item dates
 
 - Auto-discover on 'add'.
 
@@ -24,17 +21,6 @@
   - title, link, updated, etc.
   - read this file when initializing subscription
   - (to avoid re-parsing feed just to get title, for example)
-  - write items as well?
-    - possibly integrate/replace history file?
-
-- Rename 'history' file to 'seen'?
-  - Fix data format to be lines of JSON?
-
-- Keep track of errors.
-  - If error occurs when fetching feed, append to 'errors' file.
-    - Save date, error code, etc.
-    - If number of errors exceeds maximum, log error; else ignore.
-  - Otherwise delete 'errors' file on success.
 
 - Rework templating system:
   - Use ERB instead of custom '%x' code.
