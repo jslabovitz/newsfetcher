@@ -142,19 +142,6 @@ module NewsFetcher
         @bundle.info_file.to_s)
     end
 
-    FieldFormatters = {
-      items: proc { |s|
-        s.history.length
-      },
-      age: proc { |s|
-        if (a = s.age)
-          '%d days' % (a / 60 / 60 / 24)
-        else
-          'never'
-        end
-      },
-    }
-
     FieldLabels = {
       id: 'ID',
       title: 'Title',
@@ -182,8 +169,15 @@ module NewsFetcher
     end
 
     def show_field(key)
-      if (p = FieldFormatters[key])
-        p.call(self)
+      case key
+      when :items
+        @items.length
+      when :age
+        if (a = age)
+          '%d days' % (a / 60 / 60 / 24)
+        else
+          'never'
+        end
       else
         send(key)
       end
