@@ -16,7 +16,7 @@ require 'simple-command'
 
 module NewsFetcher
 
-  ResultFileName = 'result.json'
+  FeedFileName = 'feed.json'
   DownloadTimeout = 30
   DownloadFollowRedirectLimit = 5
   DefaultMaxThreads = 100
@@ -29,9 +29,11 @@ end
 
 require 'newsfetcher/bundle'
 require 'newsfetcher/error'
+require 'newsfetcher/feed'
 require 'newsfetcher/item'
+require 'newsfetcher/mailer'
 require 'newsfetcher/profile'
-require 'newsfetcher/result'
+require 'newsfetcher/resource'
 require 'newsfetcher/subscription'
 
 require 'newsfetcher/command'
@@ -45,6 +47,17 @@ module Kernel
     result = block.call
     $VERBOSE = warn_level
     result
+  end
+
+end
+
+class String
+
+  def replace_fields(fields)
+    gsub(/%(\w)/) do
+      raise "Unknown tag: #{$1.inspect}" unless fields.has_key?($1)
+      fields[$1] || ''
+    end
   end
 
 end

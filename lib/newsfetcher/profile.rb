@@ -3,13 +3,13 @@ module NewsFetcher
   class Profile
 
     attr_reader   :dir
-    attr_reader   :mail_from
-    attr_reader   :mail_to
+    attr_accessor :mail_from
+    attr_accessor :mail_to
     attr_accessor :mail_subject
+    attr_accessor :delivery_method
     attr_accessor :max_threads
     attr_reader   :stylesheets
     attr_accessor :styles
-    attr_accessor :logger
     attr_accessor :log_level
 
     def self.init(dir, params)
@@ -42,7 +42,7 @@ module NewsFetcher
     end
 
     def setup_logger
-      @logger = Logger.new(STDERR,
+      $logger = Logger.new(STDERR,
         level: @log_level,
         formatter: proc { |severity, datetime, progname, msg|
           "%s %5s: %s\n" % [datetime.strftime('%FT%T%:z'), severity, msg]
@@ -74,14 +74,6 @@ module NewsFetcher
       @delivery_method = [method.to_sym, info]
     end
 
-    def mail_from=(address)
-      @mail_from = Mail::Address.new(address)
-    end
-
-    def mail_to=(address)
-      @mail_to = Mail::Address.new(address)
-    end
-
     def stylesheets=(files)
       @stylesheets = files.map { |f| Path.new(f) }
     end
@@ -92,13 +84,6 @@ module NewsFetcher
 
     def subscriptions_dir
       @dir / SubscriptionsDirName
-    end
-
-    def send_item(item)
-      @logger.info { "#{item.subscription.id}: Sending #{item.title.inspect}" }
-      mail = item.make_email
-      mail.delivery_method(*@delivery_method)
-      mail.deliver!
     end
 
     def make_outline(ids)
@@ -118,36 +103,43 @@ module NewsFetcher
       status = [status].flatten.compact if status
       sort ||= :id
       subscriptions = Bundle.bundles(dir: subscriptions_dir, ids: ids).map do |bundle|
-        Subscription.new(bundle.info.merge(profile: self, dir: bundle.dir))
+        Subscription.new(bundle.info.merge(
+          id: bundle.dir.relative_to(subscriptions_dir).to_s,
+          dir: bundle.dir,
+        ))
       end
       subscriptions
         .select { |s| status.nil? || status.include?(s.status) }
         .sort_by { |s| s.send(sort).to_s }
     end
 
-    def add_subscription(uri:, path: nil, key: nil)
-      uri = Addressable::URI.parse(uri)
+    def add_subscription(uri:, id:)
       raise Error, "Bad URI: #{uri}" unless uri.absolute?
-      key ||= Subscription.uri_to_key(uri)
-      path = Path.new(path ? "#{path}/#{key}" : key)
-      subscription = Subscription.new(dir: subscriptions_dir / path, link: uri, profile: self)
+      subscription = Subscription.new(
+        id: id,
+        dir: subscriptions_dir / id,
+        uri: uri)
       raise Error, "Subscription already exists (as #{subscription.id}): #{uri}" if subscription.exist?
       subscription.save
-      @logger.info { "Saved new subscription to #{subscription.id}" }
+      $logger.info { "Saved new subscription to #{subscription.id}" }
       subscription
     end
 
     def discover_feed(uri)
       uri = Addressable::URI.parse(uri)
       raise Error, "Bad URI: #{uri}" unless uri.absolute?
-      result = NewsFetcher.get(uri)
-      raise Error, "Failed to get #{@link}: #{result.inspect}" unless result.type == :successful
-      html = Nokogiri::HTML::Document.parse(result.content)
-      html.xpath('//link[@rel="alternate"]').each do |link|
-        puts link['title'] unless link['title'].to_s.empty?
-        puts uri.join(Addressable::URI.parse(link['href']))
-        puts link['type']
-        puts
+      begin
+        resource = Resource.get(uri)
+      rescue Error => e
+        raise Error, "Failed to get #{uri}: #{e}"
+      end
+      html = Nokogiri::HTML::Document.parse(resource.content)
+      html.xpath('//link[@rel="alternate"]').map do |link|
+        {
+          uri: uri.join(Addressable::URI.parse(link['href'])),
+          type: link['type'],
+          title: link['title'],
+        }
       end
     end
 
@@ -167,20 +159,22 @@ module NewsFetcher
       threads = []
       find_subscriptions(ids: args).each do |subscription|
         if threads.length >= @max_threads
-          @logger.debug { "Waiting for #{threads.length} threads to finish" }
+          $logger.debug { "Waiting for #{threads.length} threads to finish" }
           threads.map(&:join)
           threads = []
         end
         threads << Thread.new do
-          @logger.debug { "Started thread for #{subscription.id}" }
+          $logger.debug { "Started thread for #{subscription.id}" }
           begin
-            subscription.update
+            subscription.update do |item|
+              Mailer.send_mail(item: item, subscription: subscription, profile: self)
+            end
           rescue Error => e
-            @logger.error { "#{subscription.id}: #{e}" }
+            $logger.error { "#{subscription.id}: #{e}" }
           end
         end
       end
-      @logger.debug { "Waiting for last #{threads.length} threads to finish" }
+      $logger.debug { "Waiting for last #{threads.length} threads to finish" }
       threads.map(&:join)
     end
 
@@ -208,7 +202,8 @@ module NewsFetcher
         opml.xpath('/opml/body/*/outline').each do |entry|
           uri = Addressable::URI.parse(entry['xmlUrl'])
           #FIXME: only adds to top level
-          add_subscription(uri: uri)
+          id = Subscription.uri_to_id(uri)
+          add_subscription(uri: uri, id: id)
         end
       end
     end
@@ -217,12 +212,16 @@ module NewsFetcher
       files.map { |f| Path.new(f) }.each do |file|
         json = JSON.parse(file.read)
         json.each do |entry|
-          channel_id = entry['snippet']['resourceId']['channelId']
+          snippet = entry['snippet'] or raise Error, "Can't find 'snippet' element"
+          channel_id = snippet['resourceId']['channelId']
           uri = Addressable::URI.parse("https://www.youtube.com/feeds/videos.xml?channel_id=#{channel_id}")
-          key = Subscription.name_to_key(entry['snippet']['title'])
           #FIXME: always imports to top-level 'youtube' path
-          path = 'youtube'
-          add_subscription(uri: uri, path: path, key: key)
+          if (title = snippet['title'])
+            id = Subscription.name_to_id(title, path: 'youtube')
+          else
+            id = Subscription.uri_to_id(uri, path: 'youtube')
+          end
+          add_subscription(uri: uri, id: id)
         end
       end
     end
@@ -251,7 +250,7 @@ module NewsFetcher
               version: 'RSS',
               text: subscription.title,
               title: subscription.title,
-              xmlUrl: subscription.link)
+              xmlUrl: subscription.uri)
           end
         end
       end

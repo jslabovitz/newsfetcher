@@ -16,23 +16,25 @@ module NewsFetcher
 
     def setup
       @dir = Path.new('test/.newsfetcher')
-      @site_uri = 'https://rubyweekly.com'
-      @feed_uri = 'https://cprss.s3.amazonaws.com/rubyweekly.com.xml'
-      @email = 'johnl@johnlabovitz.com'
-      @log_level = :error
       @dir.rmtree if @dir.exist?
       @profile = Profile.init(@dir,
-        mail_from: @email,
-        mail_to: @email,
-        log_level: @log_level)
+        mail_from: 'johnl@johnlabovitz.com',
+        mail_to: 'johnl@johnlabovitz.com',
+        log_level: :error)
       @profile.save
       @profile = Profile.new(dir: @dir)
+      feeds = @profile.discover_feed('https://johnlabovitz.com')
+      feed = feeds.find { |f| f[:type] == 'application/atom+xml' }
+      id = Subscription.uri_to_id(feed[:uri], path: 'tech')
       @subscription = @profile.add_subscription(
-        uri: @feed_uri,
-        path: 'tech')
+        uri: feed[:uri],
+        id: id)
+      @profile.update([])
     end
 
     def shutdown
+      @profile.remove([@subscription.id])
+      @profile.reset([])
     end
 
     def test_show
@@ -40,22 +42,6 @@ module NewsFetcher
       @profile.show([], status: :active)
       @profile.show([], sort: :title)
       @profile.show([], details: true)
-    end
-
-    def test_discover
-      @profile.discover_feed(@site_uri)
-    end
-
-    def test_update
-      @profile.update([])
-    end
-
-    def test_remove
-      @profile.remove([@subscription.id])
-    end
-
-    def test_reset
-      @profile.reset([])
     end
 
   end

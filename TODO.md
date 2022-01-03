@@ -1,19 +1,17 @@
-- Fix broken 'show' command:
-  - Read 'result' in Subscription, to be able to show items info.
+- Rename 'link' in subscription to 'uri'
+  - fix YAML files
 
-- Rename Result class to Feed?
+- Fix broken #discover_feed
+  - add https://theoaxacapost.com
 
-- Move Profile#add_subscription and Profile.discover_feed into Subscription
-  - as class methods?
-
-- Detect JSON/XML/etc. based on content-type
-  - if not application/json or application/xml, then look for leading <, {
+- detect duplicate items
+  - item attributes are equal, *except* for ID
 
 - Use ETag instead of If-Last-Modified?
   - support latter if former is not available?
   - https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.3.4
 
-- Auto-discover on 'add'.
+- Auto-discover on 'add'?
 
 - Move import/export logic into add/show.
   - Add --format option: 'opml', 'json', 'details', 'summary' (default)
@@ -21,10 +19,6 @@
 - Rework templating system:
   - use ERB instead of custom '%x' code -- bind to Item
   - replace #render with .erb file
-
-- Change #make_email to #to_mail
-  - Have subscription be authority for title, mail_from/to, etc.
-  - Remove instance variables: @profile, @feed
 
 - Change from Faraday to HTTParty?
 
