@@ -16,7 +16,6 @@ module NewsFetcher
       id_parts = @subscription.id.split('/')
       fields = {
         'i' => @subscription.id,
-        'b' => id_parts.last,
         'p' => id_parts.join('.'),
         't' => strip_html(@item.title),
       }
