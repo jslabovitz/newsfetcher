@@ -113,6 +113,14 @@ module NewsFetcher
     end
 
     def fix
+      %w[result.json history].map { |f| @dir / f }.each do |file|
+        if file.exist?
+          puts "Pruning: #{file}"
+          file.unlink
+        end
+      end
+      @bundle.info.delete(:link)
+      save
     end
 
     def edit
