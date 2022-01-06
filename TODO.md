@@ -1,26 +1,14 @@
-- Rename 'link' in subscription to 'uri'
-  - fix YAML files
-
-- Fix broken #discover_feed
-  - add https://theoaxacapost.com
-
-- detect duplicate items
+- Detect duplicate items
   - item attributes are equal, *except* for ID
-
-- Use ETag instead of If-Last-Modified?
-  - support latter if former is not available?
-  - https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.3.4
 
 - Auto-discover on 'add'?
 
 - Move import/export logic into add/show.
   - Add --format option: 'opml', 'json', 'details', 'summary' (default)
 
-- Rework templating system:
-  - use ERB instead of custom '%x' code -- bind to Item
-  - replace #render with .erb file
+- Replace #render with .erb file.
 
-- Change from Faraday to HTTParty?
+- Change from Faraday to HTTParty or HTTPClient?
 
 - Avoid use of NewsFetcher module constants.
   - Set instance variables to defaults.
