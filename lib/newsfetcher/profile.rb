@@ -21,7 +21,7 @@ module NewsFetcher
     def initialize(dir:, **params)
       @max_threads = DefaultMaxThreads
       @delivery_method = [:sendmail]
-      @mail_subject = '[%i] %t'
+      @mail_subject = '[<%= id %>] <%= stripped_title %>'
       @log_level = :info
       @stylesheets = []
       @dir = Path.new(dir).expand_path

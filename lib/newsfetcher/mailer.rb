@@ -13,17 +13,16 @@ module NewsFetcher
     end
 
     def send_mail
-      id_parts = @subscription.id.split('/')
       fields = {
-        'i' => @subscription.id,
-        'p' => id_parts.join('.'),
-        't' => strip_html(@item.title),
+        'id' => @subscription.id,
+        'id_path' => @subscription.id.split('/').join('.'),
+        'stripped_title' => strip_html(@item.title),
       }
       mail = Mail.new
       mail.date =         @item.date
       mail.from =         @profile.mail_from
-      mail.to =           @profile.mail_to.replace_fields(fields)
-      mail.subject =      @profile.mail_subject.replace_fields(fields)
+      mail.to =           ERB.new(@profile.mail_to).result_with_hash(fields)
+      mail.subject =      ERB.new(@profile.mail_subject).result_with_hash(fields)
       mail.content_type = 'text/html'
       mail.charset      = 'utf-8'
       {

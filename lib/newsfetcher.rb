@@ -3,6 +3,7 @@ require 'logger'
 require 'yaml'
 
 require 'addressable/uri'
+require 'erb'
 require 'faraday'
 require 'feedjira'
 require 'hashstruct'
@@ -47,17 +48,6 @@ module Kernel
     result = block.call
     $VERBOSE = warn_level
     result
-  end
-
-end
-
-class String
-
-  def replace_fields(fields)
-    gsub(/%(\w)/) do
-      raise "Unknown tag: #{$1.inspect}" unless fields.has_key?($1)
-      fields[$1] || ''
-    end
   end
 
 end
