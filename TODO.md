@@ -1,33 +1,35 @@
-- Detect duplicate items
+- use TTY::Config
+
+- detect duplicate items
   - item attributes are equal, *except* for ID
 
-- Auto-discover on 'add'?
+- auto-discover on 'add'
 
-- Move import/export logic into add/show.
-  - Add --format option: 'opml', 'json', 'details', 'summary' (default)
+- move import/export logic into add/show
+  - add --format option: 'opml', 'json', 'details', 'summary' (default)
 
-- Replace #render with .erb file.
+- replace #render with .erb file
 
-- Change from Faraday to HTTParty or HTTPClient?
+- change from Faraday to HTTParty or HTTPClient or Excon?
 
-- Avoid use of NewsFetcher module constants.
-  - Set instance variables to defaults.
+- avoid use of NewsFetcher module constants
+  - set instance variables to defaults
 
-- Add per-feed locks to avoid access by multiple processes/threads.
+- add per-feed locks to avoid access by multiple processes/threads
 
-- Expand testing:
-  - Use Mail::TestMailer to test results.
-  - Use Mail::FileDelivery to save files.
+- expand testing
+  - use Mail::TestMailer to test results
+  - use Mail::FileDelivery to save files
 
-- Add check/validate command:
-  - Fetch HTML page for feed.
-  - Verify that feed matches <link> element.
+- add check/validate command
+  - fetch HTML page for feed
+  - verify that feed matches <link> element
 
-- Add dormancy period as default, configured per-profile, or per-feed.
+- add dormancy period as default, configured per-profile, or per-feed
 
-- Release:
-  - Write README documentation.
-  - Bump version to 1.0.
-  - Reset git history.
-  - Push to github.
-  - Release to rubygems.
+- release publicly
+  - write README documentation
+  - bump version to 1.0
+  - reset git history
+  - push to Github
+  - release to Rubygems
