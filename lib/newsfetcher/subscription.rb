@@ -6,6 +6,7 @@ module NewsFetcher
     attr_accessor :title
     attr_reader   :uri
     attr_accessor :ignore
+    attr_accessor :disable
     attr_reader   :dir
 
     include SetParams

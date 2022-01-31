@@ -109,16 +109,18 @@ module NewsFetcher
         ))
       end
       subscriptions
+        .reject(&:disable)
         .select { |s| status.nil? || status.include?(s.status) }
         .sort_by { |s| s.send(sort).to_s }
     end
 
-    def add_subscription(uri:, id:)
+    def add_subscription(uri:, id:, **options)
       raise Error, "Bad URI: #{uri}" unless uri.absolute?
       subscription = Subscription.new(
         id: id,
         dir: subscriptions_dir / id,
-        uri: uri)
+        uri: uri,
+        **options)
       raise Error, "Subscription already exists (as #{subscription.id}): #{uri}" if subscription.exist?
       subscription.save
       $logger.info { "Saved new subscription to #{subscription.id}" }

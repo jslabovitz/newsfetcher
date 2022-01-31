@@ -14,6 +14,15 @@ module NewsFetcher
 
   class Test < Minitest::Test
 
+    def add_subscription(uri:, path:, **options)
+      feed = @profile.discover_feeds(uri).first
+      id = Subscription.uri_to_id(feed[:uri], path: path)
+      @profile.add_subscription(
+        uri: feed[:uri],
+        id: id,
+        **options)
+    end
+
     def setup
       @dir = Path.new('test/.newsfetcher')
       @dir.rmtree if @dir.exist?
@@ -23,17 +32,15 @@ module NewsFetcher
         log_level: :error)
       @profile.save
       @profile = Profile.new(dir: @dir)
-      feeds = @profile.discover_feed('https://johnlabovitz.com')
-      feed = feeds.find { |f| f[:type] == 'application/atom+xml' }
-      id = Subscription.uri_to_id(feed[:uri], path: 'tech')
-      @subscription = @profile.add_subscription(
-        uri: feed[:uri],
-        id: id)
+      @subscriptions = [
+        add_subscription(uri: 'https://johnlabovitz.com', path: 'tech'),
+        add_subscription(uri: 'http://nytimes.com', path: 'news', disable: true),
+      ]
       @profile.update([])
     end
 
     def shutdown
-      @profile.remove([@subscription.id])
+      @subscriptions.each { |s| @profile.remove([s.id]) }
       @profile.reset([])
     end
 
