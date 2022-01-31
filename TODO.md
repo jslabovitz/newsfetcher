@@ -11,6 +11,7 @@
 - replace #render with .erb file
 
 - change from Faraday to HTTParty or HTTPClient or Excon?
+    https://github.com/excon/excon
 
 - avoid use of NewsFetcher module constants
   - set instance variables to defaults
