@@ -25,6 +25,18 @@ module NewsFetcher
   DefaultProfileDir = '~/.newsfetcher'
   SubscriptionsDirName = 'subscriptions'
   StylesheetFile = Path.new(__FILE__).dirname / '../message/stylesheet.css'
+  # see https://stackoverflow.com/questions/595616/what-is-the-correct-mime-type-to-use-for-an-rss-feed
+  # ordered by preference
+  FeedTypes = %w[
+    application/atom+xml
+    application/rss+xml
+    application/rdf+xml
+    text/atom+xml
+    text/rss+xml
+    text/rdf+xml
+    application/xml
+    text/xml
+  ]
 
 end
 

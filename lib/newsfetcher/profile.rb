@@ -125,7 +125,7 @@ module NewsFetcher
       subscription
     end
 
-    def discover_feed(uri)
+    def discover_feeds(uri)
       uri = Addressable::URI.parse(uri)
       raise Error, "Bad URI: #{uri}" unless uri.absolute?
       begin
@@ -135,12 +135,14 @@ module NewsFetcher
       end
       html = Nokogiri::HTML::Document.parse(resource.content)
       html.xpath('//link[@rel="alternate"]').map do |link|
-        {
-          uri: uri.join(Addressable::URI.parse(link['href'])),
-          type: link['type'],
-          title: link['title'],
-        }
-      end
+        if FeedTypes.include?(link['type'])
+          {
+            uri: uri.join(Addressable::URI.parse(link['href'])),
+            type: link['type'],
+            title: link['title'],
+          }
+        end
+      end.compact
     end
 
     def show(args, status: nil, sort: nil, details: false)
