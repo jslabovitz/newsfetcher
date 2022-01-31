@@ -8,6 +8,8 @@ module NewsFetcher
     attr_accessor :ignore
     attr_reader   :dir
 
+    include SetParams
+
     def self.name_to_id(*names, path: nil)
       id = names.
         join(' ').
@@ -29,8 +31,7 @@ module NewsFetcher
     end
 
     def initialize(params={})
-      @id = @title = @uri = @ignore = @dir = nil
-      params.each { |k, v| send("#{k}=", v) if v }
+      set(params)
       raise Error, "dir not set" unless @dir
       @bundle = Bundle.new(@dir)
       raise Error, "uri not set" unless @uri
