@@ -21,7 +21,7 @@ module NewsFetcher
         raise Error, "Can't parse XML feed: #{e}"
       end
       new(
-        uri: feedjira.url,
+        uri: uri,
         title: feedjira.title,
         items: feedjira.entries.map { |entry|
           Item.new(
