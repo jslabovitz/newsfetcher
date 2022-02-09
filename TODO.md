@@ -1,7 +1,20 @@
-- use TTY::Config
+- figure out why 'rake test' is sending emails
 
 - detect duplicate items
   - item attributes are equal, *except* for ID
+  - hash of {title,content} equivalent
+    - re-implement history file
+
+- improve 'ignore' feature
+  - each rule can match on any fields
+    ignore:
+      uri: /foo
+      title: Bar
+
+- use TTY::Config
+
+- move Vox hard-coded filtering out of render
+  - integrate into subscription as 'modify'
 
 - auto-discover on 'add'
 
