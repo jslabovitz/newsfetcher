@@ -172,8 +172,15 @@ module NewsFetcher
           end
           uri2.query = nil if uri2.query_values.empty?
         end
-        uri2.host = uri2.host.sub(/^www\./, '')
-        uri2.to_s.sub(%r{^https?://}, '')
+        case uri2.scheme
+        when 'http', 'https'
+          uri2.host = uri2.host.sub(/^www\./, '')
+          uri2.to_s.sub(%r{^https?://}, '')
+        when 'mailto'
+          uri2.path.to_s
+        else
+          uri2.to_s
+        end
       else
         ''
       end
