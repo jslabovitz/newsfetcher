@@ -97,9 +97,9 @@ module NewsFetcher
     def update(&block)
       new_feed = Feed.get(@uri)
       @title ||= new_feed.title
-      @feed.merge!(new_feed)
-      @feed.prune! { |i| i.age > DefaultDormantTime }
-      @feed.prune! { |i| @ignore.find { |r| i.uri.to_s =~ r } } if @ignore
+      @feed.merge!(new_feed,
+        remove_dormant: DefaultDormantTime,
+        ignore: @ignore)
       @feed.new_items.each do |item|
         yield(item)
       end

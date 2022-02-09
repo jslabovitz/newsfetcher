@@ -69,7 +69,7 @@ module NewsFetcher
       @items.map { |i| [i.id, i] }.to_h
     end
 
-    def merge!(other)
+    def merge!(other, remove_dormant:, ignore:)
       @items.each { |i| i.is_new = false }
       this = items_hash
       other = other.items_hash
@@ -79,11 +79,11 @@ module NewsFetcher
         new_item.is_new = true
         @items << new_item
       end
+      @items.delete_if do |item|
+        (remove_dormant && item.age > remove_dormant) ||
+        (ignore && ignore.find { |r| item.uri.to_s =~ r })
+      end
       @items.sort_by!(&:date)
-    end
-
-    def prune!(&block)
-      @items.delete_if(&block)
     end
 
     def save(file)
