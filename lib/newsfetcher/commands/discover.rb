@@ -7,10 +7,9 @@ module NewsFetcher
       def run(args)
         super
         args.each do |uri|
-          @profile.discover_feeds(uri).each do |info|
-            puts "URI: #{info[:uri]}"
-            puts "Type: #{info[:type]}"
-            puts "Title: #{info[:title].inspect}"
+          @profile.discover_feeds(uri).each do |feed|
+            puts "URI: #{feed.uri}"
+            puts "Title: #{feed.title.inspect}"
             puts
           end
         end

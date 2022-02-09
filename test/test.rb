@@ -16,9 +16,9 @@ module NewsFetcher
 
     def add_subscription(uri:, path:, **options)
       feed = @profile.discover_feeds(uri).first
-      id = Subscription.uri_to_id(feed[:uri], path: path)
+      id = Subscription.uri_to_id(feed.uri, path: path)
       @profile.add_subscription(
-        uri: feed[:uri],
+        uri: feed.uri,
         id: id,
         **options)
     end

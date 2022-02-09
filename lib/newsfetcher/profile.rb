@@ -136,15 +136,8 @@ module NewsFetcher
         raise Error, "Failed to get #{uri}: #{e}"
       end
       html = Nokogiri::HTML::Document.parse(resource.content)
-      html.xpath('//link[@rel="alternate"]').map do |link|
-        if FeedTypes.include?(link['type'])
-          {
-            uri: uri.join(Addressable::URI.parse(link['href'])),
-            type: link['type'],
-            title: link['title'],
-          }
-        end
-      end.compact
+      links = html.xpath('//link[@rel="alternate"]')
+      links.select { |link| FeedTypes.include?(link['type']) }.map { |link| Feed.get(link['href']) }
     end
 
     def show(args, status: nil, sort: nil, details: false)
