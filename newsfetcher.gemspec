@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'hashstruct', '~> 1.3'
   s.add_dependency 'loofah', '~> 2.13'
   s.add_dependency 'mail', '~> 2.7'
+  s.add_dependency 'net-smtp'   # for mail
   s.add_dependency 'path', '~> 2.0'
   s.add_dependency 'sassc', '~> 2.4'
   s.add_dependency 'set_params', '~> 0.1'
