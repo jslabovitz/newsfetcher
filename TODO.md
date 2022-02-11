@@ -1,9 +1,14 @@
 - figure out why 'rake test' is sending emails
 
+- allow messages to be added via Maildir
+
+- rename 'dormant' term to 'expired'?
+
 - detect duplicate items
-  - item attributes are equal, *except* for ID
-  - hash of {title,content} equivalent
-    - re-implement history file
+  - save hash of {title,author,date,content}
+  - implement #duplicate?
+  - re-implement history file -- per profile!
+  - implement 'fix' to add existing entries to history
 
 - improve 'ignore' feature
   - each rule can match on any fields
@@ -13,7 +18,7 @@
 
 - use TTY::Config
 
-- move Vox hard-coded filtering out of render
+- remove Vox hard-coded filtering from render
   - integrate into subscription as 'modify'
 
 - auto-discover on 'add'
