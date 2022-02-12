@@ -1,6 +1,11 @@
+# system
+
 require 'date'
+require 'digest'
 require 'logger'
 require 'yaml'
+
+# gems
 
 require 'addressable/uri'
 require 'erb'
