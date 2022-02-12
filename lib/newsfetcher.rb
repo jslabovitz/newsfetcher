@@ -23,6 +23,7 @@ require 'simple-command'
 module NewsFetcher
 
   FeedFileName = 'feed.json'
+  HistoryFileName = 'history.json'
   DownloadTimeout = 30
   DownloadFollowRedirectLimit = 5
   DefaultMaxThreads = 100

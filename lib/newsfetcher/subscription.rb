@@ -37,6 +37,7 @@ module NewsFetcher
       @bundle = Bundle.new(@dir)
       raise Error, "uri not set" unless @uri
       @feed = feed_file.exist? ? Feed.load(feed_file) : Feed.new(uri: @uri, title: @title)
+      @history = history_file.exist? ? JSON.parse(history_file.read) : {}
     end
 
     def dir=(dir)
@@ -60,6 +61,10 @@ module NewsFetcher
       @dir / FeedFileName
     end
 
+    def history_file
+      @dir / HistoryFileName
+    end
+
     def exist?
       @dir.exist?
     end
@@ -70,8 +75,8 @@ module NewsFetcher
       @bundle.save
     end
 
-    def new_items
-      @feed.new_items
+    def save_history
+      history_file.write(JSON.pretty_generate(@history))
     end
 
     def age
@@ -94,20 +99,31 @@ module NewsFetcher
       end
     end
 
-    def update(&block)
+    def update
+      @feed.items.values.each { |i| i.is_new = false }
       new_feed = Feed.get(@uri)
+      new_feed.items.delete_if { |id, item| @history[id] }
       @title ||= new_feed.title
-      @feed.merge!(new_feed,
-        remove_dormant: DefaultDormantTime,
-        ignore: @ignore)
-      @feed.new_items.each do |item|
-        yield(item)
+      @feed.items.merge!(new_feed.items)
+      # @feed.items.sort_by!(&:date)
+      @feed.items.delete_if do |id, item|
+        item.age > DefaultDormantTime ||
+        (@ignore && @ignore.find { |r| item.uri.to_s =~ r })
+      end
+      @feed.items.each do |id, item|
+        @history[item.digest] = id
+        item.is_new = true
       end
       @feed.save(feed_file)
     end
 
+    def new_items
+      @feed.items.values.select(&:is_new)
+    end
+
     def reset
       feed_file.unlink if feed_file.exist?
+      history_file.unlink if history_file.exist?
     end
 
     def remove
@@ -115,14 +131,15 @@ module NewsFetcher
     end
 
     def fix
-      %w[result.json history].map { |f| @dir / f }.each do |file|
-        if file.exist?
-          puts "Pruning: #{file}"
-          file.unlink
+      @feed.items.each do |item|
+        digest = item.digest
+        if (old_id = @history[digest])
+          $logger.warn { "#{@id}: duplicate item: #{item.id.inspect} same as #{old_id.inspect}" }
+        else
+          @history[digest] = item.id
         end
       end
-      @bundle.info.delete(:link)
-      save
+      save_history
     end
 
     def edit

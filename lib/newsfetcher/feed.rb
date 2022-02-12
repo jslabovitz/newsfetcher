@@ -24,7 +24,7 @@ module NewsFetcher
         uri: uri,
         title: feedjira.title,
         items: feedjira.entries.map { |entry|
-          Item.new(
+          item = Item.new(
             id: entry.entry_id || entry.url,
             date: entry.published || Time.now,
             title: entry.title,
@@ -32,12 +32,13 @@ module NewsFetcher
             author: entry.respond_to?(:author) ? entry.author : nil,
             content: entry.content || entry.summary || '',
           )
-        },
+          [item.id, item]
+        }.to_h,
       )
     end
 
     def initialize(params={})
-      @items = []
+      @items = {}
       set(params)
     end
 
@@ -46,14 +47,25 @@ module NewsFetcher
     end
 
     def items=(items)
-      @items = items.map { |item| item.kind_of?(Item) ? item : Item.new(item) }
+      @items = case items
+      when Array
+        items.map { |item|
+          item = item.kind_of?(Item) ? item : Item.new(item)
+          [item.id, item]
+        }.to_h
+      when Hash
+        items.map { |id, item|
+          item = item.kind_of?(Item) ? item : Item.new(item)
+          [id, item]
+        }.to_h
+      end
     end
 
     def to_h
       {
         uri: @uri,
         title: @title,
-        items: @items,
+        items: @items.values,
       }
     end
 
@@ -65,37 +77,12 @@ module NewsFetcher
       as_json(*options).to_json(*options)
     end
 
-    def items_hash
-      @items.map { |i| [i.id, i] }.to_h
-    end
-
-    def merge!(other, remove_dormant:, ignore:)
-      @items.each { |i| i.is_new = false }
-      this = items_hash
-      other = other.items_hash
-      new_ids = other.keys - this.keys
-      new_ids.each do |id|
-        new_item = other[id]
-        new_item.is_new = true
-        @items << new_item
-      end
-      @items.delete_if do |item|
-        (remove_dormant && item.age > remove_dormant) ||
-        (ignore && ignore.find { |r| item.uri.to_s =~ r })
-      end
-      @items.sort_by!(&:date)
-    end
-
     def save(file)
       file.write(JSON.pretty_generate(self))
     end
 
-    def new_items
-      @items.select(&:is_new)
-    end
-
     def last_item_date
-      @items.map(&:date).sort.last
+      @items.values.map(&:date).sort.last
     end
 
   end

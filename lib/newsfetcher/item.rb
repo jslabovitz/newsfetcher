@@ -99,6 +99,10 @@ module NewsFetcher
       Time.now - @date
     end
 
+    def digest
+      Digest::SHA256.hexdigest([@date, @title, @author, @content].join('|'))
+    end
+
     DefaultKeys = %i{id date title uri author content}
 
     def show(keys=nil)
