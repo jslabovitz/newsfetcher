@@ -4,11 +4,8 @@
 
 - rename 'dormant' term to 'expired'?
 
-- detect duplicate items
-  - save hash of {title,author,date,content}
-  - implement #duplicate?
-  - re-implement history file -- per profile!
-  - implement 'fix' to add existing entries to history
+- automatically prune history by date
+  - add item date to history?
 
 - improve 'ignore' feature
   - each rule can match on any fields
@@ -27,9 +24,6 @@
   - add --format option: 'opml', 'json', 'details', 'summary' (default)
 
 - replace #render with .erb file
-
-- change from Faraday to HTTParty or HTTPClient or Excon?
-    https://github.com/excon/excon
 
 - avoid use of NewsFetcher module constants
   - set instance variables to defaults
