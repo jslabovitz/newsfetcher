@@ -16,8 +16,10 @@ require 'loofah'
 require 'mail'
 require 'nokogiri'
 require 'path'
+require 'rubypants'
 require 'sassc'
 require 'set_params'
+require 'simple-builder'
 require 'simple-command'
 
 module NewsFetcher
@@ -30,6 +32,8 @@ module NewsFetcher
   DefaultDormantTime = 30 * 24 * 60 * 60    # one month
   DefaultProfileDir = '~/.newsfetcher'
   SubscriptionsDirName = 'subscriptions'
+  MessageTemplateFile = Path.new(__FILE__).dirname / '../message/message.mail.erb'
+  HTMLTemplateFile = Path.new(__FILE__).dirname / '../message/message.rhtml'
   StylesheetFile = Path.new(__FILE__).dirname / '../message/stylesheet.css'
   # see https://stackoverflow.com/questions/595616/what-is-the-correct-mime-type-to-use-for-an-rss-feed
   # ordered by preference
@@ -46,6 +50,10 @@ module NewsFetcher
 
 end
 
+require 'newsfetcher/extensions/addressable'
+require 'newsfetcher/extensions/kernel'
+require 'newsfetcher/extensions/string'
+
 require 'newsfetcher/bundle'
 require 'newsfetcher/error'
 require 'newsfetcher/feed'
@@ -57,15 +65,3 @@ require 'newsfetcher/subscription'
 
 require 'newsfetcher/command'
 Path.new(__FILE__).dirname.glob('newsfetcher/commands/*.rb').each { |p| require p }
-
-module Kernel
-
-  def silence_warnings(&block)
-    warn_level = $VERBOSE
-    $VERBOSE = nil
-    result = block.call
-    $VERBOSE = warn_level
-    result
-  end
-
-end

@@ -60,6 +60,22 @@ module NewsFetcher
       @content = (s = content.to_s.strip).empty? ? nil : s
     end
 
+    def title_html
+      if @title.html?
+        @title.to_html
+      else
+        @title
+      end
+    end
+
+    def byline
+      [@author, @date.strftime('%e %B %Y')]
+        .map(&:to_s)
+        .map(&:strip)
+        .reject(&:empty?)
+        .join(' • ')
+    end
+
     def eql?(other)
       @id.eql?(other.id)
     end
@@ -93,6 +109,16 @@ module NewsFetcher
         value = '-' if value.nil?
         '%s="%s"' % [key, value]
       end.join(', ')
+    end
+
+    def render_content
+      if @content
+        if @content.html?
+          render_html_content
+        else
+          render_text_content
+        end
+      end
     end
 
     def age

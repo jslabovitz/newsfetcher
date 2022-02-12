@@ -7,23 +7,7 @@
 - automatically prune history by date
   - add item date to history?
 
-- improve 'ignore' feature
-  - each rule can match on any fields
-    ignore:
-      uri: /foo
-      title: Bar
-
 - use TTY::Config
-
-- remove Vox hard-coded filtering from render
-  - integrate into subscription as 'modify'
-
-- auto-discover on 'add'
-
-- move import/export logic into add/show
-  - add --format option: 'opml', 'json', 'details', 'summary' (default)
-
-- replace #render with .erb file
 
 - avoid use of NewsFetcher module constants
   - set instance variables to defaults
@@ -33,6 +17,17 @@
 - expand testing
   - use Mail::TestMailer to test results
   - use Mail::FileDelivery to save files
+
+- auto-discover on 'add'
+
+- improve 'ignore' feature
+  - each rule can match on any fields
+    ignore:
+      uri: /foo
+      title: Bar
+
+- move import/export logic into add/show
+  - add --format option: 'opml', 'json', 'details', 'summary' (default)
 
 - add check/validate command
   - fetch HTML page for feed
