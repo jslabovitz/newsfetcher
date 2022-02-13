@@ -131,13 +131,8 @@ module NewsFetcher
     end
 
     def fix
-      @feed.items.each do |item|
-        digest = item.digest
-        if (old_id = @history[digest])
-          $logger.warn { "#{@id}: duplicate item: #{item.id.inspect} same as #{old_id.inspect}" }
-        else
-          @history[digest] = item.id
-        end
+      @feed.items.each do |id, item|
+        @history[item.digest] = id
       end
       save_history
     end
