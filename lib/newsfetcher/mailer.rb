@@ -76,8 +76,10 @@ module NewsFetcher
       case @profile.deliver_method
       when :maildir
         location = @profile.deliver_params[:location] or raise Error, ":location not found in deliver_params"
-        dir = Path.new(location).expand_path / @subscription.id
-        maildir = Maildir.new(dir)
+        dir = Path.new(location).expand_path
+        folder = '.' + @subscription.path('.')
+        maildir = Maildir.new(dir / folder)
+;;pp maildir
         maildir.serializer = Maildir::Serializer::Mail.new
         maildir.add(mail)
       else

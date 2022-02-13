@@ -46,6 +46,10 @@ module NewsFetcher
       end
     end
 
+    def path(delim='/')
+      @id.split('/')[0..-2].join(delim)
+    end
+
     def dir=(dir)
       @dir = Path.new(dir)
     end
