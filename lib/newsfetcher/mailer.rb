@@ -79,7 +79,6 @@ module NewsFetcher
         dir = Path.new(location).expand_path
         folder = '.' + @subscription.path('.')
         maildir = Maildir.new(dir / folder)
-;;pp maildir
         maildir.serializer = Maildir::Serializer::Mail.new
         maildir.add(mail)
       else
