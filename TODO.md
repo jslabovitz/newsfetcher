@@ -1,4 +1,4 @@
-- allow messages to be added via Maildir
+- fix log-level: not setting to config file?
 
 - allow multiple feeds per subscription
   - feeds are merged and treated as one
