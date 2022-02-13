@@ -37,7 +37,13 @@ module NewsFetcher
       @bundle = Bundle.new(@dir)
       raise Error, "uri not set" unless @uri
       @feed = feed_file.exist? ? Feed.load(feed_file) : Feed.new(uri: @uri, title: @title)
-      @history = history_file.exist? ? JSON.parse(history_file.read) : {}
+      if history_file.exist?
+        @history = History.load(file: history_file)
+        @history.prune(before: DateTime.now - DefaultDormantTime)
+        @history.save
+      else
+        @history = History.new(file: history_file)
+      end
     end
 
     def dir=(dir)
@@ -79,10 +85,6 @@ module NewsFetcher
       @bundle.save
     end
 
-    def save_history
-      history_file.write(JSON.pretty_generate(@history))
-    end
-
     def age
       if (date = @feed.last_item_date)
         Time.now - date
@@ -109,16 +111,16 @@ module NewsFetcher
       @title ||= @feed.title
       new_items = @feed.items.values.
         reject { |item| (@ignore && @ignore.find { |r| item.uri.to_s =~ r }) }.
-        reject { |item| @history[item.id] }.
+        reject { |item| @history.has_key?(item.id) }.
         reject { |item| item.age > DefaultDormantTime }
       new_items.each { |item| @history[item.id] = item.date }
-      save_history
+      @history.save
       new_items
     end
 
     def reset
       feed_file.unlink if feed_file.exist?
-      history_file.unlink if history_file.exist?
+      @history.reset
     end
 
     def remove
@@ -126,11 +128,11 @@ module NewsFetcher
     end
 
     def fix
-      @history = {}
+      @history.reset
       @feed.items.each do |id, item|
         @history[item.id] = item.date
       end
-      save_history
+      @history.save
     end
 
     def edit

@@ -2,8 +2,6 @@
 
 - rename 'dormant' term to 'expired'?
 
-- automatically prune history by date
-
 - use TTY::Config
 
 - avoid use of NewsFetcher module constants
