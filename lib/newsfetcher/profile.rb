@@ -5,11 +5,14 @@ module NewsFetcher
     attr_reader   :dir
     attr_accessor :mail_from
     attr_accessor :mail_to
-    attr_accessor :delivery_method
+    attr_accessor :deliver_method
+    attr_accessor :deliver_params
     attr_accessor :max_threads
     attr_reader   :stylesheets
     attr_accessor :styles
     attr_accessor :log_level
+
+    include SetParams
 
     def self.init(dir, params)
       dir = Path.new(dir)
@@ -24,10 +27,6 @@ module NewsFetcher
       set(params)
       setup_logger
       setup_styles
-    end
-
-    def set(params={})
-      params.each { |k, v| send("#{k}=", v) if v }
     end
 
     def read_info
@@ -68,12 +67,6 @@ module NewsFetcher
 
     def dir=(dir)
       @dir = Path.new(dir).expand_path
-    end
-
-    def delivery=(info)
-      info = info.dup
-      method = info.delete(:method) or raise Error, "No delivery method defined"
-      @delivery_method = [method.to_sym, info]
     end
 
     def stylesheets=(files)

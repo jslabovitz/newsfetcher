@@ -72,8 +72,8 @@ module NewsFetcher
       template = Path.new(MessageTemplateFileName).read
       msg = ERB.new(template).result(binding)
       mail = Mail.new(msg)
-      mail.delivery_method(*@profile.delivery_method)
-      $logger.info { "#{@subscription.id}: Sending item: #{@item.title.inspect}" }
+      mail.delivery_method(@profile.deliver_method.to_sym, @profile.deliver_params) if @profile.deliver_method
+      $logger.info { "#{@subscription.id}: Sending item via #{@profile.deliver_method.inspect}: #{@item.title.inspect}" }
       mail.deliver!
     end
 
