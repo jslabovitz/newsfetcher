@@ -54,11 +54,6 @@ module NewsFetcher
       @uri = Addressable::URI.parse(uri)
     end
 
-    def link=(link)
-      #FIXME: remove after fixing subscription YAML files
-      self.uri = link
-    end
-
     def ignore=(ignore)
       @ignore = [ignore].flatten.map { |r| Regexp.new(r) }
     end
