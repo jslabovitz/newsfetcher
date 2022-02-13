@@ -31,7 +31,9 @@ module NewsFetcher
         mail_from: 'johnl@johnlabovitz.com',
         mail_to: 'johnl@johnlabovitz.com',
         log_level: :debug,
-        deliver_method: :file,
+        # deliver_method: :file,
+        # deliver_params: { location: @msgs_dir.to_s },
+        deliver_method: :maildir,
         deliver_params: { location: @msgs_dir.to_s },
       )
       @profile.save

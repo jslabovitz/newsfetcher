@@ -72,9 +72,18 @@ module NewsFetcher
       template = Path.new(MessageTemplateFileName).read
       msg = ERB.new(template).result(binding)
       mail = Mail.new(msg)
-      mail.delivery_method(@profile.deliver_method.to_sym, @profile.deliver_params) if @profile.deliver_method
-      $logger.info { "#{@subscription.id}: Sending item via #{@profile.deliver_method.inspect}: #{@item.title.inspect}" }
-      mail.deliver!
+      $logger.info { "#{@subscription.id}: Sending item via #{@profile.deliver_method || 'default'}: #{@item.title.inspect}" }
+      case @profile.deliver_method
+      when :maildir
+        location = @profile.deliver_params[:location] or raise Error, ":location not found in deliver_params"
+        dir = Path.new(location).expand_path / @subscription.id
+        maildir = Maildir.new(dir)
+        maildir.serializer = Maildir::Serializer::Mail.new
+        maildir.add(mail)
+      else
+        mail.delivery_method(@profile.deliver_method, @profile.deliver_params) if @profile.deliver_method
+        mail.deliver!
+      end
     end
 
     def styles

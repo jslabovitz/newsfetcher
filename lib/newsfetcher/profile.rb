@@ -73,6 +73,10 @@ module NewsFetcher
       @stylesheets = files.map { |f| Path.new(f) }
     end
 
+    def deliver_method=(method)
+      @deliver_method = method&.to_sym
+    end
+
     def id
       @dir.basename.to_s
     end
