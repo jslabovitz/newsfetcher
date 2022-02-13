@@ -104,27 +104,16 @@ module NewsFetcher
     end
 
     def update
-      new_feed = Feed.get(@uri)
-      @title ||= new_feed.title
-      new_feed.items.delete_if do |id, item|
-        (@ignore && @ignore.find { |r| item.uri.to_s =~ r }) ||
-        @history[item.digest]
-      end
-      new_feed.items.each do |id, item|
-        @history[item.digest] = id
-        item.is_new = true
-      end
-      @feed.items.values.each { |i| i.is_new = false }
-      @feed.items.merge!(new_feed.items)
-      @feed.items.delete_if do |id, item|
-        item.age > DefaultDormantTime
-      end
+      @feed = Feed.get(@uri)
       @feed.save(feed_file)
+      @title ||= @feed.title
+      new_items = @feed.items.values.
+        reject { |item| (@ignore && @ignore.find { |r| item.uri.to_s =~ r }) }.
+        reject { |item| @history[item.id] }.
+        reject { |item| item.age > DefaultDormantTime }
+      new_items.each { |item| @history[item.id] = item.date }
       save_history
-    end
-
-    def new_items
-      @feed.items.values.select(&:is_new)
+      new_items
     end
 
     def reset
@@ -137,8 +126,9 @@ module NewsFetcher
     end
 
     def fix
+      @history = {}
       @feed.items.each do |id, item|
-        @history[item.digest] = id
+        @history[item.id] = item.date
       end
       save_history
     end

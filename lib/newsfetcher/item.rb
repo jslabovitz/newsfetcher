@@ -8,7 +8,6 @@ module NewsFetcher
     attr_reader   :uri
     attr_reader   :author
     attr_reader   :content
-    attr_accessor :is_new
 
     include SetParams
 
@@ -123,10 +122,6 @@ module NewsFetcher
 
     def age
       Time.now - @date
-    end
-
-    def digest
-      Digest::SHA256.hexdigest([@date, @title, @author, @content].join('|'))
     end
 
     DefaultKeys = %i{id date title uri author content}

@@ -1,7 +1,6 @@
 # system
 
 require 'date'
-require 'digest'
 require 'logger'
 require 'yaml'
 

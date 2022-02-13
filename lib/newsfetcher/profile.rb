@@ -160,8 +160,8 @@ module NewsFetcher
         threads << Thread.new do
           $logger.debug { "Started thread for #{subscription.id}" }
           begin
-            subscription.update
-            subscription.new_items.each do |item|
+            new_items = subscription.update
+            new_items.each do |item|
               Mailer.send_mail(item: item, subscription: subscription, profile: self)
             end
           rescue Error => e
