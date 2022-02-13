@@ -26,10 +26,14 @@ module NewsFetcher
     def setup
       @dir = Path.new('test/.newsfetcher')
       @dir.rmtree if @dir.exist?
+      @msgs_dir = @dir / 'msgs'
       @profile = Profile.init(@dir,
         mail_from: 'johnl@johnlabovitz.com',
         mail_to: 'johnl@johnlabovitz.com',
-        log_level: :error)
+        log_level: :debug,
+        deliver_method: :file,
+        deliver_params: { location: @msgs_dir.to_s },
+      )
       @profile.save
       @profile = Profile.new(dir: @dir)
       @subscriptions = [
