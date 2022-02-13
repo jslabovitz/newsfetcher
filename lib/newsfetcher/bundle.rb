@@ -32,7 +32,7 @@ module NewsFetcher
 
     def to_hash
       Hash[
-        @info.select { |k, v| v }.map { |k, v| [k.to_s, v.to_s] }
+        @info.select { |k, v| v }.map { |k, v| [k.to_s, v] }
       ]
     end
 

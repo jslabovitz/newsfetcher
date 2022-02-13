@@ -18,9 +18,6 @@ module NewsFetcher
     end
 
     def initialize(dir:, **params)
-      @max_threads = DefaultMaxThreads
-      @delivery_method = [:sendmail]
-      @log_level = :info
       @stylesheets = []
       @dir = Path.new(dir).expand_path
       read_info
@@ -41,7 +38,7 @@ module NewsFetcher
 
     def setup_logger
       $logger = Logger.new(STDERR,
-        level: @log_level,
+        level: @log_level || DefaultLogLevel,
         formatter: proc { |severity, datetime, progname, msg|
           "%s %5s: %s\n" % [datetime.strftime('%FT%T%:z'), severity, msg]
         },
@@ -57,8 +54,15 @@ module NewsFetcher
     end
 
     def save
-      @bundle.info.mail_from = @mail_from
-      @bundle.info.mail_to = @mail_to
+      @bundle.info = {
+        mail_from: @mail_from,
+        mail_to: @mail_to,
+        deliver_method: @deliver_method,
+        deliver_params: @deliver_params,
+        max_threads: @max_threads,
+        stylesheets: @stylesheets,
+        log_level: @log_level,
+      }.compact
       @bundle.save
     end
 
@@ -155,7 +159,7 @@ module NewsFetcher
     def update(args)
       threads = []
       find_subscriptions(ids: args).each do |subscription|
-        if threads.length >= @max_threads
+        if threads.length >= (@max_threads || DefaultMaxThreads)
           $logger.debug { "Waiting for #{threads.length} threads to finish" }
           threads.map(&:join)
           threads = []

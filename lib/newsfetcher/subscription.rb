@@ -70,8 +70,12 @@ module NewsFetcher
     end
 
     def save
-      @bundle.info.title = @title
-      @bundle.info.uri = @uri
+      @bundle.info = {
+        title: @title,
+        uri: @uri&.to_s,
+        ignore: @ignore,
+        disable: @disable,
+      }.compact
       @bundle.save
     end
 

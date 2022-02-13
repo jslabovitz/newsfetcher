@@ -15,7 +15,7 @@ module NewsFetcher
       @dir = Path.new(@dir)
       @profile = Profile.new(
         dir: @dir,
-        log_level: @log_level && @log_level.downcase.to_sym,
+        log_level: @log_level&.downcase&.to_sym,
         max_threads: @max_threads&.to_i,
       ) or raise Error, "Profile not loaded"
     end
