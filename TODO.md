@@ -1,11 +1,8 @@
-- figure out why 'rake test' is sending emails
-
 - allow messages to be added via Maildir
 
 - rename 'dormant' term to 'expired'?
 
 - automatically prune history by date
-  - add item date to history?
 
 - use TTY::Config
 
