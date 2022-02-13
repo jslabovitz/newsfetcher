@@ -69,7 +69,7 @@ module NewsFetcher
     end
 
     def send_mail
-      template = MessageTemplateFile.read
+      template = Path.new(MessageTemplateFileName).read
       msg = ERB.new(template).result(binding)
       mail = Mail.new(msg)
       mail.delivery_method(*@profile.delivery_method)
@@ -86,7 +86,7 @@ module NewsFetcher
     end
 
     def mail_body
-      template = HTMLTemplateFile.read
+      template = Path.new(HTMLTemplateFileName).read
       ERB.new(template).result(binding)
     end
 

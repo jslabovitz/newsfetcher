@@ -49,8 +49,8 @@ module NewsFetcher
     end
 
     def setup_styles
-      @stylesheets << StylesheetFile
-      @styles = @stylesheets.map do |file|
+      @stylesheets << StylesheetFileName
+      @styles = @stylesheets.map { |f| Path.new(f) }.map do |file|
         file = @dir / file if file.relative?
         SassC::Engine.new(file.read, syntax: :scss, style: :compressed).render
       end

@@ -29,12 +29,13 @@ module NewsFetcher
   DownloadTimeout = 30
   DownloadFollowRedirectLimit = 5
   DefaultMaxThreads = 100
+  DefaultLogLevel = :info
   DefaultDormantTime = 30 * 24 * 60 * 60    # one month
   DefaultProfileDir = '~/.newsfetcher'
   SubscriptionsDirName = 'subscriptions'
-  MessageTemplateFile = Path.new(__FILE__).dirname / '../message/message.mail.erb'
-  HTMLTemplateFile = Path.new(__FILE__).dirname / '../message/message.rhtml'
-  StylesheetFile = Path.new(__FILE__).dirname / '../message/stylesheet.css'
+  MessageTemplateFileName = File.join(File.dirname(__FILE__), '../message/message.mail.erb')
+  HTMLTemplateFileName = File.join(File.dirname(__FILE__), '../message/message.rhtml')
+  StylesheetFileName = File.join(File.dirname(__FILE__), '../message/stylesheet.css')
   # see https://stackoverflow.com/questions/595616/what-is-the-correct-mime-type-to-use-for-an-rss-feed
   # ordered by preference
   FeedTypes = %w[
