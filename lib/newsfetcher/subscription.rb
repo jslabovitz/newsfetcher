@@ -106,7 +106,7 @@ module NewsFetcher
       @title ||= @feed.title
       new_items = @feed.items.values.
         reject { |item| (@ignore && @ignore.find { |r| item.uri.to_s =~ r }) }.
-        reject { |item| @history.has_key?(item.id) }.
+        reject { |item| @history.include?(item.id) }.
         reject { |item| item.age > DefaultDormantTime }
       new_items.each { |item| @history[item.id] = item.date }
       @history.save

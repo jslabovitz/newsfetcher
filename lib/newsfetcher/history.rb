@@ -26,11 +26,15 @@ module NewsFetcher
     end
 
     def prune(before:)
-      @entries.delete_if { |id, date| date > before }
+      @entries.delete_if { |id, date|
+        t = (date < before)
+        $logger.info { "pruning #{id.inspect} (#{date})"} if t
+        t
+      }
     end
 
-    def has_key?(key)
-      @entries.has_key?(key)
+    def include?(key)
+      @entries[key] != nil
     end
 
     def [](key)
