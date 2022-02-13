@@ -1,5 +1,9 @@
 - allow messages to be added via Maildir
 
+- allow multiple feeds per subscription
+  - feeds are merged and treated as one
+  - handles situations like TheGuardian's separate sections
+
 - rename 'dormant' term to 'expired'?
 
 - use TTY::Config
