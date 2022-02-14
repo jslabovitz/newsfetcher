@@ -1,3 +1,8 @@
+- convert YAML files to JSON
+
+- ensure stylesheet is only added once
+  - see test
+
 - rework constants/config/parameters
   - use TTY::Config
   - avoid use of NewsFetcher module constants
@@ -5,6 +10,10 @@
   - fix log-level: not setting to config file?
   - add dormancy period as default, configured per-profile, or per-feed
   - rename 'dormant' term to 'expired'?
+
+- add 'config' command
+  - '--root' specifies root config
+  - use readline to show/edit values
 
 - add 'warn_on_move' attribute
   - if not set, treat moves as info
