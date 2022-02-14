@@ -3,21 +3,13 @@ module Addressable
   class URI
 
     def prettify
-      uri = dup
-      if uri.query
-        uri.query_values = uri.query_values.tap do |query|
-          query.delete_if { |k, v| k =~ /^utm_/ || k == 'icid' }
-        end
-        uri.query = nil if uri.query_values.empty?
-      end
-      case uri.scheme
+      case scheme
       when 'http', 'https'
-        uri.host = uri.host.sub(/^www\./, '')
-        uri.to_s.sub(%r{^https?://}, '')
+        host.sub(/^www\./, '') + path.sub(%r{(\.html?|/)$}, '')
       when 'mailto'
-        uri.path.to_s
+        path.to_s
       else
-        uri.to_s
+        to_s
       end
     end
 
