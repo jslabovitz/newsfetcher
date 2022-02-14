@@ -68,7 +68,7 @@ module NewsFetcher
     end
 
     def byline
-      [@author, @date.strftime('%e %B %Y')]
+      [@author&.sub(/^by\s+/i, ''), @date.strftime('%e %B %Y')]
         .map(&:to_s)
         .map(&:strip)
         .reject(&:empty?)
