@@ -7,6 +7,7 @@ module NewsFetcher
     attr_reader   :uri
     attr_accessor :ignore
     attr_accessor :disable
+    attr_accessor :ignore_moved
     attr_reader   :dir
 
     include SetParams
@@ -105,7 +106,7 @@ module NewsFetcher
     end
 
     def update
-      @feed = Feed.get(@uri)
+      @feed = Feed.get(@uri, ignore_moved: @ignore_moved)
       @feed.save(feed_file)
       @title ||= @feed.title
       new_items = @feed.items.values.
