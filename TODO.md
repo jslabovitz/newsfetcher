@@ -11,14 +11,21 @@
   - add dormancy period as default, configured per-profile, or per-feed
   - rename 'dormant' term to 'expired'?
 
+- add 'warn_on_move' attribute
+  - if not set, treat moves as info
+
+- avoid duplicates better
+  - detect ID change
+  - compute digest of {title,author,date,content}
+  - use for ID in history instead of given item ID
+
 - add 'config' command
   - '--root' specifies root config
   - use readline to show/edit values
 
-- add 'warn_on_move' attribute
-  - if not set, treat moves as info
-
 - allow multiple feeds per subscription
+  - add 'uris' attribute: hash of key/URI
+  - save each feed with key
   - feeds are merged and treated as one
   - handles situations like TheGuardian's separate sections
 
