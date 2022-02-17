@@ -29,7 +29,7 @@ module NewsFetcher
   DownloadTimeout = 30
   DownloadFollowRedirectLimit = 5
   DefaultMaxThreads = 100
-  DefaultLogLevel = :info
+  DefaultLogLevel = :warn
   DefaultDormantTime = 30 * 24 * 60 * 60    # one month
   DefaultProfileDir = '~/.newsfetcher'
   SubscriptionsDirName = 'subscriptions'
