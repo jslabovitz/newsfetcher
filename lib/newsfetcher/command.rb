@@ -5,7 +5,7 @@ module NewsFetcher
     def run(args)
       super
       @profile = Profile.new(
-        dir: @dir,
+        dir: @dir || DefaultProfileDir,
         log_level: @log_level,
         max_threads: @max_threads,
       ) or raise Error, "Profile not loaded"

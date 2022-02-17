@@ -15,19 +15,20 @@ module NewsFetcher
     include SetParams
 
     def self.init(dir, params)
-      dir = Path.new(dir)
+      dir = Path.new(dir).expand_path
       raise Error, "#{dir} already exists" if dir.exist?
       new(**{ dir: dir }.merge(params))
     end
 
     def initialize(dir:, **params)
+      raise Error, "No dir set" unless dir
+      @dir = Path.new(dir).expand_path
       @stylesheets = []
       #FIXME: generalize this
       defaults = {
         log_level: DefaultLogLevel,
         max_threads: DefaultMaxThreads,
       }
-      @dir = Path.new(@dir || NewsFetcher::DefaultProfileDir).expand_path
       @bundle = Bundle.new(@dir)
       set(defaults.merge(@bundle.info.compact).merge(params.compact))
       setup_logger
