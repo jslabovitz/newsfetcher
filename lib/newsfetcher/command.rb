@@ -2,21 +2,12 @@ module NewsFetcher
 
   class Command < SimpleCommand::Command
 
-    def self.defaults
-      super.merge(
-        dir: NewsFetcher::DefaultProfileDir,
-        log_level: nil,
-        max_threads: nil,
-      )
-    end
-
     def run(args)
       super
-      @dir = Path.new(@dir)
       @profile = Profile.new(
         dir: @dir,
-        log_level: @log_level&.downcase&.to_sym,
-        max_threads: @max_threads&.to_i,
+        log_level: @log_level,
+        max_threads: @max_threads,
       ) or raise Error, "Profile not loaded"
     end
 

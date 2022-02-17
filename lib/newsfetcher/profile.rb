@@ -22,22 +22,21 @@ module NewsFetcher
 
     def initialize(dir:, **params)
       @stylesheets = []
-      @dir = Path.new(dir).expand_path
-      read_info
-      set(params)
+      #FIXME: generalize this
+      defaults = {
+        log_level: DefaultLogLevel,
+        max_threads: DefaultMaxThreads,
+      }
+      @dir = Path.new(@dir || NewsFetcher::DefaultProfileDir).expand_path
+      @bundle = Bundle.new(@dir)
+      set(defaults.merge(@bundle.info.compact).merge(params.compact))
       setup_logger
       setup_styles
     end
 
-    def read_info
-      raise Error, "dir not set" unless @dir
-      @bundle = Bundle.new(@dir)
-      set(@bundle.info)
-    end
-
     def setup_logger
       $logger = Logger.new(STDERR,
-        level: @log_level || DefaultLogLevel,
+        level: @log_level,
         formatter: proc { |severity, datetime, progname, msg|
           "%s %5s: %s\n" % [datetime.strftime('%FT%T%:z'), severity, msg]
         },
@@ -156,7 +155,7 @@ module NewsFetcher
     def update(args)
       threads = []
       find_subscriptions(ids: args).each do |subscription|
-        if threads.length >= (@max_threads || DefaultMaxThreads)
+        if threads.length >= @max_threads
           $logger.debug { "Waiting for #{threads.length} threads to finish" }
           threads.map(&:join)
           threads = []
