@@ -1,3 +1,5 @@
+- see why test is updating all subscriptions in ~/.newsfetcher/info.yaml.
+
 - convert YAML files to JSON
 
 - ensure stylesheet is only added once
@@ -10,9 +12,6 @@
   - fix log-level: not setting to config file?
   - add dormancy period as default, configured per-profile, or per-feed
   - rename 'dormant' term to 'expired'?
-
-- add 'warn_on_move' attribute
-  - if not set, treat moves as info
 
 - avoid duplicates better
   - detect ID change
