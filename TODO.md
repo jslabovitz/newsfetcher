@@ -1,4 +1,4 @@
-- see why test is updating all subscriptions in ~/.newsfetcher/info.yaml.
+- allow update by section (eg, world)
 
 - convert YAML files to JSON
 
