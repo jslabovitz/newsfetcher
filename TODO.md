@@ -1,17 +1,20 @@
 ## BUGS
 
-- don't write defaults to info.yaml files
-  - eg, stylesheets, max_threads, log_level
-
 
 ## IMPROVEMENTS
 
 - convert YAML files to JSON
 
+- move Bundle logic into Profile, Subscription, etc.
+
 - rework constants/config/parameters
-  - use TTY::Config
-  - avoid use of NewsFetcher module constants
-  - set instance variables to defaults
+  - use TTY::Config?
+  - move main module constants into root config
+  - implement method calls for config vars
+    - inherit from parent (root, profile, subscription)
+    - don't use ivars
+    - don't write defaults to info.yaml files
+      - eg, stylesheets, max_threads, log_level
   - add dormancy period as default, configured per-profile, or per-feed
   - rename 'dormant' term to 'expired'?
 
