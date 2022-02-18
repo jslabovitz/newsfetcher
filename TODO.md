@@ -1,7 +1,7 @@
 ## BUGS
 
-- ensure stylesheet is only added once
-  - see test
+- don't write defaults to info.yaml files
+  - eg, stylesheets, max_threads, log_level
 
 
 ## IMPROVEMENTS
