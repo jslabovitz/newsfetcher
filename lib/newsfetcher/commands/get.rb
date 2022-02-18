@@ -11,7 +11,7 @@ module NewsFetcher
           puts "URI: #{feed.uri}"
           puts "Title: #{feed.title.inspect}"
           puts "Items:"
-          feed.items.each do |item|
+          feed.items.values.each do |item|
             puts "\t" + "ID: #{item.id}"
             puts "\t" + "URI: #{item.uri}"
             puts "\t" + "Date: #{item.date}"
