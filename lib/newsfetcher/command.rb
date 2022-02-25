@@ -4,11 +4,12 @@ module NewsFetcher
 
     def run(args)
       super
-      @profile = Profile.new(
-        dir: @dir || DefaultProfileDir,
-        log_level: @log_level,
-        max_threads: @max_threads,
-      ) or raise Error, "Profile not loaded"
+      dir = Path.new(@dir || DefaultProfileDir)
+      config_file = dir / ConfigFileName
+      config = config_file.exist? ? BaseConfig.load(config_file) : BaseConfig.make
+      config.log_level = @log_level if @log_level
+      config.max_threads = @max_threads if @max_threads
+      @profile = Profile.new(dir: dir, config: config) or raise Error, "Profile not loaded"
     end
 
   end

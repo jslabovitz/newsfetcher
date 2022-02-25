@@ -6,7 +6,7 @@
     <%= styles %>
   </head>
   <body>
-    <div class="header"><%= subscription.title.to_html %> [<%= subscription.id.to_html %>]</div>
+    <div class="header"><%= subscription.final_title.to_html %> [<%= subscription.id.to_html %>]</div>
     <h1><%= item.title.to_html %></h1>
     <h2><%= item.byline.to_html %></h2>
     <h3><a href="<%= item.uri %>"><%= item.uri.prettify.to_html %></a></h3>

@@ -14,20 +14,11 @@ module NewsFetcher
 
   class Test < Minitest::Test
 
-    def add_subscription(uri:, path:, **options)
-      feed = @profile.discover_feeds(uri).first
-      id = Subscription.uri_to_id(feed.uri, path: path)
-      @profile.add_subscription(
-        uri: feed.uri,
-        id: id,
-        **options)
-    end
-
     def setup
-      @dir = Path.new('test/.newsfetcher')
+      @dir = Path.new('test/tmp/.newsfetcher')
       @dir.rmtree if @dir.exist?
-      @msgs_dir = @dir / 'msgs'
-      @profile = Profile.init(@dir,
+      @msgs_dir = @dir / 'tmp/msgs'
+      config = BaseConfig.make(
         mail_from: 'johnl@johnlabovitz.com',
         mail_to: 'johnl@johnlabovitz.com',
         log_level: :debug,
@@ -36,12 +27,17 @@ module NewsFetcher
         deliver_method: :maildir,
         deliver_params: { location: @msgs_dir.to_s },
       )
+      @profile = Profile.new(dir: @dir, config: config)
       @profile.save
-      @profile = Profile.new(dir: @dir)
+      @profile = Profile.new(dir: @dir, config: config)
       @subscriptions = [
-        add_subscription(uri: 'https://johnlabovitz.com', path: 'tech'),
-        add_subscription(uri: 'http://nytimes.com', path: 'news', disable: true),
-      ]
+        ['https://johnlabovitz.com', 'tech'],
+        ['http://nytimes.com', 'news', true],
+      ].map do |uri, path, disable|
+        feed = @profile.discover_feeds(uri).first
+        id = Subscription.uri_to_id(feed.uri, path: path)
+        @profile.add_subscription(uri: feed.uri, id: id, disable: disable)
+      end
       @profile.update([])
     end
 
@@ -53,7 +49,7 @@ module NewsFetcher
     def test_show
       @profile.show([])
       @profile.show([], status: :active)
-      @profile.show([], sort: :title)
+      @profile.show([], sort: :age)
       @profile.show([], details: true)
     end
 

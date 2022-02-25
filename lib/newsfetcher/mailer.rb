@@ -4,7 +4,6 @@ module NewsFetcher
 
     attr_accessor :item
     attr_accessor :subscription
-    attr_accessor :profile
 
     include SetParams
 
@@ -61,42 +60,46 @@ module NewsFetcher
     end
 
     def mail_from
-      ERB.new(@profile.mail_from).result(binding)
+      mail_from = @subscription.config.mail_from or raise Error, "mail_from not specified in config"
+      ERB.new(mail_from).result(binding)
     end
 
     def mail_to
-      ERB.new(@profile.mail_to).result(binding)
+      mail_to = @subscription.config.mail_from or raise Error, "mail_to not specified in config"
+      ERB.new(mail_to).result(binding)
     end
 
     def send_mail
-      template = Path.new(MessageTemplateFileName).read
+      template = Path.new(@subscription.config.message_template).read
       msg = ERB.new(template).result(binding)
       mail = Mail.new(msg)
-      $logger.info { "#{@subscription.id}: Sending item via #{@profile.deliver_method || 'default'}: #{@item.title.inspect}" }
-      case @profile.deliver_method
+      deliver_method, deliver_params =
+        @subscription.config.deliver_method&.to_sym, @subscription.config.deliver_params
+      $logger.info { "#{@subscription.id}: Sending item via #{deliver_method || 'default'}: #{@item.title.inspect}" }
+      case deliver_method.to_sym
       when :maildir
-        location = @profile.deliver_params[:location] or raise Error, ":location not found in deliver_params"
+        location = deliver_params.location or raise Error, "location not found in deliver_params"
         dir = Path.new(location).expand_path
         folder = '.' + @subscription.path('.')
         maildir = Maildir.new(dir / folder)
         maildir.serializer = Maildir::Serializer::Mail.new
         maildir.add(mail)
       else
-        mail.delivery_method(@profile.deliver_method, @profile.deliver_params) if @profile.deliver_method
+        mail.delivery_method(deliver_method, deliver_params) if deliver_method
         mail.deliver!
       end
     end
 
     def styles
       Simple::Builder.html_fragment do |html|
-        @profile.styles.each do |style|
+        @subscription.styles.each do |style|
           html.style { html << style }
         end
       end.to_html
     end
 
     def mail_body
-      template = Path.new(HTMLTemplateFileName).read
+      template = Path.new(@subscription.config.html_template).read
       ERB.new(template).result(binding)
     end
 

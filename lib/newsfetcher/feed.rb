@@ -4,7 +4,6 @@ module NewsFetcher
 
     attr_reader   :uri
     attr_accessor :title
-    attr_accessor :ignore_moved
     attr_reader   :items
 
     include SetParams
@@ -13,16 +12,15 @@ module NewsFetcher
       new.tap { |f| f.set(JSON.parse(file.read)) }
     end
 
-    def self.get(uri, ignore_moved: false)
-      resource = Resource.get(uri, ignore_moved: ignore_moved)
+    def self.new_from_resource(resource)
       Feedjira.configure { |c| c.strip_whitespace = true }
       begin
         feedjira = Feedjira.parse(resource.content.force_encoding(Encoding::UTF_8))
       rescue => e
-        raise Error, "Can't parse XML feed: #{e}"
+        raise Error, "Can't parse XML feed from #{uri}: #{e}"
       end
       new(
-        uri: uri,
+        uri: resource.uri,
         title: feedjira.title,
         items: feedjira.entries.map { |entry|
           item = Item.new(

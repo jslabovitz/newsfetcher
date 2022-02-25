@@ -5,18 +5,25 @@ module NewsFetcher
     attr_accessor :uri
     attr_accessor :redirected_uri
     attr_accessor :content
-    attr_accessor :ignore_moved
+    attr_accessor :timeout
+    attr_accessor :max_redirects
+    attr_accessor :redirects
+    attr_accessor :moved
+
+    include SetParams
 
     def self.get(uri, **params)
       new(uri, **params).tap(&:get)
     end
 
-    def initialize(uri, connection: nil, ignore_moved: false)
+    def initialize(uri, params={})
       @uri = uri
       @redirected_uri = nil
-      @connection = connection
-      @ignore_moved = ignore_moved
+      @timeout = 30
+      @max_redirects = 5
       @redirects = 0
+      @moved = false
+      set(params)
     end
 
     def get
@@ -25,7 +32,7 @@ module NewsFetcher
       response = silence_warnings do
         connection = Faraday.new(
           url: @current_uri,
-          request: { timeout: DownloadTimeout },
+          request: { timeout: @timeout },
           ssl: { verify: false })
         begin
           connection.get
@@ -38,10 +45,8 @@ module NewsFetcher
         @content = response.body
       when 300...400
         @redirected_uri = @current_uri.join(Addressable::URI.parse(response.headers[:location]))
-        if response.status == 302 && !@ignore_moved
-          $logger.warn { "#{@current_uri}: Permanently moved to #{@redirected_uri}" }
-        end
-        raise Error, "Too many redirects" if @redirects == DownloadFollowRedirectLimit
+        @moved = (response.status == 302)
+        raise Error, "Too many redirects" if @redirects == @max_redirects
         @redirects += 1
         get
       when 400...600

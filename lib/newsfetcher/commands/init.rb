@@ -8,7 +8,14 @@ module NewsFetcher
         super
         raise Error, "Must specify mail_from" unless @mail_from
         raise Error, "Must specify mail_to" unless @mail_to
-        Profile.init(@dir, mail_from: @mail_from, mail_to: @mail_to)
+        @profile = Profile.new(
+          dir: @dir,
+          config: BaseConfig.make(
+            mail_from: @mail_from,
+            mail_to: @mail_to,
+          ),
+        )
+        profile.save
       end
 
     end

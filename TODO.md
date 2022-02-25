@@ -3,20 +3,11 @@
 
 ## IMPROVEMENTS
 
-- convert YAML files to JSON
+- render stylesheets for each subscription, not for each profile
 
-- move Bundle logic into Profile, Subscription, etc.
+- add dormancy period as default, configured per-profile, or per-feed
 
-- rework constants/config/parameters
-  - use TTY::Config?
-  - move main module constants into root config
-  - implement method calls for config vars
-    - inherit from parent (root, profile, subscription)
-    - don't use ivars
-    - don't write defaults to info.yaml files
-      - eg, stylesheets, max_threads, log_level
-  - add dormancy period as default, configured per-profile, or per-feed
-  - rename 'dormant' term to 'expired'?
+- rename 'dormant' term to 'expired'?
 
 - avoid duplicates better
   - detect ID change

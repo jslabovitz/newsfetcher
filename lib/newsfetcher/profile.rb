@@ -3,86 +3,46 @@ module NewsFetcher
   class Profile
 
     attr_reader   :dir
-    attr_accessor :mail_from
-    attr_accessor :mail_to
-    attr_accessor :deliver_method
-    attr_accessor :deliver_params
-    attr_accessor :max_threads
-    attr_reader   :stylesheets
-    attr_accessor :styles
-    attr_accessor :log_level
+    attr_accessor :config
 
     include SetParams
 
-    def self.init(dir, params)
-      dir = Path.new(dir).expand_path
-      raise Error, "#{dir} already exists" if dir.exist?
-      new(**{ dir: dir }.merge(params))
-    end
-
-    def initialize(dir:, **params)
-      raise Error, "No dir set" unless dir
-      @dir = Path.new(dir).expand_path
-      @stylesheets = []
-      #FIXME: generalize this
-      defaults = {
-        log_level: DefaultLogLevel,
-        max_threads: DefaultMaxThreads,
-      }
-      @bundle = Bundle.new(@dir)
-      set(defaults.merge(@bundle.info.compact).merge(params.compact))
+    def initialize(params={})
+      set(params)
       setup_logger
-      setup_styles
     end
 
     def setup_logger
       $logger = Logger.new(STDERR,
-        level: @log_level,
+        level: @config.log_level,
         formatter: proc { |severity, datetime, progname, msg|
           "%s %5s: %s\n" % [datetime.strftime('%FT%T%:z'), severity, msg]
         },
       )
     end
 
-    def setup_styles
-      @stylesheets << StylesheetFileName
-      @styles = @stylesheets.map { |f| Path.new(f) }.map do |file|
-        file = @dir / file if file.relative?
-        SassC::Engine.new(file.read, syntax: :scss, style: :compressed).render
-      end
-    end
-
-    def save
-      @bundle.info = {
-        mail_from: @mail_from,
-        mail_to: @mail_to,
-        deliver_method: @deliver_method,
-        deliver_params: @deliver_params,
-        max_threads: @max_threads,
-        stylesheets: @stylesheets,
-        log_level: @log_level,
-      }.compact
-      @bundle.save
-    end
-
     def dir=(dir)
       @dir = Path.new(dir).expand_path
-    end
-
-    def stylesheets=(files)
-      @stylesheets = files.map { |f| Path.new(f) }
-    end
-
-    def deliver_method=(method)
-      @deliver_method = method&.to_sym
     end
 
     def id
       @dir.basename.to_s
     end
 
+    def config_file
+      @dir / ConfigFileName
+    end
+
     def subscriptions_dir
       @dir / SubscriptionsDirName
+    end
+
+    def save
+      @config.save(config_file)
+    end
+
+    def all_ids
+      subscriptions_dir.glob("**/#{ConfigFileName}").map { |p| p.dirname.relative_to(subscriptions_dir).to_s }
     end
 
     def make_outline(ids)
@@ -101,16 +61,15 @@ module NewsFetcher
     def find_subscriptions(ids: nil, status: nil, sort: nil)
       status = [status].flatten.compact if status
       sort ||= :id
-      subscriptions = Bundle.bundles(dir: subscriptions_dir, ids: ids).map do |bundle|
-        Subscription.new(bundle.info.merge(
-          id: bundle.dir.relative_to(subscriptions_dir).to_s,
-          dir: bundle.dir,
-        ))
-      end
-      subscriptions
-        .reject(&:disable)
-        .select { |s| status.nil? || status.include?(s.status) }
-        .sort_by { |s| s.send(sort).to_s }
+      ids = all_ids if ids.nil? || ids.empty?
+      ids.map do |id|
+        dir = subscriptions_dir / id
+        config = @config.load(dir / ConfigFileName)
+        Subscription.new(id: id, dir: dir, config: config)
+      end.
+        reject { |s| s.config.disable }.
+        select { |s| status.nil? || status.include?(s.status) }.
+        sort_by { |s| s.send(sort).to_s }
     end
 
     def add_subscription(uri:, id:, **options)
@@ -118,8 +77,7 @@ module NewsFetcher
       subscription = Subscription.new(
         id: id,
         dir: subscriptions_dir / id,
-        uri: uri,
-        **options)
+        config: @config.make(options.merge(uri: uri)))
       raise Error, "Subscription already exists (as #{subscription.id}): #{uri}" if subscription.exist?
       subscription.save
       $logger.info { "Saved new subscription to #{subscription.id}" }
@@ -135,28 +93,25 @@ module NewsFetcher
         raise Error, "Failed to get #{uri}: #{e}"
       end
       html = Nokogiri::HTML::Document.parse(resource.content)
-      links = html.xpath('//link[@rel="alternate"]').
+      html.xpath('//link[@rel="alternate"]').
         select { |link| FeedTypes.include?(link['type']) }.
-        map { |link| uri.join(link['href']) }
-      links.map { |link| Feed.get(link) }
+        map { |link| uri.join(link['href']) }.
+        map { |href| Resource.get(href) }.
+        map { |resource| Feed.new_from_resource(resource) }
     end
 
     def show(args, status: nil, sort: nil, details: false)
       status = [status].flatten.compact if status
       sort ||= :id
       find_subscriptions(ids: args, status: status, sort: sort).each do |subscription|
-        if details
-          subscription.show_details
-        else
-          subscription.show_summary
-        end
+        subscription.print(format: details ? :list : :table)
       end
     end
 
     def update(args)
       threads = []
       find_subscriptions(ids: args).each do |subscription|
-        if threads.length >= @max_threads
+        if threads.length >= @config.max_threads
           $logger.debug { "Waiting for #{threads.length} threads to finish" }
           threads.map(&:join)
           threads = []
@@ -166,7 +121,7 @@ module NewsFetcher
           begin
             new_items = subscription.update
             new_items.each do |item|
-              Mailer.send_mail(item: item, subscription: subscription, profile: self)
+              Mailer.send_mail(item: item, subscription: subscription)
             end
           rescue Error => e
             $logger.error { "#{subscription.id}: #{e}" }
@@ -184,9 +139,15 @@ module NewsFetcher
     end
 
     def fix(args)
-      find_subscriptions(ids: args).each do |subscription|
-        subscription.fix
+      @dir.glob('**/*.yaml').each do |yaml_file|
+        yaml = YAML.load(yaml_file.read)
+        config = Config.new(yaml)
+        json_file = yaml_file.dirname / 'config.json'
+        config.save(json_file)
       end
+      # find_subscriptions(ids: args).each do |subscription|
+      #   subscription.fix
+      # end
     end
 
     def remove(args)

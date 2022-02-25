@@ -8,5 +8,4 @@
 /spec/reports/
 /tmp/
 
-test/.newsfetcher
-test/msgs
+test/tmp

@@ -3,12 +3,9 @@ module NewsFetcher
   class Subscription
 
     attr_accessor :id
-    attr_accessor :title
-    attr_reader   :uri
-    attr_accessor :ignore
-    attr_accessor :disable
-    attr_accessor :ignore_moved
-    attr_reader   :dir
+    attr_accessor :dir
+    attr_accessor :config
+    attr_accessor :styles
 
     include SetParams
 
@@ -35,32 +32,32 @@ module NewsFetcher
     def initialize(params={})
       set(params)
       raise Error, "dir not set" unless @dir
-      @bundle = Bundle.new(@dir)
-      raise Error, "uri not set" unless @uri
-      @feed = feed_file.exist? ? Feed.load(feed_file) : Feed.new(uri: @uri, title: @title)
+      setup_styles
+      raise Error, "uri not set" unless @config.uri
+      @feed = feed_file.exist? ? Feed.load(feed_file) : Feed.new(uri: @config.uri, title: @config.title)
       if history_file.exist?
         @history = History.load(file: history_file)
-        @history.prune(before: DateTime.now - DefaultDormantTime)
+        @history.prune(before: DateTime.now - @config.dormant_time)
         @history.save
       else
         @history = History.new(file: history_file)
       end
     end
 
+    def inspect
+      to_s
+    end
+
     def path(delim='/')
       @id.split('/')[0..-2].join(delim)
     end
 
-    def dir=(dir)
-      @dir = Path.new(dir)
-    end
-
-    def uri=(uri)
-      @uri = Addressable::URI.parse(uri)
-    end
-
     def ignore=(ignore)
       @ignore = [ignore].flatten.map { |r| Regexp.new(r) }
+    end
+
+    def config_file
+      @dir / ConfigFileName
     end
 
     def feed_file
@@ -76,13 +73,8 @@ module NewsFetcher
     end
 
     def save
-      @bundle.info = {
-        title: @title,
-        uri: @uri&.to_s,
-        ignore: @ignore,
-        disable: @disable,
-      }.compact
-      @bundle.save
+      @dir.mkpath unless @dir.exist?
+      @config.save(config_file)
     end
 
     def age
@@ -95,7 +87,7 @@ module NewsFetcher
 
     def status
       if (a = age)
-        if a > DefaultDormantTime
+        if a > @config.dormant_time
           :dormant
         else
           :active
@@ -105,14 +97,35 @@ module NewsFetcher
       end
     end
 
+    def setup_styles
+      @styles = stylesheet_files.map do |file|
+        SassC::Engine.new(file.read, syntax: :scss, style: :compressed).render
+      end
+    end
+
+    def stylesheet_files
+      [@config.main_stylesheet, @config.aux_stylesheets].compact.map do |file|
+        file = Path.new(file)
+        file = @dir / file if file.relative?
+        file
+      end
+    end
+
+    def final_title
+      @config.title ||= @feed.title
+    end
+
     def update
-      @feed = Feed.get(@uri, ignore_moved: @ignore_moved)
+      resource = Resource.get(@config.uri)
+      if resource.moved && !@config.ignore_moved
+        $logger.warn { "#{id}: URI #{resource.uri} moved to #{resource.redirected_uri}" }
+      end
+      @feed = Feed.new_from_resource(resource)
       @feed.save(feed_file)
-      @title ||= @feed.title
       new_items = @feed.items.values.
-        reject { |item| (@ignore && @ignore.find { |r| item.uri.to_s =~ r }) }.
+        reject { |item| (@config.ignore && @config.ignore.find { |r| item.uri.to_s =~ r }) }.
         reject { |item| @history.include?(item.id) }.
-        reject { |item| item.age > DefaultDormantTime }
+        reject { |item| item.age > @config.dormant_time }
       new_items.each { |item| @history[item.id] = item.date }
       @history.save
       new_items
@@ -138,44 +151,44 @@ module NewsFetcher
     def edit
       system(
         ENV['EDITOR'] || 'vi',
-        @bundle.info_file.to_s)
+        config_file.to_s)
     end
 
-    FieldLabels = {
-      id: 'ID',
-      title: 'Title',
-      uri: 'URI',
-      status: 'Status',
-      age: 'Age',
-    }
-    FieldLabelsMaxWidth = FieldLabels.map { |k, v| v.length }.max
+    Fields = HashStruct.new(
+      id: { label: 'ID', format: '%-30.30s' },
+      uri: { label: 'URI', format: '%-30.30s' },
+      status: { label: 'Status', format: '%-10s' },
+      age: { label: 'Age', format: '%-10s' },
+    )
+    FieldsMaxWidth = Fields.map { |k, v| v.label.length }.max
 
-    def show_details
-      FieldLabels.each do |key, label|
-        puts '%*s: %s' % [
-          FieldLabelsMaxWidth,
-          label,
-          show_field(key),
-        ]
-      end
-      puts
-    end
-
-    def show_summary
-      puts "%8s | %10s | %-40.40s | %-40.40s" %
-        %i{status age title id}.map { |key| show_field(key) }
-    end
-
-    def show_field(key)
-      case key
-      when :age
-        if (a = age)
-          '%d days' % (a / 60 / 60 / 24)
-        else
-          'never'
+    def print(io=STDOUT, format: nil)
+      fields = {
+        id: @id,
+        uri: @config.uri,
+        status: status,
+        age: ((a = age) ? '%d days' % (a / 60 / 60 / 24) : 'never'),
+      }
+      case format
+      when nil, :table
+        io.puts(
+          fields.map do |key, value|
+            field = Fields[key] or raise
+            field.format % value
+          end.join(' | ')
+        )
+      when :list
+        fields.each do |key, value|
+          field = Fields[key] or raise
+          io.puts '%*s: %s' % [
+            FieldsMaxWidth,
+            field.label,
+            value,
+          ]
         end
+        io.puts
       else
-        send(key)
+        raise
       end
     end
 
