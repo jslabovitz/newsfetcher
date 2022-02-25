@@ -52,10 +52,6 @@ module NewsFetcher
       @id.split('/')[0..-2].join(delim)
     end
 
-    def ignore=(ignore)
-      @ignore = [ignore].flatten.map { |r| Regexp.new(r) }
-    end
-
     def config_file
       @dir / ConfigFileName
     end
@@ -122,8 +118,9 @@ module NewsFetcher
       end
       @feed = Feed.new_from_resource(resource)
       @feed.save(feed_file)
+      ignore_patterns = @config.ignore ? [@config.ignore].flatten.map { |r| Regexp.new(r) } : nil
       new_items = @feed.items.values.
-        reject { |item| (@config.ignore && @config.ignore.find { |r| item.uri.to_s =~ r }) }.
+        reject { |item| (ignore_patterns && ignore_patterns.find { |r| item.uri.to_s =~ r }) }.
         reject { |item| @history.include?(item.id) }.
         reject { |item| item.age > @config.dormant_time }
       new_items.each { |item| @history[item.id] = item.date }
