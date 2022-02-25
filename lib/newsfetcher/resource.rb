@@ -17,7 +17,7 @@ module NewsFetcher
     end
 
     def initialize(uri, params={})
-      @uri = uri
+      @uri = Addressable::URI.parse(uri.to_s)
       @redirected_uri = nil
       @timeout = 30
       @max_redirects = 5
