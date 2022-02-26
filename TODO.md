@@ -5,20 +5,17 @@
 
 - render stylesheets for each subscription, not for each profile
 
-- add dormancy period as default, configured per-profile, or per-feed
-
 - rename 'dormant' term to 'expired'?
 
 - avoid duplicates better
-  - detect ID change
-  - compute digest of {title,author,date,content}
+  - compute our own ID
+    - digest of {title,author,date,content}
   - use for ID in history instead of given item ID
 
 - add per-feed locks to avoid access by multiple processes/threads
 
 - expand testing
   - use Mail::TestMailer to test results
-  - use Mail::FileDelivery to save files
 
 - move import/export logic into add/show
 
