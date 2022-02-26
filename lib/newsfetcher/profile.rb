@@ -139,15 +139,9 @@ module NewsFetcher
     end
 
     def fix(args)
-      @dir.glob('**/*.yaml').each do |yaml_file|
-        yaml = YAML.load(yaml_file.read)
-        config = Config.new(yaml)
-        json_file = yaml_file.dirname / 'config.json'
-        config.save(json_file)
+      find_subscriptions(ids: args).each do |subscription|
+        subscription.fix
       end
-      # find_subscriptions(ids: args).each do |subscription|
-      #   subscription.fix
-      # end
     end
 
     def remove(args)

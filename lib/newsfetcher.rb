@@ -2,7 +2,6 @@
 
 require 'date'
 require 'logger'
-require 'yaml'
 
 # gems
 
