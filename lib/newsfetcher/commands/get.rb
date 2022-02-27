@@ -7,7 +7,8 @@ module NewsFetcher
       def run(args)
         super
         args.each do |uri|
-          feed = Feed.get(uri)
+          resource = Resource.get(uri)
+          feed = Feed.new_from_resource(resource)
           puts "URI: #{feed.uri}"
           puts "Title: #{feed.title.inspect}"
           puts "Items:"
