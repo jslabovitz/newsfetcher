@@ -17,7 +17,7 @@ module NewsFetcher
       begin
         feedjira = Feedjira.parse(resource.content.force_encoding(Encoding::UTF_8))
       rescue => e
-        raise Error, "Can't parse XML feed from #{uri}: #{e}"
+        raise Error, "Can't parse XML feed from #{resource.uri}: #{e}"
       end
       new(
         uri: resource.uri,
