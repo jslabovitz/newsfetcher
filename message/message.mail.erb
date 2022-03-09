@@ -1,7 +1,7 @@
 Date: <%= item.date %>
 From: <%= mail_from %>
 To: <%= mail_to %>
-Subject: [<%= subscription.id %>] <%= item.title.strip_html %>
+Subject: [<%= subscription.id %>] <%= item.title %>
 Content-Type: text/html; charset=utf-8
 X-Newsfetcher-Subscription-ID: <%= subscription.id %>
 X-Newsfetcher-Date: <%= item.date %>
