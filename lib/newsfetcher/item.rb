@@ -94,14 +94,6 @@ module NewsFetcher
       as_json(*options).to_json(*options)
     end
 
-    def to_info
-      %i[id date title author uri].map do |key|
-        value = send(key)
-        value = '-' if value.nil?
-        '%s="%s"' % [key, value]
-      end.join(', ')
-    end
-
     def age
       Time.now - @date
     end
