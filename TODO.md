@@ -22,6 +22,25 @@
 
 ## FEATURES
 
+- implement alternate subscription types
+  - split Subscription into abstract base subclasses:
+    - Feed -- RSS/Atom (Feedjira) feed
+    - Twitter
+      - configure with Twitter authentication info
+      - test with test/twitter.json config (not in git repo)
+    - Page -- page check
+      - last-modified
+      - element (XPath) change (by hash?)
+    - other?
+  - scrub/render HTML in Subscription::Feed subclass
+    - subscription should always leave @content as HTML
+    - move Mailer#item_content_html into Subscription::Feed
+
+- re-add Our Town
+  type: page
+  uri: https://ourtownlive.com/ourtown/
+  xpath: //*[@id="post-3"]/div/table[2]/tbody/tr[2]/td[1]
+
 - auto-discover on 'add'
 
 - allow update by section (eg, world)

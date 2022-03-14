@@ -51,9 +51,9 @@ require 'newsfetcher/error'
 require 'newsfetcher/feed'
 require 'newsfetcher/history'
 require 'newsfetcher/item'
-require 'newsfetcher/mailer'
 require 'newsfetcher/profile'
 require 'newsfetcher/resource'
+require 'newsfetcher/scrubbers'
 require 'newsfetcher/subscription'
 
 module NewsFetcher

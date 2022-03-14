@@ -114,7 +114,7 @@ module NewsFetcher
     def update
       resource = Resource.get(@config.uri)
       if resource.moved && !@config.ignore_moved
-        $logger.warn { "#{id}: URI #{resource.uri} moved to #{resource.redirected_uri}" }
+        $logger.warn { "#{@id}: URI #{resource.uri} moved to #{resource.redirected_uri}" }
       end
       @feed = Feed.new_from_resource(resource)
       @feed.save(feed_file)
@@ -125,7 +125,9 @@ module NewsFetcher
         reject { |item| item.age > @config.dormant_time }
       new_items.each { |item| @history[item.id] = item.date }
       @history.save
-      new_items
+      new_items.each do |item|
+        mail_item(item)
+      end
     end
 
     def reset
@@ -186,6 +188,85 @@ module NewsFetcher
         io.puts
       else
         raise
+      end
+    end
+
+    def mail_item(item)
+      template = Path.new(@config.message_template).read
+      msg = ERB.new(template).result(binding)
+      mail = Mail.new(msg)
+      deliver_method, deliver_params =
+        @config.deliver_method&.to_sym, @config.deliver_params
+      $logger.info { "#{@id}: Sending item via #{deliver_method || 'default'}: #{item.title.inspect}" }
+      case deliver_method.to_sym
+      when :maildir
+        location = deliver_params.location or raise Error, "location not found in deliver_params"
+        dir = Path.new(location).expand_path
+        folder = '.' + path('.')
+        maildir = Maildir.new(dir / folder)
+        maildir.serializer = Maildir::Serializer::Mail.new
+        maildir.add(mail)
+      else
+        mail.delivery_method(deliver_method, deliver_params) if deliver_method
+        mail.deliver!
+      end
+    end
+
+    def render_html_content(content)
+      Loofah.fragment(content).
+        scrub!(:prune).
+        scrub!(Scrubber::RemoveExtras).
+        scrub!(Scrubber::RemoveVoxFooter).
+        scrub!(Scrubber::RemoveStyling).
+        scrub!(Scrubber::ReplaceBlockquote).
+        to_html
+    end
+
+    def render_text_content(content)
+      Simple::Builder.html_fragment do |html|
+        content.split("\n").each_with_index do |line, i|
+          html.br unless i == 0
+          html.text(line)
+        end
+      end.to_html
+    end
+
+    #
+    # methods for ERB binding
+    #
+
+    def mail_from
+      mail_from = @config.mail_from or raise Error, "mail_from not specified in config"
+      ERB.new(mail_from).result(binding)
+    end
+
+    def mail_to
+      mail_to = @config.mail_from or raise Error, "mail_to not specified in config"
+      ERB.new(mail_to).result(binding)
+    end
+
+    def mail_body
+      template = Path.new(@config.html_template).read
+      ERB.new(template).result(binding)
+    end
+
+    def styles
+      Simple::Builder.html_fragment do |html|
+        @styles.each do |style|
+          html.style { html << style }
+        end
+      end.to_html
+    end
+
+    def item_content_html(item)
+      if item.content
+        if item.content.html?
+          render_html_content(item.content)
+        else
+          render_text_content(item.content)
+        end
+      else
+        ''
       end
     end
 
