@@ -6,6 +6,7 @@ require 'logger'
 # gems
 
 require 'addressable/uri'
+require 'addressable-prettify'
 require 'erb'
 require 'faraday'
 require 'feedjira'
@@ -42,7 +43,6 @@ module NewsFetcher
   ]
 end
 
-require 'newsfetcher/extensions/addressable'
 require 'newsfetcher/extensions/kernel'
 require 'newsfetcher/extensions/string'
 
