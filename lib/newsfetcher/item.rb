@@ -59,14 +59,6 @@ module NewsFetcher
       @content = (s = content.to_s.strip).empty? ? nil : s
     end
 
-    def title_html
-      if @title.html?
-        @title.to_html
-      else
-        @title
-      end
-    end
-
     def byline
       [@author&.sub(/^by\s+/i, ''), @date.strftime('%e %B %Y')]
         .map(&:to_s)
