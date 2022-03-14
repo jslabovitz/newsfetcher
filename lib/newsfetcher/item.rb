@@ -110,16 +110,6 @@ module NewsFetcher
       end.join(', ')
     end
 
-    def render_content
-      if @content
-        if @content.html?
-          render_html_content
-        else
-          render_text_content
-        end
-      end
-    end
-
     def age
       Time.now - @date
     end
