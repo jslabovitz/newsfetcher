@@ -9,7 +9,7 @@ module NewsFetcher
         uri, path = *args
         raise Error, "No URI specified" unless uri
         uri = Addressable::URI.parse(uri)
-        subscription = Subscription.new(
+        subscription = Subscription::Feed.new(
           id: Subscription.uri_to_id(uri, path: path),
           config: Config.new(uri: uri))
         @profile.add_subscription(subscription)

@@ -36,3 +36,22 @@ h3 {
 .blockquote {
   margin: 1em;
 }
+
+/* twitter */
+
+.tweet {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 2px solid black;
+  border-radius: 1rem;
+  background-color: white;
+}
+
+.tweet-media {
+  margin-top: 1rem;
+}
+
+.tweet-links {
+  margin-top: 1rem;
+}

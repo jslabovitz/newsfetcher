@@ -8,7 +8,7 @@ module NewsFetcher
         super
         args.each do |uri|
           uri = Addressable::URI.parse(uri)
-          subscription = Subscription.new(
+          subscription = Subscription::Feed.new(
             id: Subscription.uri_to_id(uri),
             config: Config.new(uri: uri))
           subscription.get

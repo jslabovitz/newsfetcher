@@ -11,6 +11,10 @@ module NewsFetcher
 
     include SetParams
 
+    def self.type
+      to_s.split('::').last.downcase
+    end
+
     def self.uri_to_id(uri, path: nil)
       uri = Addressable::URI.parse(uri)
       id = [
@@ -31,26 +35,8 @@ module NewsFetcher
       id
     end
 
-    def self.discover_feeds(uri, path: nil)
-      uri = Addressable::URI.parse(uri)
-      raise Error, "Bad URI: #{uri}" unless uri.absolute?
-      begin
-        resource = Resource.get(uri)
-      rescue Error => e
-        raise Error, "Failed to get #{uri}: #{e}"
-      end
-      html = Nokogiri::HTML::Document.parse(resource.content)
-      html.xpath('//link[@rel="alternate"]').select { |link| FeedTypes.include?(link['type']) }.map do |link|
-        feed_uri = uri.join(link['href'])
-        Subscription.new(
-          id: uri_to_id(feed_uri, path: path),
-          config: Config.new(uri: feed_uri))
-      end
-    end
-
     def initialize(params={})
       set(params)
-      raise Error, "uri not set" unless @config.uri
       if @dir && history_file.exist?
         @history = History.load(history_file)
         @history.prune(before: Time.now - @config.dormant_time)
@@ -58,6 +44,8 @@ module NewsFetcher
       else
         @history = History.new
       end
+      @title = nil
+      @items = []
     end
 
     def inspect
@@ -114,6 +102,10 @@ module NewsFetcher
       process
     end
 
+    def get
+      raise NotImplementedError, "#{__method__} needs to be implemented in subclass"
+    end
+
     def process
       ignore_patterns = @config.ignore ? [@config.ignore].flatten.map { |r| Regexp.new(r) } : nil
       @items.reject { |item|
@@ -125,48 +117,6 @@ module NewsFetcher
         @history[item.id] = item.published
         @history.save(history_file)
       end
-    end
-
-    def get
-      resource = Resource.get(@config.uri)
-      if resource.moved && !@config.ignore_moved
-        $logger.warn { "#{@id}: URI #{resource.uri} moved to #{resource.redirected_uri}" }
-      end
-      Feedjira.configure { |c| c.strip_whitespace = true }
-      begin
-        feedjira = Feedjira.parse(resource.content.force_encoding(Encoding::UTF_8))
-      rescue StandardError, Feedjira::NoParserAvailable, Date::Error => e
-        raise Error, "Can't parse XML feed from #{resource.uri}: #{e}"
-      end
-      @title = feedjira.title
-      @items = feedjira.entries.map { |e| item_for_entry(e) }
-    end
-
-    def item_for_entry(entry)
-      uri = nil
-      if entry.url
-        begin
-          uri = Addressable::URI.parse(entry.url.strip)
-        rescue Addressable::URI::InvalidURIError => e
-          raise Error, "Can't parse URL for entry: #{entry.url.inspect}"
-        end
-      end
-      id = entry.entry_id
-      unless id
-        raise Error, "No ID or URL for entry" unless uri
-        if uri.scheme == 'http' || uri.scheme == 'https'
-          uri.host = uri.host.sub(/^www\./, '')
-        end
-        id = uri.to_s
-      end
-      Item.new(
-        id: id,
-        published: entry.published || Time.now,
-        title: entry.title,
-        uri: uri,
-        author: entry.respond_to?(:author) ? entry.author : nil,
-        content: render_content(entry.content || entry.summary || ''),
-      )
     end
 
     def reset
@@ -189,7 +139,7 @@ module NewsFetcher
 
     Fields = {
       id: { label: 'ID', format: '%-30.30s' },
-      uri: { label: 'URI', format: '%-30.30s' },
+      type: { label: 'Type', format: '%-10.10s' },
       title: { label: 'Title', format: '%-30.30s' },
       status: { label: 'Status', format: '%-10s' },
       age: { label: 'Age', format: '%-10s' },
@@ -199,7 +149,7 @@ module NewsFetcher
     def print(io=STDOUT, format: nil)
       fields = {
         id: @id,
-        uri: @config.uri,
+        type: self.class.type,
         title: @title,
         status: status,
         age: ((a = age) ? '%d days' % (a / 60 / 60 / 24) : 'never'),
@@ -260,6 +210,7 @@ module NewsFetcher
         maildir.add(mail)
       else
         mail.delivery_method(deliver_method, deliver_params) if deliver_method
+        mail.perform_deliveries = true
         mail.deliver!
       end
     end

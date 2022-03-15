@@ -20,6 +20,7 @@ require 'sassc'
 require 'set_params'
 require 'simple-builder'
 require 'simple-command'
+require 'twitter'
 
 module NewsFetcher
 
@@ -52,6 +53,10 @@ require 'newsfetcher/profile'
 require 'newsfetcher/resource'
 require 'newsfetcher/scrubbers'
 require 'newsfetcher/subscription'
+require 'newsfetcher/subscription/feed'
+require 'newsfetcher/subscription/twitter'
+require 'newsfetcher/subscription/twitter/timeline'
+require 'newsfetcher/subscription/twitter/tweet'
 
 module NewsFetcher
 

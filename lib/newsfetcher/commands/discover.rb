@@ -7,7 +7,7 @@ module NewsFetcher
       def run(args)
         super
         args.each do |uri|
-          Subscription.discover_feeds(uri).each do |subscription|
+          Subscription::Feed.discover_feeds(uri).each do |subscription|
             subscription.print(format: :list)
           end
         end
