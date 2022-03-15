@@ -3,6 +3,16 @@
 
 ## IMPROVEMENTS
 
+- improve Twitter display
+
+- try make specific subclasses for Config, instead of hash
+
+- move methods taking 'args' out of Profile into respective commands
+
+- allow 'add' to take 'id' option to customize ID
+
+- rename 'path' to 'section'?
+
 - rename 'dormant' term to 'expired'?
 
 - add per-subscription locks to avoid access by multiple processes/threads
@@ -13,16 +23,10 @@
 
 ## FEATURES
 
-- implement alternate subscription types
-  - split Subscription into abstract base subclasses:
-    - Feed -- RSS/Atom (Feedjira) feed
-    - Twitter
-      - configure with Twitter authentication info
-      - test with test/twitter.json config (not in git repo)
-    - Page -- page check
-      - last-modified
-      - element (XPath) change (by hash?)
-    - other?
+- implement page subscription type
+    - page check
+    - last-modified
+    - element (XPath) change (by hash?)
 
 - re-add Our Town
   type: page
@@ -56,9 +60,9 @@
 
 ## RELEASE
 
+- write README documentation
+- bump version to 1.0
+- reset git history
+- push to Github
+- release to Rubygems
 - release publicly
-  - write README documentation
-  - bump version to 1.0
-  - reset git history
-  - push to Github
-  - release to Rubygems
