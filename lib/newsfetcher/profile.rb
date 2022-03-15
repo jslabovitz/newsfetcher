@@ -128,66 +128,6 @@ module NewsFetcher
       end
     end
 
-    def import(files)
-      files.map { |f| Path.new(f) }.each do |file|
-        opml = Nokogiri::XML(file.read)
-        opml.xpath('/opml/body/*/outline').each do |entry|
-          uri = Addressable::URI.parse(entry['xmlUrl'])
-          #FIXME: only adds to top level
-          id = Subscription.uri_to_id(uri)
-          add_subscription(uri: uri, id: id)
-        end
-      end
-    end
-
-    def import_youtube(files)
-      files.map { |f| Path.new(f) }.each do |file|
-        json = JSON.parse(file.read)
-        json.each do |entry|
-          snippet = entry['snippet'] or raise Error, "Can't find 'snippet' element"
-          channel_id = snippet['resourceId']['channelId']
-          uri = Addressable::URI.parse("https://www.youtube.com/feeds/videos.xml?channel_id=#{channel_id}")
-          #FIXME: always imports to top-level 'youtube' path
-          if (title = snippet['title'])
-            id = Subscription.name_to_id(title, path: 'youtube')
-          else
-            id = Subscription.uri_to_id(uri, path: 'youtube')
-          end
-          add_subscription(uri: uri, id: id)
-        end
-      end
-    end
-
-    def export(args)
-      opml = Nokogiri::XML::Builder.new do |xml|
-        xml.opml(version: '1.1') do
-          xml.head do
-            xml.title('Subscriptions')
-          end
-          xml.body do
-            node_to_opml(make_outline(args), xml)
-          end
-        end
-      end.doc
-      print opml
-    end
-
-    def node_to_opml(node, xml)
-      node.each do |folder, subscriptions|
-        xml.outline(text: folder) do
-          subscriptions.each do |subscription|
-            subscription.read_feed
-            xml.outline(
-              type: 'rss',
-              version: 'RSS',
-              text: subscription.title,
-              title: subscription.title,
-              xmlUrl: subscription.uri)
-          end
-        end
-      end
-    end
-
     def edit(args)
       find_subscriptions(ids: args).each do |subscription|
         subscription.edit
