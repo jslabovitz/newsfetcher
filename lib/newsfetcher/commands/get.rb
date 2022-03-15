@@ -15,7 +15,7 @@ module NewsFetcher
           subscription.items.each do |item|
             puts "\t" + "ID: #{item.id}"
             puts "\t" + "URI: #{item.uri}"
-            puts "\t" + "Date: #{item.date}"
+            puts "\t" + "Published: #{item.published}"
             puts "\t" + "Author: #{item.author}"
             puts "\t" + "Title: #{item.title}"
             puts

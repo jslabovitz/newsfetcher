@@ -90,8 +90,8 @@ module NewsFetcher
     end
 
     def age
-      if (date = @history.last_date)
-        Time.now - date
+      if (time = @history.last_time)
+        Time.now - time
       else
         nil
       end
@@ -118,7 +118,7 @@ module NewsFetcher
         || item.age > @config.dormant_time
        }.each do |item|
         send_mail(make_mail(item))
-        @history[item.id] = item.date
+        @history[item.id] = item.published
         @history.save(history_file)
       end
     end
@@ -157,7 +157,7 @@ module NewsFetcher
       end
       Item.new(
         id: id,
-        date: entry.published || Time.now,
+        published: entry.published || Time.now,
         title: entry.title,
         uri: uri,
         author: entry.respond_to?(:author) ? entry.author : nil,
@@ -230,7 +230,7 @@ module NewsFetcher
         item_title: item.title,
       }
       mail = Mail.new
-      mail.date =         item.date
+      mail.date =         item.published
       mail.from =         ERB.new(mail_from).result_with_hash(fields)
       mail.to =           ERB.new(mail_to).result_with_hash(fields)
       mail.subject =      ERB.new(mail_subject).result_with_hash(fields)

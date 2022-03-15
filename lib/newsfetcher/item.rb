@@ -3,7 +3,7 @@ module NewsFetcher
   class Item
 
     attr_accessor :id
-    attr_accessor :date
+    attr_accessor :published
     attr_accessor :title
     attr_accessor :uri
     attr_accessor :author
@@ -12,7 +12,7 @@ module NewsFetcher
     include SetParams
 
     def byline
-      [@author&.sub(/^by\s+/i, ''), @date.strftime('%e %B %Y')]
+      [@author&.sub(/^by\s+/i, ''), @published.strftime('%e %B %Y')]
         .map(&:to_s)
         .map(&:strip)
         .reject(&:empty?)
@@ -28,10 +28,10 @@ module NewsFetcher
     end
 
     def age
-      Time.now - @date
+      Time.now - @published
     end
 
-    DefaultKeys = %i{id date title uri author content}
+    DefaultKeys = %i{id published title uri author content}
 
     def show(keys=nil)
       keys ||= DefaultKeys

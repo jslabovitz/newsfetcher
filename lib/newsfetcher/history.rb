@@ -8,7 +8,7 @@ module NewsFetcher
 
     def self.load(file)
       begin
-        entries = JSON.parse(file.read).map { |id, date| [id, Time.parse(date)] }.to_h
+        entries = JSON.parse(file.read).map { |id, time| [id, Time.parse(time)] }.to_h
       rescue JSON::ParserError => e
         raise Error, "Bad JSON file: #{file.to_s.inspect}: #{e}"
       end
@@ -30,9 +30,9 @@ module NewsFetcher
     end
 
     def prune(before:)
-      @entries.delete_if { |id, date|
-        t = (date < before)
-        $logger.info { "pruning #{id.inspect} (#{date})"} if t
+      @entries.delete_if { |id, time|
+        t = (time < before)
+        $logger.info { "pruning #{id.inspect} (#{time})"} if t
         t
       }
     end
@@ -49,7 +49,7 @@ module NewsFetcher
       @entries[key] = value
     end
 
-    def last_date
+    def last_time
       @entries.values.sort.last
     end
 
