@@ -19,11 +19,12 @@ module NewsFetcher
       @tmp_dir.rmtree if @tmp_dir.exist?
       @dir = @tmp_dir / 'newsfetcher'
       @msgs_dir = @tmp_dir / 'msgs'
+      @twitter_config_file = Path.new('test/twitter.json')
       config = BaseConfig.make(
         mail_from: 'johnl@johnlabovitz.com',
         mail_to: 'johnl@johnlabovitz.com',
         log_level: :error,
-        deliver_method: :maildir,
+        deliver_method: :test,
         deliver_params: { location: @msgs_dir.to_s },
       )
       @profile = Profile.new(dir: @dir, config: config)
@@ -39,18 +40,32 @@ module NewsFetcher
       config_file = @dir / ConfigFileName
       config = BaseConfig.load(config_file)
       @profile = Profile.new(dir: @dir, config: config)
+      # add web sites
       @subscriptions = [
         ['https://johnlabovitz.com', 'mine'],
         ['http://nytimes.com', 'news'],
         ['https://www.theguardian.com', 'news', true],
       ].map do |uri, path, disable|
-        subscription = Subscription.discover_feeds(uri, path: path).first
+        subscription = Subscription::Feed.discover_feeds(uri, path: path).first
         subscription.config.disable = disable
         @profile.add_subscription(subscription)
       end
+      # add twitter
+      twitter_config = config.make(twitter: JSON.parse(@twitter_config_file.read))
+      twitter_subscription = Subscription::Twitter.new(
+        id: 'twitter',
+        config: twitter_config)
+      @profile.add_subscription(twitter_subscription)
+      # update
       @profile.update([])
+      @msgs_dir.mkpath
+      Mail::TestMailer.deliveries.each_with_index do |mail, i|
+        file = @msgs_dir / ('%04d.eml' % i)
+        file.write(mail)
+      end
       found_subscription = @profile.find_subscriptions(ids: %w[news/nytimes-services-nyt-homepage]).first
       assert { found_subscription.history_file.exist? }
+      assert { twitter_subscription.history_file.exist? }
       @profile.show([])
       @profile.show([], status: :active)
       @profile.show([], sort: :age)
