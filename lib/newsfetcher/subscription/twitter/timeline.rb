@@ -15,7 +15,6 @@ module NewsFetcher
             since_id: since_id || 1,
             trim_user: true,
           }
-;;pp params
           @tweets = @client.home_timeline(params).map { |t| get_tweet(t.id) }.sort_by(&:created_at)
           @tweets.each do |tweet|
             if tweet.reply?
