@@ -111,6 +111,10 @@ module NewsFetcher
 
     def update
       get
+      process
+    end
+
+    def process
       ignore_patterns = @config.ignore ? [@config.ignore].flatten.map { |r| Regexp.new(r) } : nil
       @items.reject { |item|
         (ignore_patterns && ignore_patterns.find { |r| item.uri.to_s =~ r }) \
