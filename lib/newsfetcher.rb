@@ -10,7 +10,6 @@ require 'addressable-prettify'
 require 'erb'
 require 'faraday'
 require 'feedjira'
-require 'hashstruct'
 require 'loofah'
 require 'mail'
 require 'maildir'
@@ -25,7 +24,6 @@ require 'simple-command'
 module NewsFetcher
 
   ConfigFileName = 'config.json'
-  FeedFileName = 'feed.json'
   HistoryFileName = 'history.json'
   DefaultProfileDir = '~/.newsfetcher'
   SubscriptionsDirName = 'subscriptions'
@@ -48,7 +46,6 @@ require 'newsfetcher/extensions/string'
 
 require 'newsfetcher/config'
 require 'newsfetcher/error'
-require 'newsfetcher/feed'
 require 'newsfetcher/history'
 require 'newsfetcher/item'
 require 'newsfetcher/profile'
@@ -63,8 +60,7 @@ module NewsFetcher
     log_level: :warn,
     dormant_time: 30 * 24 * 60 * 60,    # one month
     main_stylesheet: File.join(File.dirname(__FILE__), '../message/stylesheet.css'),
-    message_template: File.join(File.dirname(__FILE__), '../message/message.mail.erb'),
-    html_template: File.join(File.dirname(__FILE__), '../message/message.rhtml'),
+    mail_subject: '[<%= subscription_id %>] <%= item_title %>',
   )
 
 end

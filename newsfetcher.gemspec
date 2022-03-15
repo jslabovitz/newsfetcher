@@ -21,8 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'erb', '~> 2.2'
   s.add_dependency 'faraday', '~> 2.0'
   s.add_dependency 'feedjira', '~> 3.2'
-  s.add_dependency 'hashstruct', '~> 1.3'
-  s.add_dependency 'loofah', '~> 2.13'
+  s.add_dependency 'loofah', '~> 2.15'
   s.add_dependency 'mail', '~> 2.7'
   s.add_dependency 'maildir', '~> 2.2'
   s.add_dependency 'net-smtp'   # for mail

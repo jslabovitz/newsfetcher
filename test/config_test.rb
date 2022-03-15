@@ -50,6 +50,13 @@ module NewsFetcher
       assert { @config3.merged == h }
     end
 
+    def test_assign
+      @config3.a = 11
+      assert { @config1.a == 1 }
+      assert { @config2.a == 1 }
+      assert { @config3.a == 11 }
+    end
+
   end
 
 end

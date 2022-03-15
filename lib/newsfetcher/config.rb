@@ -6,11 +6,11 @@ module NewsFetcher
     attr_accessor :hash
 
     def self.load(file)
-      new(JSON.load(file.read))
+      new(JSON.parse(file.read, symbolize_names: true))
     end
 
     def initialize(params={})
-      @hash = HashStruct.new(params)
+      @hash = params
     end
 
     def ==(other)
@@ -34,13 +34,17 @@ module NewsFetcher
       (@parent&.merged || {}).merge(@hash)
     end
 
-    def method_missing(method_id, *args)
-      if @hash.has_key?(method_id)
-        @hash.send(method_id, *args)
-      elsif @parent
-        @parent.send(method_id, *args)
+    def method_missing(id, *args)
+      if (key = id.to_s).sub!(/=$/, '')
+        @hash[key.to_sym] = args.first
       else
-        nil
+        if @hash.has_key?(id)
+          @hash[id]
+        elsif @parent
+          @parent.send(id, *args)
+        else
+          nil
+        end
       end
     end
 

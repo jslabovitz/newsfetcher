@@ -7,9 +7,9 @@ module NewsFetcher
       def run(args)
         super
         args.each do |uri|
-          @profile.discover_feeds(uri).each do |feed|
-            puts "URI: #{feed.uri}"
-            puts "Title: #{feed.title.inspect}"
+          Subscription.discover_feeds(uri).each do |subscription|
+            puts "URI: #{subscription.config.uri}"
+            puts "Title: #{subscription.title.inspect}"
             puts
           end
         end

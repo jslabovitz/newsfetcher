@@ -34,9 +34,9 @@ module NewsFetcher
         ['https://johnlabovitz.com', 'tech'],
         ['http://nytimes.com', 'news', true],
       ].map do |uri, path, disable|
-        feed = @profile.discover_feeds(uri).first
-        id = Subscription.uri_to_id(feed.uri, path: path)
-        @profile.add_subscription(uri: feed.uri, id: id, disable: disable)
+        subscription = Subscription.discover_feeds(uri, path: path).first
+        subscription.config.disable = disable
+        @profile.add_subscription(subscription)
       end
       @profile.update([])
     end

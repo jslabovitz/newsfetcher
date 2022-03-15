@@ -2,62 +2,14 @@ module NewsFetcher
 
   class Item
 
-    attr_reader   :id
-    attr_reader   :date
-    attr_reader   :title
-    attr_reader   :uri
-    attr_reader   :author
-    attr_reader   :content
+    attr_accessor :id
+    attr_accessor :date
+    attr_accessor :title
+    attr_accessor :uri
+    attr_accessor :author
+    attr_accessor :content
 
     include SetParams
-
-    def id=(id)
-      @id = (s = id.to_s.strip).empty? ? nil : s
-      # drop 'www.' prefix from ID if necessary
-      if @id
-        begin
-          uri = Addressable::URI.parse(@id)
-          uri.host = uri.host.sub(/^www\./, '')
-          @id = uri.to_s
-        rescue
-          nil
-        end
-      end
-    end
-
-    def date=(date)
-      @date = case date
-      when String
-        Time.parse(date)
-      when Time, nil
-        date
-      else
-        raise Error, "Unknown date value: #{date.inspect}"
-      end
-    end
-
-    def title=(title)
-      @title = (s = title.to_s.strip).empty? ? nil : s
-    end
-
-    def uri=(uri)
-      @uri = case uri
-      when String
-        Addressable::URI.parse(uri.strip)
-      when Addressable::URI, URI, nil
-        uri
-      else
-        raise Error, "Unknown URI value: #{uri.inspect}"
-      end
-    end
-
-    def author=(author)
-      @author = (s = author.to_s.strip).empty? ? nil : s
-    end
-
-    def content=(content)
-      @content = (s = content.to_s.strip).empty? ? nil : s
-    end
 
     def byline
       [@author&.sub(/^by\s+/i, ''), @date.strftime('%e %B %Y')]
@@ -73,25 +25,6 @@ module NewsFetcher
 
     def ==(other)
       @id == other.id
-    end
-
-    def to_h
-      {
-        id: @id,
-        date: @date,
-        title: @title,
-        uri: @uri,
-        author: @author,
-        content: @content,
-      }
-    end
-
-    def as_json(*options)
-      to_h.compact
-    end
-
-    def to_json(*options)
-      as_json(*options).to_json(*options)
     end
 
     def age

@@ -15,8 +15,8 @@ module NewsFetcher
     def setup_logger
       $logger = Logger.new(STDERR,
         level: @config.log_level,
-        formatter: proc { |severity, datetime, progname, msg|
-          "%s %5s: %s\n" % [datetime.strftime('%FT%T%:z'), severity, msg]
+        formatter: proc { |severity, timestamp, progname, msg|
+          "%s %5s: %s\n" % [timestamp.strftime('%FT%T%:z'), severity, msg]
         },
       )
     end
@@ -72,32 +72,13 @@ module NewsFetcher
         sort_by { |s| s.send(sort).to_s }
     end
 
-    def add_subscription(uri:, id:, **options)
-      raise Error, "Bad URI: #{uri}" unless uri.absolute?
-      subscription = Subscription.new(
-        id: id,
-        dir: subscriptions_dir / id,
-        config: @config.make(options.merge(uri: uri)))
-      raise Error, "Subscription already exists (as #{subscription.id}): #{uri}" if subscription.exist?
+    def add_subscription(subscription, **options)
+      subscription.dir = subscriptions_dir / subscription.id
+      subscription.config.parent = @config
+      raise Error, "Subscription already exists (as #{subscription.id})" if subscription.exist?
       subscription.save
       $logger.info { "Saved new subscription to #{subscription.id}" }
       subscription
-    end
-
-    def discover_feeds(uri)
-      uri = Addressable::URI.parse(uri)
-      raise Error, "Bad URI: #{uri}" unless uri.absolute?
-      begin
-        resource = Resource.get(uri)
-      rescue Error => e
-        raise Error, "Failed to get #{uri}: #{e}"
-      end
-      html = Nokogiri::HTML::Document.parse(resource.content)
-      html.xpath('//link[@rel="alternate"]').
-        select { |link| FeedTypes.include?(link['type']) }.
-        map { |link| uri.join(link['href']) }.
-        map { |href| Resource.get(href) }.
-        map { |resource| Feed.new_from_resource(resource) }
     end
 
     def show(args, status: nil, sort: nil, details: false)

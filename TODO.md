@@ -12,7 +12,7 @@
     - digest of {title,author,date,content}
   - use for ID in history instead of given item ID
 
-- add per-feed locks to avoid access by multiple processes/threads
+- add per-subscription locks to avoid access by multiple processes/threads
 
 - expand testing
   - use Mail::TestMailer to test results
@@ -32,9 +32,8 @@
       - last-modified
       - element (XPath) change (by hash?)
     - other?
-  - scrub/render HTML in Subscription::Feed subclass
-    - subscription should always leave @content as HTML
-    - move Mailer#item_content_html into Subscription::Feed
+  - scrub/render HTML in Subscription subclass
+    - should always leave @content as HTML
 
 - re-add Our Town
   type: page

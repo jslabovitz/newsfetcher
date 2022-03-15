@@ -2,27 +2,31 @@ module NewsFetcher
 
   class History
 
-    attr_accessor :file
     attr_accessor :entries
 
     include SetParams
 
-    def self.load(file:, **params)
-      new(file: file, entries: JSON.parse(file.read, object_class: HashStruct))
+    def self.load(file)
+      begin
+        entries = JSON.parse(file.read).map { |id, date| [id, Time.parse(date)] }.to_h
+      rescue JSON::ParserError => e
+        raise Error, "Bad JSON file: #{file.to_s.inspect}: #{e}"
+      end
+      new(entries: entries)
     end
 
     def initialize(params={})
-      @entries = HashStruct.new
+      @entries = {}
       set(params)
     end
 
-    def save
-      @file.write(JSON.pretty_generate(@entries))
+    def save(file)
+      file.write(JSON.pretty_generate(@entries))
     end
 
-    def reset
+    def reset(file)
       @entries.clear
-      save
+      save(file)
     end
 
     def prune(before:)
@@ -43,6 +47,10 @@ module NewsFetcher
 
     def []=(key, value)
       @entries[key] = value
+    end
+
+    def last_date
+      @entries.values.sort.last
     end
 
   end
