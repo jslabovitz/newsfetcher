@@ -186,6 +186,7 @@ module NewsFetcher
     Fields = {
       id: { label: 'ID', format: '%-30.30s' },
       uri: { label: 'URI', format: '%-30.30s' },
+      title: { label: 'Title', format: '%-30.30s' },
       status: { label: 'Status', format: '%-10s' },
       age: { label: 'Age', format: '%-10s' },
     }
@@ -195,6 +196,7 @@ module NewsFetcher
       fields = {
         id: @id,
         uri: @config.uri,
+        title: @title,
         status: status,
         age: ((a = age) ? '%d days' % (a / 60 / 60 / 24) : 'never'),
       }
