@@ -235,15 +235,8 @@ module NewsFetcher
       mail.to =           ERB.new(mail_to).result_with_hash(fields)
       mail.subject =      ERB.new(mail_subject).result_with_hash(fields)
       mail.content_type = 'text/html'
-      mail.charset      = 'utf-8'
-      {
-        'ID' => @id,
-        'Date' => @date,
-        'Title' => @title,
-        'Author' => @author,
-        'URL' => @url,
-      }.compact.each { |k, v| mail["X-Newsfetcher-#{k}"] = v.to_s }
-      mail.body         = render_item(item).to_html
+      mail.charset =      'utf-8'
+      mail.body =         render_item(item).to_html
       mail
     end
 
