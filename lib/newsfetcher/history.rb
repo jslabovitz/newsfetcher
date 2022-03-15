@@ -53,7 +53,7 @@ module NewsFetcher
       @entries.values.sort.last
     end
 
-    def latest_key
+    def latest_id
       @entries.sort_by(&:last).last&.first
     end
 

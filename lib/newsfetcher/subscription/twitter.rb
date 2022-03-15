@@ -7,7 +7,7 @@ module NewsFetcher
       def get
         @title = 'Twitter'
         @timeline = Timeline.new(@config.twitter)
-        @items = @timeline.fetch(since_id: @history.latest_key).map { |t| item_for_tweet(t) }
+        @items = @timeline.fetch(since_id: @history.latest_id).map { |t| item_for_tweet(t) }
       end
 
       def item_for_tweet(tweet)
