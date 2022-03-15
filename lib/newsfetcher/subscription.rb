@@ -43,7 +43,7 @@ module NewsFetcher
       html.xpath('//link[@rel="alternate"]').select { |link| FeedTypes.include?(link['type']) }.map do |link|
         feed_uri = uri.join(link['href'])
         Subscription.new(
-          id: name_to_id(feed_uri, path: path),
+          id: uri_to_id(feed_uri, path: path),
           config: Config.new(uri: feed_uri))
       end
     end
