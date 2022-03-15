@@ -24,9 +24,9 @@
 ## FEATURES
 
 - implement page subscription type
-    - page check
-    - last-modified
-    - element (XPath) change (by hash?)
+  - page check
+  - last-modified
+  - element (XPath) change (by hash?)
 
 - re-add Our Town
   type: page
