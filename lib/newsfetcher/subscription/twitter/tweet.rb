@@ -9,12 +9,9 @@ module NewsFetcher
         extend Forwardable
 
         def_delegators :@tweet,
-          :id,
           :uri,
           :created_at,
-          :reply?,
-          :in_reply_to_status_id,
-          :in_reply_to_user_id
+          :reply?
 
         attr_accessor :parent
         attr_accessor :replies
@@ -23,6 +20,14 @@ module NewsFetcher
           @tweet = tweet
           @parent = nil
           @replies = []
+        end
+
+        def id
+          @tweet.id.to_s
+        end
+
+        def in_reply_to_status_id
+          @tweet.in_reply_to_status_id.to_s
         end
 
         def user
