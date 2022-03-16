@@ -58,7 +58,7 @@ module NewsFetcher
           published: entry.published || Time.now,
           title: entry.title,
           uri: uri,
-          author: entry.respond_to?(:author) ? entry.author : nil,
+          author: entry.respond_to?(:author) ? entry.author&.sub(/^by\s+/i, '') : nil,
           content: render_content(entry.content || entry.summary || ''),
         )
       end

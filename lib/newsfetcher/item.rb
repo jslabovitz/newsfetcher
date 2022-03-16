@@ -12,11 +12,10 @@ module NewsFetcher
     include SetParams
 
     def byline
-      [@author&.sub(/^by\s+/i, ''), @published.strftime('%e %B %Y')]
-        .map(&:to_s)
-        .map(&:strip)
-        .reject(&:empty?)
-        .join(' • ')
+      [
+        @published.strftime('%e %B %Y'),
+        @author,
+      ].compact.join(' • ')
     end
 
     def eql?(other)
