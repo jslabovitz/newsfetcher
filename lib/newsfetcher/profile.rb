@@ -94,22 +94,24 @@ module NewsFetcher
     def update(args)
       threads = []
       find_subscriptions(ids: args).each do |subscription|
-        if threads.length >= @config.max_threads
-          $logger.debug { "Waiting for #{threads.length} threads to finish" }
-          threads.map(&:join)
-          threads = []
-        end
-        threads << Thread.new do
-          $logger.debug { "Started thread for #{subscription.id}" }
-          begin
-            subscription.update
-          rescue Error => e
-            $logger.error { "#{subscription.id}: #{e}" }
+        if @config.max_threads > 1
+          if threads.length >= @config.max_threads
+            $logger.debug { "Waiting for #{threads.length} threads to finish" }
+            threads.map(&:join)
+            threads = []
           end
+          threads << Thread.new do
+            $logger.debug { "Started thread for #{subscription.id}" }
+            subscription.update
+          end
+        else
+          subscription.update
         end
       end
-      $logger.debug { "Waiting for last #{threads.length} threads to finish" }
-      threads.map(&:join)
+      unless threads.empty?
+        $logger.debug { "Waiting for last #{threads.length} threads to finish" }
+        threads.map(&:join)
+      end
     end
 
     def reset(args)

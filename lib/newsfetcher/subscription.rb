@@ -98,8 +98,12 @@ module NewsFetcher
     end
 
     def update
-      get
-      process
+      begin
+        get
+        process
+      rescue Error => e
+        $logger.error { "#{@id}: #{e}" }
+      end
     end
 
     def get
