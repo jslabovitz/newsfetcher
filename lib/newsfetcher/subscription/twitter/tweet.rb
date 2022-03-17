@@ -63,7 +63,14 @@ module NewsFetcher
               if @tweet.media? && !@tweet.retweet?
                 html.div(class: 'tweet-media') do
                   @tweet.media.each do |media|
-                    html.a(href: media.uri) { html.img(src: media.media_uri) }
+                    size = media.sizes[:large]
+                    # html.figure do
+                      html.a(href: media.expanded_uri) do
+                        html.text("[#{media.type}]")
+                        html.br
+                        html.img(src: media.media_uri_https, width: size.w, height: size.h)
+                      end
+                    # end
                   end
                 end
               end
