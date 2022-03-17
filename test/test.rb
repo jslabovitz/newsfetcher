@@ -60,8 +60,9 @@ module NewsFetcher
       @profile.update([])
       @msgs_dir.mkpath
       Mail::TestMailer.deliveries.each_with_index do |mail, i|
-        file = @msgs_dir / ('%04d.eml' % i)
-        file.write(mail)
+        base = @msgs_dir / ('%04d' % i)
+        base.add_extension('.eml').write(mail)
+        base.add_extension('.html').write(mail.body)
       end
       found_subscription = @profile.find_subscriptions(ids: %w[news/nytimes-services-nyt-homepage]).first
       assert { found_subscription.history_file.exist? }
