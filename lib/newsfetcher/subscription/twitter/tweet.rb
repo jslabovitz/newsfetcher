@@ -84,6 +84,7 @@ module NewsFetcher
               end
               if @replies.any?
                 @replies.each do |reply|
+                  html.hr
                   html << reply.to_html
                 end
               end
