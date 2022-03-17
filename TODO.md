@@ -3,7 +3,21 @@
 
 ## IMPROVEMENTS
 
+- merge Twitter::Timeline into Twitter
+
+- don't fetch tweets already in history
+
 - improve Twitter display
+  - not showing thread?
+  - show thread as list, not indented
+  - show 'retweet' in subject if so 
+  - use <hr> between tweets
+  - use <div class=blockquote> for quote/retweet
+    + show header for non-root tweets
+  - show inline videos
+  - don't show duplicate links
+  - show first sentence for subject?
+    - find gem to analyze text
 
 - try make specific subclasses for Config, instead of hash
 
