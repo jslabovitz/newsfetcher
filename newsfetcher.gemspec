@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'maildir', '~> 2.2'
   s.add_dependency 'net-smtp'   # for mail
   s.add_dependency 'path', '~> 2.0'
+  s.add_dependency 'pragmatic_segmenter', '~> 0.3'
   s.add_dependency 'rubypants', '~> 0.7'
   s.add_dependency 'sassc', '~> 2.4'
   s.add_dependency 'set_params', '~> 0.1'

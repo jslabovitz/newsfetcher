@@ -14,10 +14,10 @@ module NewsFetcher
         Item.new(
           id: tweet.id,
           published: tweet.created_at,
-          title: tweet.text[0..30] + '…',
+          title: tweet.title,
           uri: Addressable::URI.parse(tweet.uri),
           author: tweet.user,
-          content: tweet.to_html,
+          content: tweet.to_html(show_header: false),
         )
       end
 

@@ -22,7 +22,8 @@ module NewsFetcher
               tweet.parent.replies << tweet
             end
           end
-          @tweets.reject(&:parent)
+          # @tweets.reject(&:parent)
+          @tweets
         end
 
         def get_tweet(id)
