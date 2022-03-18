@@ -35,15 +35,32 @@ module NewsFetcher
         end
 
         def title
-          ps = PragmaticSegmenter::Segmenter.new(text: text)
-          ps.segment.first
+          if (title = text).empty?
+            (subtweet&.title).to_s
+          else
+            ps = PragmaticSegmenter::Segmenter.new(text: title)
+            title = ps.segment.first
+          end
+          title.empty? ? '(untitled)' : title
         end
 
         def text
           @tweet.full_text
-            .sub(/^RT @(.+?)\s+/, '')
+            .sub(/^RT @.*/, '')
             .gsub(%r{https://t\.co/.*?$}, '')
             .strip
+        end
+
+        def retweeted_tweet
+          (t = @tweet.retweet?) ? self.class.new(@tweet.retweeted_tweet) : nil
+        end
+
+        def quoted_tweet
+          (t = @tweet.quote?) ? self.class.new(@tweet.quoted_tweet) : nil
+        end
+
+        def subtweet
+          retweeted_tweet || quoted_tweet
         end
 
         def to_html(show_header: true)
@@ -53,30 +70,35 @@ module NewsFetcher
                 html.a(user, href: @tweet.uri)
               end
             end
-            html.p { html << text.gsub("\n\n", '<p>').gsub("\n", '<br>') }
+            unless (t = text).empty?
+              html.p do
+                html << t.gsub("\n", '<br>')
+              end
+            end
             if @tweet.retweet? || @tweet.quote?
-              subtweet = self.class.new(@tweet.retweet? ? @tweet.retweeted_tweet : @tweet.quoted_tweet)
               html.div(class: 'blockquote') do
                 html << subtweet.to_html
               end
             end
-            if @tweet.media?    # && !@tweet.retweet?
-              @tweet.media.each do |media|
-                size = media.sizes[:large]
-                html.figure do
-                  html.a(href: media.expanded_uri) do
-                    html.img(src: media.media_uri_https, width: size.w, height: size.h)
+            unless @tweet.quote? || @tweet.retweet?
+              if @tweet.media?
+                @tweet.media.each do |media|
+                  size = media.sizes[:large]
+                  html.figure do
+                    html.figcaption("[#{media.type}]")
+                    html.a(href: media.expanded_uri) do
+                      html.img(src: media.media_uri_https, width: size.w, height: size.h)
+                    end
                   end
-                  html.figcaption("[#{media.type}]")
                 end
               end
-            end
-            if @tweet.uris? && !@tweet.quote?
-              html.ul do
-                @tweet.uris.each do |uri|
-                  u = Addressable::URI.parse(uri.expanded_url)
-                  html.li do
-                    html.a(u.prettify, href: u)
+              if @tweet.uris?
+                html.ul do
+                  @tweet.uris.each do |uri|
+                    u = Addressable::URI.parse(uri.expanded_url)
+                    html.li do
+                      html.a(u.prettify, href: u)
+                    end
                   end
                 end
               end
