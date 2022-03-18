@@ -6,11 +6,7 @@ module NewsFetcher
 
       def run(args)
         super
-        args.each do |uri|
-          uri = Addressable::URI.parse(uri)
-          subscription = Subscription::Feed.new(
-            id: Subscription.uri_to_id(uri),
-            config: Config.new(uri: uri))
+        @profile.find_subscriptions(ids: args).each do |subscription|
           subscription.get
           subscription.print(format: :list)
           subscription.items.each do |item|
