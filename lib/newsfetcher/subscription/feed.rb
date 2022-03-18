@@ -4,6 +4,26 @@ module NewsFetcher
 
     class Feed < Subscription
 
+      def self.uri_to_id(uri, path: nil)
+        uri = Addressable::URI.parse(uri)
+        id = [
+          uri.host.to_s \
+            .sub(/^(www|ssl|en|feeds|rss|blogs?|news).*?\./i, '') \
+            .sub(/\.(com|org|net|info|edu|co\.uk|wordpress\.com|blogspot\.com|feedburner\.com)$/i, ''),
+          uri.path.to_s \
+            .gsub(/\b(\.?feeds?|index|atom|rss|rss2|xml|rdf|php|blog|posts|default)\b/i, ''),
+          uri.query.to_s \
+            .gsub(/\b(format|feed|type|q)=(atom|rss\.xml|rss2?|xml)/i, ''),
+        ] \
+          .join(' ')
+          .downcase
+          .gsub(/[^a-z0-9]+/, ' ')  # non-alphanumeric
+          .strip
+          .gsub(/\s+/, '-')
+        id = "#{path}/#{id}" if path
+        id
+      end
+
       def self.discover_feeds(uri, path: nil)
         uri = Addressable::URI.parse(uri)
         raise Error, "Bad URI: #{uri}" unless uri.absolute?
@@ -15,7 +35,7 @@ module NewsFetcher
         html = Nokogiri::HTML::Document.parse(resource.content)
         html.xpath('//link[@rel="alternate"]').select { |link| FeedTypes.include?(link['type']) }.map do |link|
           feed_uri = uri.join(link['href'])
-          Subscription::Feed.new(
+          new(
             id: uri_to_id(feed_uri, path: path),
             config: Config.new(uri: feed_uri))
         end
