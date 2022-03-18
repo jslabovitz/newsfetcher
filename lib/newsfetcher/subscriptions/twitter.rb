@@ -1,8 +1,65 @@
 module NewsFetcher
 
-  class Subscription
+  module Subscriptions
 
-    class Twitter
+    module Twitter
+
+      class Subscription < Base::Subscription
+
+        def get
+          @title = 'Twitter'
+          @client = ::Twitter::REST::Client.new(@config.twitter)
+          get_timeline.each do |tweet|
+            # if tweet.reply?
+            #   tweet.parent = get_tweet(tweet.in_reply_to_status_id)
+            #   tweet.parent.replies << tweet
+            #   next
+            # end
+            @items << Item.new(tweet)
+          end
+        end
+
+        def get_timeline
+          params = {
+            since_id: @history.latest_id || 1,
+            tweet_mode: 'extended',
+          }
+          @client.home_timeline(params).map { |t| Tweet.new(t) }.sort_by(&:created_at)
+        end
+
+        def get_tweet(id)
+          Tweet.new(@client.status(id, tweet_mode: 'extended'))
+        end
+
+      end
+
+      class Item < Base::Item
+
+        def id
+          @id ||= @object.id.to_s
+        end
+
+        def published
+          @published ||= @object.created_at
+        end
+
+        def title
+          @title ||= @object.title
+        end
+
+        def uri
+          @uri ||= Addressable::URI.parse(@object.uri)
+        end
+
+        def author
+          @author ||= @object.user
+        end
+
+        def content
+          @content ||= @object.to_html(show_header: false)
+        end
+
+      end
 
       class Tweet
 
@@ -36,11 +93,12 @@ module NewsFetcher
 
         def title
           if (title = text).empty?
-            (subtweet&.title).to_s
+            title = subtweet&.title
           else
             ps = PragmaticSegmenter::Segmenter.new(text: title)
             title = ps.segment.first
           end
+          title = title.to_s
           title.empty? ? '(untitled)' : title
         end
 

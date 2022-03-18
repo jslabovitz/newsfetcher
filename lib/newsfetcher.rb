@@ -49,14 +49,12 @@ require 'newsfetcher/extensions/string'
 require 'newsfetcher/config'
 require 'newsfetcher/error'
 require 'newsfetcher/history'
-require 'newsfetcher/item'
 require 'newsfetcher/profile'
 require 'newsfetcher/resource'
 require 'newsfetcher/scrubbers'
-require 'newsfetcher/subscription'
-require 'newsfetcher/subscription/feed'
-require 'newsfetcher/subscription/twitter'
-require 'newsfetcher/subscription/twitter/tweet'
+require 'newsfetcher/subscriptions/base'
+require 'newsfetcher/subscriptions/feed'
+require 'newsfetcher/subscriptions/twitter'
 
 module NewsFetcher
 

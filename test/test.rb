@@ -46,13 +46,13 @@ module NewsFetcher
         ['http://nytimes.com', 'news'],
         ['https://www.theguardian.com', 'news', true],
       ].map do |uri, path, disable|
-        subscription = Subscription::Feed.discover_feeds(uri, path: path).first
+        subscription = Subscriptions::Feed::Subscription.discover_feeds(uri, path: path).first
         subscription.config.disable = disable
         @profile.add_subscription(subscription)
       end
       # add twitter
       twitter_config = config.make(twitter: JSON.parse(@twitter_config_file.read))
-      twitter_subscription = Subscription::Twitter.new(
+      twitter_subscription = Subscriptions::Twitter::Subscription.new(
         id: 'twitter',
         config: twitter_config)
       @profile.add_subscription(twitter_subscription)
