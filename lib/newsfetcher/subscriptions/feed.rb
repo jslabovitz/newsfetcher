@@ -104,14 +104,11 @@ module NewsFetcher
 
         def content
           unless @content
-            @content = if @object.content
-              if @object.content.html?
-                scrub_html(@object.content)
-              else
-                text_to_html(@object.content)
-              end
-            elsif @object.summary
-              text_to_html(@object.summary)
+            text = @object.content || @object.summary
+            @content = if text&.html?
+              scrub_html(text)
+            elsif text
+              text_to_html(text)
             else
               ''
             end
