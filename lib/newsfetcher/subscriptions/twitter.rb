@@ -105,6 +105,8 @@ module NewsFetcher
               "Retweet: #{summary}"
             elsif @tweet.quote?
               "Quote: #{summary}"
+            elsif @tweet.reply?
+              "Reply: #{summary}"
             else
               summary
             end
