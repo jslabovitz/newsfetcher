@@ -43,8 +43,12 @@ module NewsFetcher
           @published ||= @object.created_at
         end
 
+        def summary
+          @summary ||= @object.summary
+        end
+
         def title
-          @title ||= @object.title
+          nil
         end
 
         def uri
@@ -80,7 +84,7 @@ module NewsFetcher
         end
 
         def id
-          @tweet.id.to_s
+          @id ||= @tweet.id.to_s
         end
 
         def in_reply_to_status_id
@@ -88,22 +92,27 @@ module NewsFetcher
         end
 
         def user
-          "#{@tweet.user.name} (@#{@tweet.user.screen_name})"
+          @user ||= "#{@tweet.user.name} (@#{@tweet.user.screen_name})"
         end
 
-        def title
-          if (title = text).empty?
-            title = subtweet&.title
+        def summary
+          if text.empty?
+            subtweet&.summary
           else
-            ps = PragmaticSegmenter::Segmenter.new(text: title)
-            title = ps.segment.first
+            summary = PragmaticSegmenter::Segmenter.new(text: text).segment.first.to_s
+            summary = summary.empty? ? '(untitled)' : summary
+            if @tweet.retweet?
+              "Retweet: #{summary}"
+            elsif @tweet.quote?
+              "Quote: #{summary}"
+            else
+              summary
+            end
           end
-          title = title.to_s
-          title.empty? ? '(untitled)' : title
         end
 
         def text
-          @tweet.full_text
+          @text ||= @tweet.full_text
             .sub(/^RT @.*/, '')
             .gsub(%r{https://t\.co/.*?$}, '')
             .strip
@@ -137,8 +146,7 @@ module NewsFetcher
               html.div(class: 'blockquote') do
                 html << subtweet.to_html
               end
-            end
-            unless @tweet.quote? || @tweet.retweet?
+            else
               if @tweet.media?
                 @tweet.media.each do |media|
                   size = media.sizes[:large]

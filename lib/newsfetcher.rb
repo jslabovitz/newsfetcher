@@ -63,7 +63,7 @@ module NewsFetcher
     log_level: :warn,
     dormant_time: 30 * 24 * 60 * 60,    # one month
     main_stylesheet: File.join(File.dirname(__FILE__), '../message/stylesheet.css'),
-    mail_subject: '[<%= subscription_id %>] <%= item_title %>',
+    mail_subject: '[<%= subscription_id %>] <%= item_subject %>',
   )
 
 end

@@ -171,7 +171,7 @@ module NewsFetcher
           mail_subject = @config.mail_subject or raise Error, "mail_subject not specified in config"
           fields = {
             subscription_id: @id,
-            item_title: item.title,
+            item_subject: item.summary,
           }
           mail = Mail.new
           mail.date =         item.published
@@ -218,8 +218,10 @@ module NewsFetcher
                 html.div(class: 'header') do
                   html << ('%s [%s]' % [@config.title || @title, @id]).to_html
                 end
-                html.h1 do
-                  html << item.title.to_html
+                if item.title
+                  html.h1 do
+                    html << item.title.to_html
+                  end
                 end
                 html.h2 do
                   html << [
@@ -261,6 +263,10 @@ module NewsFetcher
 
         def published
           raise NotImplementedError, "#{__method__} not implemented"
+        end
+
+        def summary
+          title
         end
 
         def title
