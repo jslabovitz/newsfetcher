@@ -57,7 +57,7 @@ module NewsFetcher
         config: twitter_config)
       @profile.add_subscription(twitter_subscription)
       # update
-      @profile.update([])
+      @profile.find_subscriptions.each(&:update)
       @msgs_dir.mkpath
       Mail::TestMailer.deliveries.each_with_index do |mail, i|
         base = @msgs_dir / ('%04d' % i)
@@ -67,10 +67,6 @@ module NewsFetcher
       found_subscription = @profile.find_subscriptions(ids: %w[news/nytimes-services-nyt-homepage]).first
       assert { found_subscription.history_file.exist? }
       assert { twitter_subscription.history_file.exist? }
-      @profile.show([])
-      @profile.show([], status: :active)
-      @profile.show([], sort: :age)
-      @profile.show([], details: true)
     end
 
   end

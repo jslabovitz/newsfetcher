@@ -5,8 +5,6 @@
 
 - try make specific subclasses for Config, instead of hash
 
-- move methods taking 'args' out of Profile into respective commands
-
 - allow 'add' to take 'id' option to customize ID
 
 - rename 'path' to 'section'?

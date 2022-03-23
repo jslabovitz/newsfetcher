@@ -6,7 +6,9 @@ module NewsFetcher
 
       def run(args)
         super
-        @profile.reset(args)
+        @profile.find_subscriptions(ids: args).each do |subscription|
+          subscription.reset
+        end
       end
 
     end

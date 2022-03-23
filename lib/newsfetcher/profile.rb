@@ -80,62 +80,6 @@ module NewsFetcher
       raise Error, "Subscription already exists (as #{subscription.id})" if subscription.exist?
       subscription.save
       $logger.info { "Saved new subscription to #{subscription.id}" }
-      subscription
-    end
-
-    def show(args, status: nil, sort: nil, details: false)
-      status = [status].flatten.compact if status
-      sort ||= :id
-      find_subscriptions(ids: args, status: status, sort: sort).each do |subscription|
-        subscription.print(format: details ? :list : :table)
-      end
-    end
-
-    def update(args)
-      threads = []
-      find_subscriptions(ids: args).each do |subscription|
-        if @config.max_threads > 1
-          if threads.length >= @config.max_threads
-            $logger.debug { "Waiting for #{threads.length} threads to finish" }
-            threads.map(&:join)
-            threads = []
-          end
-          threads << Thread.new do
-            $logger.debug { "Started thread for #{subscription.id}" }
-            subscription.update
-          end
-        else
-          subscription.update
-        end
-      end
-      unless threads.empty?
-        $logger.debug { "Waiting for last #{threads.length} threads to finish" }
-        threads.map(&:join)
-      end
-    end
-
-    def reset(args)
-      find_subscriptions(ids: args).each do |subscription|
-        subscription.reset
-      end
-    end
-
-    def fix(args)
-      find_subscriptions(ids: args).each do |subscription|
-        subscription.fix
-      end
-    end
-
-    def remove(args)
-      find_subscriptions(ids: args).each do |subscription|
-        subscription.remove
-      end
-    end
-
-    def edit(args)
-      find_subscriptions(ids: args).each do |subscription|
-        subscription.edit
-      end
     end
 
   end

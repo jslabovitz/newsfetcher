@@ -6,7 +6,9 @@ module NewsFetcher
 
       def run(args)
         super
-        @profile.fix(args)
+        @profile.find_subscriptions(ids: args).each do |subscription|
+          subscription.fix
+        end
       end
 
     end
