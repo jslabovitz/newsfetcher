@@ -31,11 +31,6 @@ module NewsFetcher
       @profile.save
     end
 
-    # def shutdown
-    #   @subscriptions.each { |s| @profile.remove([s.id]) }
-    #   @profile.reset([])
-    # end
-
     def test_run
       config_file = @dir / ConfigFileName
       config = BaseConfig.load(config_file)

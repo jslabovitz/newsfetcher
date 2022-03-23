@@ -45,19 +45,6 @@ module NewsFetcher
       subscriptions_dir.glob("**/#{ConfigFileName}").map { |p| p.dirname.relative_to(subscriptions_dir).to_s }
     end
 
-    def make_outline(ids)
-      #FIXME: only handles one-level outline
-      outline = {}
-      find_subscriptions(ids: ids).each do |subscription|
-        subpaths = subscription.id.split('/')
-        subpaths.pop
-        raise Error, "Multilevel OPML not supported: #{subpaths.inspect}" if subpaths.length > 1
-        outline[subpaths.first] ||= []
-        outline[subpaths.first] << subscription
-      end
-      outline
-    end
-
     def find_subscriptions(ids: nil, status: nil, sort: nil)
       status = [status].flatten.compact if status
       sort ||= :id
