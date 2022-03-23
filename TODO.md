@@ -3,14 +3,6 @@
 
 ## IMPROVEMENTS
 
-- don't fetch tweets already in history
-
-- improve Twitter display
-  - make threading work again
-    - show thread as list, not indented
-    - use <hr> between tweets
-  - show 'retweet' in subject if so
-
 - try make specific subclasses for Config, instead of hash
 
 - move methods taking 'args' out of Profile into respective commands

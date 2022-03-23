@@ -10,12 +10,12 @@ module NewsFetcher
           @title = 'Twitter'
           @client = ::Twitter::REST::Client.new(@config.twitter)
           get_timeline.each do |tweet|
-            # if tweet.reply?
-            #   tweet.parent = get_tweet(tweet.in_reply_to_status_id)
-            #   tweet.parent.replies << tweet
-            #   next
-            # end
-            @items << Item.new(tweet)
+            if tweet.reply? && (parent_item = @items.find { |i| i.id == tweet.in_reply_to_status_id })
+              tweet.parent = parent_item.object
+              tweet.parent.replies << tweet
+            else
+              @items << Item.new(tweet)
+            end
           end
         end
 
@@ -25,10 +25,6 @@ module NewsFetcher
             tweet_mode: 'extended',
           }
           @client.home_timeline(params).map { |t| Tweet.new(t) }.sort_by(&:created_at)
-        end
-
-        def get_tweet(id)
-          Tweet.new(@client.status(id, tweet_mode: 'extended'))
         end
 
       end
