@@ -6,14 +6,14 @@ module NewsFetcher
 
       def run(args)
         super
-        run_threads(@profile.find_subscriptions(ids: args), max_threads: @profile.config.max_threads) { |s| s.update }
+        run_threads(@profile.find_subscriptions(ids: args)) { |s| s.update }
       end
 
-      def run_threads(objects, max_threads: 1, &block)
+      def run_threads(objects, &block)
         threads = []
         objects.each do |object|
-          if max_threads > 1
-            if threads.length >= max_threads
+          if @profile.config.max_threads > 1
+            if threads.length >= @profile.config.max_threads
               $logger.debug { "Waiting for #{threads.length} threads to finish" }
               threads.map(&:join)
               threads = []
