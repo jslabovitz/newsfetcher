@@ -6,7 +6,7 @@ module NewsFetcher
 
       def run(args)
         super
-        run_threads(@profile.find_subscriptions(ids: args), max_threads: @config.max_threads) { |s| s.update }
+        run_threads(@profile.find_subscriptions(ids: args), max_threads: @profile.config.max_threads) { |s| s.update }
       end
 
       def run_threads(objects, max_threads: 1, &block)
