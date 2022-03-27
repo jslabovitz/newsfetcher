@@ -218,23 +218,7 @@ module NewsFetcher
                 html.div(class: 'header') do
                   html << ('%s [%s]' % [@config.title || @title, @id]).to_html
                 end
-                if item.title
-                  html.h1 do
-                    html << item.title.to_html
-                  end
-                end
-                html.h2 do
-                  html << [
-                    item.published.strftime('%e %B %Y'),
-                    item.author,
-                  ].compact.join(' • ').to_html
-                end
-                if item.uri
-                  html.h3 do
-                    html.a(item.uri.prettify, href: item.uri)
-                  end
-                end
-                html.div(class: 'content') { html << item.content }
+                html << item.to_html
               end
             end
           end
@@ -283,10 +267,6 @@ module NewsFetcher
           raise NotImplementedError, "#{__method__} not implemented"
         end
 
-        def content
-          raise NotImplementedError, "#{__method__} not implemented"
-        end
-
         def eql?(other)
           id.eql?(other.id)
         end
@@ -297,6 +277,14 @@ module NewsFetcher
 
         def age
           Time.now - published
+        end
+
+        def to_html
+          raise NotImplementedError, "#{__method__} not implemented"
+        end
+
+        def published_str
+          published.strftime('%e %B %Y')
         end
 
         def scrub_html(html)

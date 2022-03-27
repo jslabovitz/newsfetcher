@@ -102,18 +102,28 @@ module NewsFetcher
           @author ||= @object.respond_to?(:author) ? @object.author&.sub(/^by\s+/i, '') : nil
         end
 
-        def content
-          unless @content
-            text = @object.content || @object.summary
-            @content = if text&.html?
-              scrub_html(text)
-            elsif text
-              text_to_html(text)
-            else
-              ''
+        def to_html
+          Simple::Builder.html_fragment do |html|
+            if title
+              html.h1 do
+                html << title.to_html
+              end
+            end
+            html.h2 do
+              html << [published_str, author].compact.join(' • ').to_html
+            end
+            if uri
+              html.h3 do
+                html.a(uri.prettify, href: uri)
+              end
+            end
+            content = @object.content || @object.summary
+            if content&.html?
+              html << scrub_html(content)
+            elsif content
+              html << text_to_html(content)
             end
           end
-          @content
         end
 
       end

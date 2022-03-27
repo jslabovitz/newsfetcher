@@ -51,8 +51,8 @@ module NewsFetcher
           @author ||= @object.user
         end
 
-        def content
-          @content ||= @object.to_html(show_header: false)
+        def to_html
+          @object.to_html
         end
 
       end
@@ -124,12 +124,10 @@ module NewsFetcher
           retweeted_tweet || quoted_tweet
         end
 
-        def to_html(show_header: true)
+        def to_html
           Simple::Builder.html_fragment do |html|
-            if show_header
-              html.h2 do
-                html.a(user, href: @tweet.uri)
-              end
+            html.h2 do
+              html.a(user, href: @tweet.uri)
             end
             unless (t = text).empty?
               html.p do
