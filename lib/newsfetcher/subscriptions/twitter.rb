@@ -32,23 +32,19 @@ module NewsFetcher
         end
 
         def published
-          @published ||= @object.created_at
-        end
-
-        def summary
-          @summary ||= @object.summary
+          @object.created_at
         end
 
         def title
-          nil
+          @object.title
         end
 
         def uri
-          @uri ||= Addressable::URI.parse(@object.uri)
+          @object.uri
         end
 
         def author
-          @author ||= @object.user
+          @object.user
         end
 
         def to_html
@@ -62,7 +58,6 @@ module NewsFetcher
         extend Forwardable
 
         def_delegators :@tweet,
-          :uri,
           :created_at,
           :reply?
 
@@ -79,6 +74,10 @@ module NewsFetcher
           @id ||= @tweet.id.to_s
         end
 
+        def uri
+          @uri ||= Addressable::URI.parse(@tweet.uri)
+        end
+
         def in_reply_to_status_id
           @tweet.in_reply_to_status_id.to_s
         end
@@ -87,22 +86,23 @@ module NewsFetcher
           @user ||= "#{@tweet.user.name} (@#{@tweet.user.screen_name})"
         end
 
-        def summary
-          if text.empty?
-            subtweet&.summary
-          else
-            summary = PragmaticSegmenter::Segmenter.new(text: text).segment.first.to_s
-            summary = summary.empty? ? '(untitled)' : summary
-            if @tweet.retweet?
-              "Retweet: #{summary}"
-            elsif @tweet.quote?
-              "Quote: #{summary}"
-            elsif @tweet.reply?
-              "Reply: #{summary}"
+        def title
+          unless @title
+            if text.empty?
+              @title = subtweet&.title
             else
-              summary
+              @title = PragmaticSegmenter::Segmenter.new(text: text).segment.first.to_s
+              @title = @title.empty? ? '(untitled)' : @title
+              if @tweet.retweet?
+                @title = "Retweet: #{@title}"
+              elsif @tweet.quote?
+                @title = "Quote: #{@title}"
+              elsif @tweet.reply?
+                @title = "Reply: #{@title}"
+              end
             end
           end
+          @title
         end
 
         def text

@@ -171,7 +171,7 @@ module NewsFetcher
           mail_subject = @config.mail_subject or raise Error, "mail_subject not specified in config"
           fields = {
             subscription_id: @id,
-            item_subject: item.summary,
+            item_subject: item.title,
           }
           mail = Mail.new
           mail.date =         item.published
@@ -251,10 +251,6 @@ module NewsFetcher
           raise NotImplementedError, "#{__method__} not implemented"
         end
 
-        def summary
-          title
-        end
-
         def title
           raise NotImplementedError, "#{__method__} not implemented"
         end
@@ -306,7 +302,7 @@ module NewsFetcher
           end.to_html
         end
 
-        DefaultKeys = %i{id published title summary uri author}
+        DefaultKeys = %i{id published title uri author}
 
         def show(keys=nil)
           keys ||= DefaultKeys
