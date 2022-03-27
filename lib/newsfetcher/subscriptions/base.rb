@@ -306,7 +306,7 @@ module NewsFetcher
           end.to_html
         end
 
-        DefaultKeys = %i{id published title uri author content}
+        DefaultKeys = %i{id published title summary uri author}
 
         def show(keys=nil)
           keys ||= DefaultKeys
