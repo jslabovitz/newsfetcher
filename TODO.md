@@ -1,5 +1,9 @@
 ## BUGS
 
+- fix Twitter threading
+  - Item should represent thread (list of related tweets), not a single tweet
+  - don't show headers for replies/retweets/quotes if userids are same
+
 
 ## IMPROVEMENTS
 
