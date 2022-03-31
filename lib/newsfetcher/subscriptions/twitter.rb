@@ -27,6 +27,15 @@ module NewsFetcher
 
       class Item < Base::Item
 
+        def printable
+          super + [
+            [ :replies, proc { @object.replies.map(&:id).join(' ') } ],
+            [ :in_reply_to_status_id, 'Reply-To', proc { @object.in_reply_to_status_id } ],
+            [ :retweeted_tweet, 'Retweeted', proc { @object.retweeted_tweet&.id } ],
+            [ :quoted_tweet, 'Quoted', proc { @object.quoted_tweet&.id } ],
+          ]
+        end
+
         def id
           @id ||= @object.id.to_s
         end

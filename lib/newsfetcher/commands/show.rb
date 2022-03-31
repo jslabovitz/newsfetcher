@@ -11,7 +11,8 @@ module NewsFetcher
           status: @status ? @status.split(',').map(&:to_sym) : nil,
           sort: @sort&.to_sym,
         ).each do |subscription|
-          subscription.print(format: @details ? :list : :table)
+          subscription.print
+          puts
         end
       end
 

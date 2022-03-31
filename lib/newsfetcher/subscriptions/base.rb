@@ -14,6 +14,7 @@ module NewsFetcher
         attr_accessor :title
 
         include SetParams
+        include Simple::Printable
 
         def self.type
           to_s.split('::')[-2].downcase
@@ -34,6 +35,18 @@ module NewsFetcher
 
         def inspect
           to_s
+        end
+
+        def printable
+          [
+            [ :id, 'ID' ],
+            :dir,
+            [ :type, proc { self.class.type } ],
+            :title,
+            :status,
+            [ :age, proc { (a = age) ? '%d days' % (a / 60 / 60 / 24) : 'never' } ],
+            :items,
+          ]
         end
 
         def path(delim='/')
@@ -125,46 +138,6 @@ module NewsFetcher
             config_file.to_s)
         end
 
-        Fields = {
-          id: { label: 'ID', format: '%-30.30s' },
-          type: { label: 'Type', format: '%-10.10s' },
-          title: { label: 'Title', format: '%-30.30s' },
-          status: { label: 'Status', format: '%-10s' },
-          age: { label: 'Age', format: '%-10s' },
-        }
-        FieldsMaxWidth = Fields.map { |k, v| v[:label].length }.max
-
-        def print(io=STDOUT, format: nil)
-          fields = {
-            id: @id,
-            type: self.class.type,
-            title: @title,
-            status: status,
-            age: ((a = age) ? '%d days' % (a / 60 / 60 / 24) : 'never'),
-          }
-          case format
-          when nil, :table
-            io.puts(
-              fields.map do |key, value|
-                field = Fields[key] or raise
-                field[:format] % value
-              end.join(' | ')
-            )
-          when :list
-            fields.each do |key, value|
-              field = Fields[key] or raise
-              io.puts '%*s: %s' % [
-                FieldsMaxWidth,
-                field[:label],
-                value,
-              ]
-            end
-            io.puts
-          else
-            raise
-          end
-        end
-
         def make_mail(item)
           mail_from    = @config.mail_from or raise Error, "mail_from not specified in config"
           mail_to      = @config.mail_to or raise Error, "mail_to not specified in config"
@@ -239,6 +212,18 @@ module NewsFetcher
 
         attr_accessor :object
 
+        include Simple::Printable
+
+        def printable
+          [
+            [ :id, 'ID' ],
+            :published,
+            :title,
+            [ :uri, 'URI' ],
+            :author,
+          ]
+        end
+
         def initialize(object)
           @object = object
         end
@@ -300,21 +285,6 @@ module NewsFetcher
               html.text(line)
             end
           end.to_html
-        end
-
-        DefaultKeys = %i{id published title uri author}
-
-        def show(keys=nil)
-          keys ||= DefaultKeys
-          keys.each do |key|
-            value = send(key)
-            if value =~ /\n/
-              puts '%20s:' % key
-              value.split(/\n/).each { |v| puts '  | %s' % v }
-            else
-              puts '%20s: %s' % [key, value]
-            end
-          end
         end
 
       end
