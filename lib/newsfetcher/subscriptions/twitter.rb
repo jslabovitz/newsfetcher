@@ -13,13 +13,8 @@ module NewsFetcher
             since_id: @history.latest_id || 1,
             tweet_mode: 'extended',
           }
-          client.home_timeline(params).map { |t| Tweet.new(t) }.sort_by(&:created_at).each do |tweet|
-            if tweet.reply? && (parent_item = @items.find { |i| i.id == tweet.in_reply_to_status_id })
-              tweet.parent = parent_item.object
-              tweet.parent.replies << tweet
-            else
-              @items << Item.new(tweet)
-            end
+          client.home_timeline(params).map { |t| Tweet.new(t) }.sort_by(&:date).each do |tweet|
+            @items << Item.new(tweet)
           end
         end
 
@@ -27,62 +22,71 @@ module NewsFetcher
 
       class Item < Base::Item
 
+        attr_accessor :tweets
+
+        def initialize(tweet=nil)
+          @tweets = []
+          @tweets << tweet if tweet
+        end
+
         def printable
           super + [
-            [ :uri, 'URI' ],
-            :user,
-            [ :replies, proc { @object.replies.map(&:id).join(' ') } ],
-            [ :in_reply_to_status_id, 'Reply-To', proc { @object.in_reply_to_status_id } ],
-            [ :retweeted_tweet, 'Retweeted', proc { @object.retweeted_tweet&.id } ],
-            [ :quoted_tweet, 'Quoted', proc { @object.quoted_tweet&.id } ],
+            [ :id, 'ID' ],
+            :date,
+            :title,
+            :tweets,
           ]
         end
 
         def id
-          @id ||= @object.id.to_s
+          @tweets.first.id
         end
 
         def date
-          @object.created_at
+          @tweets.first.date
         end
 
         def title
-          @object.title
-        end
-
-        def uri
-          @object.uri
-        end
-
-        def user
-          @object.user
+          @tweets.first.title
         end
 
         def to_html
-          @object.to_html
+          Simple::Builder.html_fragment do |html|
+            @tweets.each_with_index do |tweet, i|
+              html.hr if i > 0
+              html << tweet.to_html
+            end
+          end
         end
 
       end
 
       class Tweet
 
-        extend Forwardable
-
-        def_delegators :@tweet,
-          :created_at,
-          :reply?
-
-        attr_accessor :parent
-        attr_accessor :replies
+        include Simple::Printable
 
         def initialize(tweet)
           @tweet = tweet
-          @parent = nil
-          @replies = []
+        end
+
+        def printable
+          [
+            [ :id, 'ID' ],
+            [ :uri, 'URI' ],
+            :title,
+            :user,
+            [ :in_reply_to_status_id, 'Reply-To', proc { in_reply_to_status_id } ],
+            [ :retweeted_tweet, 'Retweeted', proc { retweeted_tweet&.id } ],
+            [ :quoted_tweet, 'Quoted', proc { quoted_tweet&.id } ],
+          ]
         end
 
         def id
           @id ||= @tweet.id.to_s
+        end
+
+        def date
+          @tweet.created_at
         end
 
         def uri
@@ -170,12 +174,6 @@ module NewsFetcher
                     end
                   end
                 end
-              end
-            end
-            if @replies.any?
-              @replies.each do |reply|
-                html.hr
-                html << reply.to_html
               end
             end
           end

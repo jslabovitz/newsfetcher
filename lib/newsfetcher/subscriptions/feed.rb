@@ -73,6 +73,10 @@ module NewsFetcher
 
       class Item < Base::Item
 
+        def initialize(entry)
+          @entry = entry
+        end
+
         def printable
           super + [
             [ :uri, 'URI' ],
@@ -82,7 +86,7 @@ module NewsFetcher
 
         def id
           unless @id
-            @id = @object.entry_id
+            @id = @entry.entry_id
             unless @id
               raise Error, "No ID or URL for entry" unless uri
               # if uri.scheme == 'http' || uri.scheme == 'https'
@@ -96,20 +100,20 @@ module NewsFetcher
         end
 
         def date
-          @date ||= (@object.published || Time.now)
+          @date ||= (@entry.published || Time.now)
         end
 
         def title
-          @title ||= @object.title
+          @title ||= @entry.title
         end
 
         def uri
           unless @uri
-            if @object.url
+            if @entry.url
               begin
-                @uri = Addressable::URI.parse(@object.url.strip)
+                @uri = Addressable::URI.parse(@entry.url.strip)
               rescue Addressable::URI::InvalidURIError => e
-                raise Error, "Can't parse URL for entry: #{@object.url.inspect}"
+                raise Error, "Can't parse URL for entry: #{@entry.url.inspect}"
               end
             end
           end
@@ -117,7 +121,7 @@ module NewsFetcher
         end
 
         def author
-          @author ||= @object.respond_to?(:author) ? @object.author&.sub(/^by\s+/i, '') : nil
+          @author ||= @entry.respond_to?(:author) ? @entry.author&.sub(/^by\s+/i, '') : nil
         end
 
         def to_html
@@ -135,7 +139,7 @@ module NewsFetcher
                 html.a(uri.prettify, href: uri)
               end
             end
-            content = @object.content || @object.summary
+            content = @entry.content || @entry.summary
             if content&.html?
               html << scrub_html(content)
             elsif content

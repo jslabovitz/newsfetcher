@@ -209,8 +209,6 @@ module NewsFetcher
 
       class Item
 
-        attr_accessor :object
-
         include Simple::Printable
 
         def printable
@@ -219,10 +217,6 @@ module NewsFetcher
             :date,
             :title,
           ]
-        end
-
-        def initialize(object)
-          @object = object
         end
 
         def id
