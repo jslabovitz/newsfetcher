@@ -58,6 +58,17 @@ module NewsFetcher
           @items = feedjira.entries.map { |e| Item.new(e) }
         end
 
+        def active_items
+          if @config.ignore
+            ignore_patterns = [@config.ignore].flatten.map { |r| Regexp.new(r) }
+            super.reject do |item|
+              ignore_patterns.find { |r| item.uri.to_s =~ r }
+            end
+          else
+            super
+          end
+        end
+
       end
 
       class Item < Base::Item
@@ -77,8 +88,8 @@ module NewsFetcher
           @id
         end
 
-        def published
-          @published ||= (@object.published || Time.now)
+        def date
+          @date ||= (@object.published || Time.now)
         end
 
         def title
@@ -110,7 +121,7 @@ module NewsFetcher
               end
             end
             html.h2 do
-              html << [published_str, author].compact.join(' • ').to_html
+              html << [date_str, author].compact.join(' • ').to_html
             end
             if uri
               html.h3 do

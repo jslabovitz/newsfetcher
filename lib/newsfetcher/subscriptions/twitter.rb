@@ -40,7 +40,7 @@ module NewsFetcher
           @id ||= @object.id.to_s
         end
 
-        def published
+        def date
           @object.created_at
         end
 

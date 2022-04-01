@@ -108,17 +108,16 @@ module NewsFetcher
         end
 
         def process
-          ignore_patterns = @config.ignore ? [@config.ignore].flatten.map { |r| Regexp.new(r) } : nil
-          @items.reject { |item|
-            (ignore_patterns && ignore_patterns.find { |r| item.uri.to_s =~ r }) \
-            || @history.include?(item.id) \
-            || item.age > @config.dormant_time
-           }.each do |item|
+          active_items.each do |item|
             send_mail(make_mail(item))
-            @history[item.id] = item.published
+            @history[item.id] = item.date
             @history.save(history_file)
           end
         end
+
+        def active_items
+          @items.reject { |item| @history.include?(item.id) || item.age > @config.dormant_time }
+       end
 
         def reset
           @history.reset(history_file)
@@ -144,16 +143,16 @@ module NewsFetcher
           mail_subject = @config.mail_subject or raise Error, "mail_subject not specified in config"
           fields = {
             subscription_id: @id,
-            item_subject: item.title,
+            item_title: item.title,
           }
           mail = Mail.new
-          mail.date =         item.published
+          mail.date =         item.date
           mail.from =         ERB.new(mail_from).result_with_hash(fields)
           mail.to =           ERB.new(mail_to).result_with_hash(fields)
           mail.subject =      ERB.new(mail_subject).result_with_hash(fields)
           mail.content_type = 'text/html'
           mail.charset =      'utf-8'
-          mail.body =         render_item(item).to_html
+          mail.body =         render_item(item)
           mail
         end
 
@@ -194,7 +193,7 @@ module NewsFetcher
                 html << item.to_html
               end
             end
-          end
+          end.to_html
         end
 
         def make_styles
@@ -217,7 +216,7 @@ module NewsFetcher
         def printable
           [
             [ :id, 'ID' ],
-            :published,
+            :date,
             :title,
             [ :uri, 'URI' ],
             :author,
@@ -232,7 +231,7 @@ module NewsFetcher
           raise NotImplementedError, "#{__method__} not implemented"
         end
 
-        def published
+        def date
           raise NotImplementedError, "#{__method__} not implemented"
         end
 
@@ -257,15 +256,15 @@ module NewsFetcher
         end
 
         def age
-          Time.now - published
+          Time.now - date
         end
 
         def to_html
           raise NotImplementedError, "#{__method__} not implemented"
         end
 
-        def published_str
-          published.strftime('%e %B %Y')
+        def date_str
+          date.strftime('%e %B %Y')
         end
 
         def scrub_html(html)
