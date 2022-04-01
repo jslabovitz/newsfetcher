@@ -218,8 +218,6 @@ module NewsFetcher
             [ :id, 'ID' ],
             :date,
             :title,
-            [ :uri, 'URI' ],
-            :author,
           ]
         end
 
@@ -236,14 +234,6 @@ module NewsFetcher
         end
 
         def title
-          raise NotImplementedError, "#{__method__} not implemented"
-        end
-
-        def uri
-          raise NotImplementedError, "#{__method__} not implemented"
-        end
-
-        def author
           raise NotImplementedError, "#{__method__} not implemented"
         end
 

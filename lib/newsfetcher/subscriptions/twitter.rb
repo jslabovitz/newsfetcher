@@ -29,6 +29,8 @@ module NewsFetcher
 
         def printable
           super + [
+            [ :uri, 'URI' ],
+            :user,
             [ :replies, proc { @object.replies.map(&:id).join(' ') } ],
             [ :in_reply_to_status_id, 'Reply-To', proc { @object.in_reply_to_status_id } ],
             [ :retweeted_tweet, 'Retweeted', proc { @object.retweeted_tweet&.id } ],
@@ -52,7 +54,7 @@ module NewsFetcher
           @object.uri
         end
 
-        def author
+        def user
           @object.user
         end
 

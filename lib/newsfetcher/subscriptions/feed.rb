@@ -73,6 +73,13 @@ module NewsFetcher
 
       class Item < Base::Item
 
+        def printable
+          super + [
+            [ :uri, 'URI' ],
+            :author,
+          ]
+        end
+
         def id
           unless @id
             @id = @object.entry_id
