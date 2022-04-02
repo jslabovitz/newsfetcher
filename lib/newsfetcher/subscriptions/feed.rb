@@ -79,7 +79,7 @@ module NewsFetcher
 
         def printable
           super + [
-            [ :uri, 'URI' ],
+            [:uri, 'URI'],
             :author,
           ]
         end

@@ -31,7 +31,7 @@ module NewsFetcher
 
         def printable
           super + [
-            [ :id, 'ID' ],
+            [:id, 'ID'],
             :date,
             :title,
             :tweets,
@@ -63,7 +63,7 @@ module NewsFetcher
 
       class Tweet
 
-        include Simple::Printable
+        include Simple::Printer::Printable
 
         def initialize(tweet)
           @tweet = tweet
@@ -71,13 +71,13 @@ module NewsFetcher
 
         def printable
           [
-            [ :id, 'ID' ],
-            [ :uri, 'URI' ],
+            [:id, 'ID'],
+            [:uri, 'URI'],
             :title,
             :user,
-            [ :in_reply_to_status_id, 'Reply-To', proc { in_reply_to_status_id } ],
-            [ :retweeted_tweet, 'Retweeted', proc { retweeted_tweet&.id } ],
-            [ :quoted_tweet, 'Quoted', proc { quoted_tweet&.id } ],
+            [:in_reply_to_status_id, 'Reply-To', in_reply_to_status_id],
+            [:retweeted_tweet, 'Retweeted', retweeted_tweet&.id],
+            [:quoted_tweet, 'Quoted', quoted_tweet&.id],
           ]
         end
 

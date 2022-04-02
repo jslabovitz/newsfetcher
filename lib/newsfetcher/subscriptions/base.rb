@@ -14,7 +14,7 @@ module NewsFetcher
         attr_accessor :title
 
         include SetParams
-        include Simple::Printable
+        include Simple::Printer::Printable
 
         def self.type
           to_s.split('::')[-2].downcase
@@ -37,14 +37,18 @@ module NewsFetcher
           to_s
         end
 
+        def type
+          self.class.type
+        end
+
         def printable
           [
-            [ :id, 'ID' ],
+            [:id, 'ID'],
             :dir,
-            [ :type, proc { self.class.type } ],
+            :type,
             :title,
             :status,
-            [ :age, proc { (a = age) ? '%d days' % (a / 60 / 60 / 24) : 'never' } ],
+            [:age, 'Age', (a = age) ? '%d days' % (a / 60 / 60 / 24) : 'never'],
             :items,
           ]
         end
@@ -209,11 +213,11 @@ module NewsFetcher
 
       class Item
 
-        include Simple::Printable
+        include Simple::Printer::Printable
 
         def printable
           [
-            [ :id, 'ID' ],
+            [:id, 'ID'],
             :date,
             :title,
           ]

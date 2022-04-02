@@ -21,7 +21,7 @@ require 'sassc'
 require 'set_params'
 require 'simple-builder'
 require 'simple-command'
-require 'simple-printable'
+require 'simple-printer'
 require 'twitter'
 
 module NewsFetcher
