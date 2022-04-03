@@ -1,8 +1,8 @@
 ## BUGS
 
-- fix Twitter threading
-  - Item should represent thread (list of related tweets), not a single tweet
-  - don't show headers for replies/retweets/quotes if userids are same
+- implement Twitter threading
+  - move history handling into subscription sub-classes
+    - eg, Twitter::Item's ID is only the ID of *first* tweet in thread
 
 
 ## IMPROVEMENTS
