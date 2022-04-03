@@ -9,11 +9,14 @@ module NewsFetcher
         def get
           @title = 'Twitter'
           client = ::Twitter::REST::Client.new(@config.twitter)
-          params = {
-            since_id: @history.latest_id || 1,
-            tweet_mode: 'extended',
-          }
-          client.home_timeline(params).map { |t| Tweet.new(t) }.sort_by(&:date).each do |tweet|
+          last_id = @history.latest_id || 1
+          tweets = client.home_timeline(since_id: last_id, tweet_mode: 'extended').map { |t| Tweet.new(t) }
+          make_threads(tweets)
+        end
+
+        def make_threads(tweets)
+          #FIXME: implement threading
+          tweets.sort_by(&:date).each do |tweet|
             @items << Item.new(tweet)
           end
         end
