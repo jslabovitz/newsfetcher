@@ -147,9 +147,9 @@ module NewsFetcher
             html.h2 do
               html.a(user, href: @tweet.uri)
             end
-            unless (t = text).empty?
+            unless @tweet.retweet?
               html.p do
-                html << t.gsub("\n", '<br>')
+                html << text.gsub("\n", '<br>')
               end
             end
             if @tweet.retweet? || @tweet.quote?
