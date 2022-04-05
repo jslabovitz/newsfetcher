@@ -1,12 +1,7 @@
 ## BUGS
 
-- move history handling into subscription sub-classes
-  - eg, Twitter::Item's ID is only the ID of *first* tweet in thread
-
 
 ## IMPROVEMENTS
-
-- try make specific subclasses for Config, instead of hash
 
 - allow 'add' to take 'id' option to customize ID
 
@@ -30,7 +25,6 @@
 - re-add Our Town
   type: page
   uri: https://ourtownlive.com/ourtown/
-  xpath: //*[@id="post-3"]/div/table[2]/tbody/tr[2]/td[1]
 
 - auto-discover on 'add'
 
