@@ -8,68 +8,74 @@ module NewsFetcher
 
         def get
           @title = 'Twitter'
-          client = ::Twitter::REST::Client.new(@config.twitter)
-          last_id = @history.latest_id || 1
-          tweets = client.home_timeline(since_id: last_id, tweet_mode: 'extended').map { |t| Tweet.new(t) }
-          make_threads(tweets)
+          @client = ::Twitter::REST::Client.new(@config.twitter)
+          get_timeline
+          find_threads
         end
 
-        def make_threads(tweets)
-          #FIXME: implement threading
-          tweets.sort_by(&:date).each do |tweet|
-            @items << Item.new(tweet)
+        def get_timeline
+          last_id = @history.latest_id&.to_i || 1
+          @tweets = @client.
+            home_timeline(since_id: last_id, tweet_mode: 'extended').
+            map { |t| Tweet.new(t) }.
+            sort_by(&:date)
+        end
+
+        def find_threads
+          @tweets.each do |tweet|
+            if (id = tweet.in_reply_to_status_id) && (parent = @tweets.find { |t| t.id == id })
+              parent.replies << tweet
+              tweet.parent = parent
+            end
           end
+          @items = @tweets.reject(&:parent).map { |t| Item.new(t) }
         end
 
       end
 
       class Item < Base::Item
 
-        attr_accessor :tweets
+        attr_accessor :tweet
 
-        def initialize(tweet=nil)
-          @tweets = []
-          @tweets << tweet if tweet
+        def initialize(tweet)
+          @tweet = tweet
         end
 
         def printable
           super + [
-            [:id, 'ID'],
-            :date,
-            :title,
-            :tweets,
+            [:tweet, [@tweet]],
           ]
         end
 
         def id
-          @tweets.first.id
+          @tweet.id.to_s
         end
 
         def date
-          @tweets.first.date
+          @tweet.date
         end
 
         def title
-          @tweets.first.title
+          @tweet.title
         end
 
         def to_html
-          Simple::Builder.html_fragment do |html|
-            @tweets.each_with_index do |tweet, i|
-              html.hr if i > 0
-              html << tweet.to_html
-            end
-          end
+          @tweet.to_html
         end
 
       end
 
       class Tweet
 
+        attr_accessor :parent
+        attr_accessor :replies
+
         include Simple::Printer::Printable
 
         def initialize(tweet)
           @tweet = tweet
+          @parent = nil
+          @replies = []
         end
 
         def printable
@@ -81,11 +87,13 @@ module NewsFetcher
             [:in_reply_to_status_id, 'Reply-To', in_reply_to_status_id],
             [:retweeted_tweet, 'Retweeted', retweeted_tweet&.id],
             [:quoted_tweet, 'Quoted', quoted_tweet&.id],
+            [:parent, @parent&.id],
+            [:replies, 'Replies', @replies.map(&:id).join(', ')],
           ]
         end
 
         def id
-          @id ||= @tweet.id.to_s
+          @id ||= @tweet.id
         end
 
         def date
@@ -97,7 +105,7 @@ module NewsFetcher
         end
 
         def in_reply_to_status_id
-          @tweet.in_reply_to_status_id.to_s
+          @tweet.in_reply_to_status_id
         end
 
         def user
@@ -178,6 +186,10 @@ module NewsFetcher
                   end
                 end
               end
+            end
+            @replies.each do |reply|
+              html.hr
+              html << reply.to_html
             end
           end
         end

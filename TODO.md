@@ -1,8 +1,7 @@
 ## BUGS
 
-- implement Twitter threading
-  - move history handling into subscription sub-classes
-    - eg, Twitter::Item's ID is only the ID of *first* tweet in thread
+- move history handling into subscription sub-classes
+  - eg, Twitter::Item's ID is only the ID of *first* tweet in thread
 
 
 ## IMPROVEMENTS
