@@ -16,7 +16,7 @@ module NewsFetcher
         def get_timeline
           last_id = @history.latest_id&.to_i || 1
           @tweets = @client.
-            home_timeline(since_id: last_id, tweet_mode: 'extended').
+            home_timeline(count: 200, since_id: last_id, tweet_mode: 'extended').
             map { |t| Tweet.new(t) }.
             sort_by(&:date)
         end
