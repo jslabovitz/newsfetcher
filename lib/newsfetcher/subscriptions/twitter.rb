@@ -142,10 +142,12 @@ module NewsFetcher
           retweeted_tweet || quoted_tweet
         end
 
-        def to_html
+        def to_html(show_header: true)
           Simple::Builder.html_fragment do |html|
-            html.h2 do
-              html.a(user, href: @tweet.uri)
+            unless show_header
+              html.h2 do
+                html.a(user, href: @tweet.uri)
+              end
             end
             unless @tweet.retweet?
               html.p do
@@ -184,7 +186,7 @@ module NewsFetcher
             end
             @replies.each do |reply|
               html.hr
-              html << reply.to_html
+              html << reply.to_html(show_header: false)
             end
           end
         end
