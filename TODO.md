@@ -1,5 +1,7 @@
 ## BUGS
 
+- save individual tweets (not just threads) in history
+
 
 ## IMPROVEMENTS
 
