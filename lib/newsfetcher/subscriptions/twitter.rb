@@ -144,7 +144,7 @@ module NewsFetcher
 
         def to_html(show_header: true)
           Simple::Builder.html_fragment do |html|
-            unless show_header
+            if show_header
               html.h2 do
                 html.a(user, href: @tweet.uri)
               end
