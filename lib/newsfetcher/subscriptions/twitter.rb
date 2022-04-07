@@ -161,9 +161,12 @@ module NewsFetcher
                 @tweet.media.each do |media|
                   size = media.sizes[:large]
                   html.figure do
-                    html.figcaption("[#{media.type}]")
-                    html.a(href: media.expanded_uri) do
-                      html.img(src: media.media_uri_https, width: size.w, height: size.h)
+                    html.img(src: media.media_uri_https, width: size.w, height: size.h)
+                    unless media.type == 'photo'
+                      html.figcaption do
+                        html << "#{media.type}: "
+                        html.a(Addressable::URI.parse(media.expanded_uri).prettify, href: media.expanded_uri)
+                      end
                     end
                   end
                 end
