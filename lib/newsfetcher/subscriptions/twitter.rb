@@ -118,14 +118,6 @@ module NewsFetcher
               @title = subtweet&.title
             else
               @title = PragmaticSegmenter::Segmenter.new(text: text).segment.first.to_s
-              @title = @title.empty? ? '(untitled)' : @title
-              if @tweet.retweet?
-                @title = "Retweet: #{@title}"
-              elsif @tweet.quote?
-                @title = "Quote: #{@title}"
-              elsif @tweet.reply?
-                @title = "Reply: #{@title}"
-              end
             end
           end
           @title
