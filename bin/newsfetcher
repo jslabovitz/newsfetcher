@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'NewsFetcher'
+require 'newsfetcher'
 
 SimpleCommand::Commander.new(
   'add' => NewsFetcher::Commands::Add,
