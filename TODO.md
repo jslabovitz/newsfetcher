@@ -9,8 +9,6 @@
 
 - rename 'path' to 'section'?
 
-- rename 'dormant' term to 'expired'?
-
 - add per-subscription locks to avoid access by multiple processes/threads
 
 - expand testing

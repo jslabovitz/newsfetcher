@@ -59,10 +59,12 @@ require 'newsfetcher/subscriptions/twitter'
 
 module NewsFetcher
 
+  DaySecs = 24 * 60 * 60
   BaseConfig = Config.new(
     max_threads: 100,
     log_level: :warn,
-    dormant_time: 30 * 24 * 60 * 60,    # one month
+    dormant_time: 30 * DaySecs,
+    max_age: 3 * DaySecs,
     main_stylesheet: File.join(File.dirname(__FILE__), '../message/stylesheet.css'),
     mail_subject: '[<%= subscription_id %>] <%= item_title %>',
   )

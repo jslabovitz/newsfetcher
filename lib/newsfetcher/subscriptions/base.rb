@@ -24,7 +24,7 @@ module NewsFetcher
           set(params)
           if @dir && history_file.exist?
             @history = History.load(history_file)
-            @history.prune(before: Time.now - @config.dormant_time)
+            @history.prune(before: Time.now - @config.max_age)
             @history.save(history_file)
           else
             @history = History.new
@@ -120,7 +120,7 @@ module NewsFetcher
         end
 
         def active_items
-          @items.reject { |item| @history.include?(item.id) || item.age > @config.dormant_time }
+          @items.reject { |item| @history.include?(item.id) || item.age > @config.max_age }
        end
 
         def reset
