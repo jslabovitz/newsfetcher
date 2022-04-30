@@ -24,7 +24,9 @@ module NewsFetcher
           set(params)
           if @dir && history_file.exist?
             @history = History.load(history_file)
-            @history.prune(before: Time.now - @config.max_age)
+            @history.prune(before: Time.now - @config.max_age) do |id, time|
+              $logger.info { "pruning #{id.inspect} (#{time})"}
+            end
             @history.save(history_file)
           else
             @history = History.new
@@ -79,7 +81,7 @@ module NewsFetcher
         end
 
         def age
-          if (time = @history.last_time)
+          if (time = @history.latest_time)
             Time.now - time
           else
             nil
