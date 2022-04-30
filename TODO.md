@@ -1,3 +1,6 @@
+*** use Simple::History
+
+
 ## BUGS
 
 - save individual tweets (not just threads) in history
@@ -21,10 +24,6 @@
   - page check
   - last-modified
   - element (XPath) change (by hash?)
-
-- re-add Our Town
-  type: page
-  uri: https://ourtownlive.com/ourtown/
 
 - auto-discover on 'add'
 
