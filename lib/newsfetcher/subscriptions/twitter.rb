@@ -14,7 +14,8 @@ module NewsFetcher
         end
 
         def get_timeline
-          last_id = @history.latest_key&.to_i || 1
+          latest_key, latest_time = @history.latest_entry
+          last_id = latest_key&.to_i || 1
           @tweets = @client.
             home_timeline(count: 200, since_id: last_id, tweet_mode: 'extended').
             map { |t| Tweet.new(t) }.

@@ -81,8 +81,9 @@ module NewsFetcher
         end
 
         def age
-          if (time = @history.latest_time)
-            Time.now - time
+          latest_key, latest_time = @history.latest_entry
+          if latest_time
+            Time.now - latest_time
           else
             nil
           end
