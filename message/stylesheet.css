@@ -26,7 +26,15 @@ h3 {
 }
 
 hr {
-  border: 1px solid black;
+  margin-top: -1em;
+  margin-bottom: -1em;
+  border: none;
+  text-align: center;
+}
+
+hr:after {
+  display: inline-block;
+  content: "～";
 }
 
 .header {
