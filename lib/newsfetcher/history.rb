@@ -50,7 +50,7 @@ module NewsFetcher
     end
 
     def latest_entry
-      @entries.sort_by(&:last)
+      @entries.sort_by { |k, v| v }.last
     end
 
   end
