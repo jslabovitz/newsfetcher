@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'addressable', '~> 2.8'
   s.add_dependency 'addressable-prettify', '~> 0.1'
   s.add_dependency 'erb', '~> 2.2'
-  s.add_dependency 'faraday', '~> 2.0'
+  s.add_dependency 'faraday', '~> 2.3'
   s.add_dependency 'feedjira', '~> 3.2'
   s.add_dependency 'loofah', '~> 2.15'
   s.add_dependency 'mail', '~> 2.7'
