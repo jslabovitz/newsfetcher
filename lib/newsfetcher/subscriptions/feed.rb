@@ -44,18 +44,28 @@ module NewsFetcher
         end
 
         def get
-          resource = Resource.get(@config.uri)
+          @title = nil
+          @items = []
+          uris = @config.uri ? [@config.uri] : @config.uris
+          raise Error, "No URI(s) defined for #{@id}" if uris.empty?
+          uris.each do |uri|
+            feedjira = get_feedjira(uri)
+            @title ||= feedjira.title
+            @items += feedjira.entries.map { |e| Item.new(e) }
+          end
+        end
+
+        def get_feedjira(uri)
+          resource = Resource.get(uri)
           if resource.moved && !@config.ignore_moved
             $logger.warn { "#{@id}: URI #{resource.uri} moved to #{resource.redirected_uri}" }
           end
           Feedjira.configure { |c| c.strip_whitespace = true }
           begin
-            feedjira = Feedjira.parse(resource.content.force_encoding(Encoding::UTF_8))
+            Feedjira.parse(resource.content.force_encoding(Encoding::UTF_8))
           rescue StandardError, Feedjira::NoParserAvailable, Date::Error => e
             raise Error, "Can't parse XML feed from #{resource.uri}: #{e}"
           end
-          @title = feedjira.title
-          @items = feedjira.entries.map { |e| Item.new(e) }
         end
 
         def active_items

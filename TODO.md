@@ -33,12 +33,6 @@
   - '--root' specifies root config
   - use readline to show/edit values
 
-- allow multiple feeds per subscription
-  - add 'uris' attribute: hash of key/URI
-  - save each feed with key
-  - feeds are merged and treated as one
-  - handles situations like TheGuardian's separate sections
-
 - expand 'ignore' feature
   - each rule can match on any fields
     ignore:
