@@ -46,6 +46,7 @@ module NewsFetcher
         def printable
           [
             [:id, 'ID'],
+            [:uri, 'URI', config.uri],
             :dir,
             :type,
             :title,
