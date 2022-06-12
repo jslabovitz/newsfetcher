@@ -34,7 +34,7 @@ hr {
 
 hr:after {
   display: inline-block;
-  content: "～";
+  content: "—";   /* em dash */
 }
 
 .header {
