@@ -1,14 +1,11 @@
-*** use Simple::History
-
-
 ## BUGS
 
 - save individual tweets (not just threads) in history
 
 
-## IMPROVEMENTS
+## ARCHITECTURAL IMPROVEMENTS
 
-- allow 'add' to take 'id' option to customize ID
+- use Simple::History
 
 - rename 'path' to 'section'?
 
@@ -19,6 +16,22 @@
 
 
 ## FEATURES
+
+- allow individual tweet configuration by tweet ID
+  - takes priority over main configuration
+
+- ignore retweets with no text (default: off)
+
+- ignore retweets of tweets that are >n days older than retweet (default: 1)
+
+- ignore retweets of tweets by same user (default: true)
+
+- ignore retweets of retweets, if <75 chars? (default: true)
+
+- allow 'add' to take 'id' option to customize ID
+
+- add 'remove' feature
+  - specifies XPath expression to remove
 
 - implement page subscription type
   - page check
