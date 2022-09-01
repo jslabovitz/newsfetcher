@@ -36,7 +36,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'twitter', '~> 7.0'
 
   s.add_development_dependency 'bundler', '~> 2.3'
-  s.add_development_dependency 'minitest', '~> 5.15'
+  s.add_development_dependency 'minitest', '~> 5.16'
   s.add_development_dependency 'minitest-power_assert', '~> 0.3'
   s.add_development_dependency 'rake', '~> 13.0'
 end
