@@ -49,9 +49,10 @@ module NewsFetcher
           uris = @config.uri ? [@config.uri] : @config.uris
           raise Error, "No URI(s) defined for #{@id}" if uris.empty?
           uris.each do |uri|
-            feedjira = get_feedjira(uri)
-            @title ||= feedjira.title
-            @items += feedjira.entries.map { |e| Item.new(e) }
+            if (feedjira = get_feedjira(uri))
+              @title ||= feedjira.title
+              @items += feedjira.entries.map { |e| Item.new(e) }
+            end
           end
         end
 
