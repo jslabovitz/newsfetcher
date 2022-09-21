@@ -103,6 +103,7 @@ module NewsFetcher
         end
 
         def update
+          $logger.debug { "#{@id}: updating" }
           begin
             get
             process
