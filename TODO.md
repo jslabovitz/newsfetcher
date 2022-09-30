@@ -17,6 +17,8 @@
 
 ## FEATURES
 
+- allow subscription of either timeline, or individual user IDs
+
 - allow individual tweet configuration by tweet ID
   - takes priority over main configuration
 
