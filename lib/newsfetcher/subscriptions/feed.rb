@@ -103,7 +103,7 @@ module NewsFetcher
             date: entry.published || Time.now,
             title: entry.title,
             author: entry.respond_to?(:author) ? entry.author&.sub(/^by\s+/i, '') : nil,
-            content: entry.content || entry.summary,
+            content: (entry.content || entry.summary).to_s,
           )
         end
 
