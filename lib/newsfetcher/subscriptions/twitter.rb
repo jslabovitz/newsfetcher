@@ -17,31 +17,31 @@ module NewsFetcher
         def get_timeline
           latest_key, latest_time = @history.latest_entry
           last_id = latest_key&.to_i || 1
-          @tweets = @client.
+          @items = @client.
             home_timeline(count: 200, since_id: last_id, tweet_mode: 'extended').
-            map { |t| Tweet.new(t) }.
-            sort_by(&:date)
+            map { |t| Item.new(t) }
+          @items.sort_by!(&:date)
         end
 
         def find_threads
-          @tweets.each do |tweet|
-            if (id = tweet.in_reply_to_status_id) && (parent = @tweets.find { |t| t.id == id })
-              parent.replies << tweet
-              tweet.parent = parent
+          @items.each do |item|
+            if (id = item.in_reply_to_status_id) && (parent = @items.find { |i| i.id == id })
+              parent.replies << item
+              item.parent = parent
             end
           end
-          @items = @tweets.reject(&:parent).map { |t| Item.new(t) }
+          @items.reject!(&:parent)
         end
 
         def filter_items
           @items.reject! do |item|
             config = item_config(item)
-            if (subtweet = item.tweet.subtweet)
+            if (subtweet = item.subtweet)
               if config.ignore_subtweets
                 $logger.info { "#{@id}: Ignoring item with subtweet: #{item.id}" }
                 return true
               end
-              if item.tweet.screen_name == subtweet.screen_name
+              if item.screen_name == subtweet.screen_name
                 $logger.info { "#{@id}: Ignoring item with subtweet of self: #{item.id}" }
                 return true
               end
@@ -51,7 +51,7 @@ module NewsFetcher
         end
 
         def item_config(item)
-          if @config.has_key?(:users) && (user_config = @config.users[item.tweet.screen_name])
+          if @config.has_key?(:users) && (user_config = @config.users[item.screen_name])
             @config.make(user_config)
           else
             @config
@@ -63,54 +63,24 @@ module NewsFetcher
       class Item < Base::Item
 
         attr_accessor :tweet
+        attr_accessor :parent
+        attr_accessor :replies
+        attr_accessor :uri
 
         def initialize(tweet)
-          @tweet = tweet
+          super(
+            id: tweet.id.to_s,
+            date: tweet.created_at,
+            # title: tweet.title,
+            uri: Addressable::URI.parse(tweet.uri),
+            author: "#{tweet.user.name} (@#{tweet.user.screen_name})",
+            tweet: tweet,
+            replies: [],
+          )
         end
 
         def printable
           super + [
-            [:tweet, [@tweet]],
-          ]
-        end
-
-        def id
-          @tweet.id.to_s
-        end
-
-        def date
-          @tweet.date
-        end
-
-        def title
-          @tweet.title
-        end
-
-        def to_html
-          @tweet.to_html
-        end
-
-      end
-
-      class Tweet
-
-        attr_accessor :parent
-        attr_accessor :replies
-
-        include Simple::Printer::Printable
-
-        def initialize(tweet)
-          @tweet = tweet
-          @parent = nil
-          @replies = []
-        end
-
-        def printable
-          [
-            [:id, 'ID'],
-            [:uri, 'URI'],
-            :title,
-            :user,
             [:in_reply_to_status_id, 'Reply-To', in_reply_to_status_id],
             [:retweeted_tweet, 'Retweeted', retweeted_tweet&.id],
             [:quoted_tweet, 'Quoted', quoted_tweet&.id],
@@ -119,24 +89,8 @@ module NewsFetcher
           ]
         end
 
-        def id
-          @id ||= @tweet.id
-        end
-
-        def date
-          @tweet.created_at
-        end
-
-        def uri
-          @uri ||= Addressable::URI.parse(@tweet.uri)
-        end
-
         def in_reply_to_status_id
           @tweet.in_reply_to_status_id
-        end
-
-        def user
-          @user ||= "#{user_name} (@#{screen_name})"
         end
 
         def user_name
@@ -181,7 +135,7 @@ module NewsFetcher
           Simple::Builder.html_fragment do |html|
             if show_header
               html.h2 do
-                html.a(user, href: @tweet.uri)
+                html.a(@author, href: @tweet.uri)
               end
             end
             unless @tweet.retweet?

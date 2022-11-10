@@ -84,55 +84,28 @@ module NewsFetcher
 
       class Item < Base::Item
 
+        attr_accessor :content
+
         def initialize(entry)
           @entry = entry
-        end
-
-        def printable
-          super + [
-            [:uri, 'URI'],
-            :author,
-          ]
-        end
-
-        def id
-          unless @id
-            @id = @entry.entry_id
-            unless @id
-              raise Error, "No ID or URL for entry" unless uri
-              # if uri.scheme == 'http' || uri.scheme == 'https'
-              #   uri = uri.dup
-              #   uri.host = uri.host.sub(/^www\./, '')
-              # end
-              @id = uri.to_s
+          if entry.url
+            begin
+              uri = Addressable::URI.parse(entry.url.strip)
+            rescue Addressable::URI::InvalidURIError => e
+              raise Error, "Can't parse URL for entry: #{entry.url.inspect}"
             end
+          else
+            uri = nil
           end
-          @id
-        end
-
-        def date
-          @date ||= (@entry.published || Time.now)
-        end
-
-        def title
-          @title ||= @entry.title
-        end
-
-        def uri
-          unless @uri
-            if @entry.url
-              begin
-                @uri = Addressable::URI.parse(@entry.url.strip)
-              rescue Addressable::URI::InvalidURIError => e
-                raise Error, "Can't parse URL for entry: #{@entry.url.inspect}"
-              end
-            end
-          end
-          @uri
-        end
-
-        def author
-          @author ||= @entry.respond_to?(:author) ? @entry.author&.sub(/^by\s+/i, '') : nil
+          id = entry.entry_id || uri or raise Error, "Can't determine ID or URL for entry"
+          super(
+            id: id.to_s,
+            uri: uri,
+            date: entry.published || Time.now,
+            title: entry.title,
+            author: entry.respond_to?(:author) ? entry.author&.sub(/^by\s+/i, '') : nil,
+            content: entry.content || entry.summary,
+          )
         end
 
         def to_html
@@ -150,11 +123,10 @@ module NewsFetcher
                 html.a(uri.prettify, href: uri)
               end
             end
-            content = @entry.content || @entry.summary
-            if content&.html?
-              html << scrub_html(content)
+            if @content&.html?
+              html << scrub_html(@content)
             elsif content
-              html << text_to_html(content)
+              html << text_to_html(@content)
             end
           end
         end

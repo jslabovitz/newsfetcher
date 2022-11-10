@@ -218,6 +218,13 @@ module NewsFetcher
 
       class Item
 
+        attr_accessor :id
+        attr_accessor :date
+        attr_accessor :title
+        attr_accessor :uri
+        attr_accessor :author
+
+        include SetParams
         include Simple::Printer::Printable
 
         def printable
@@ -225,31 +232,21 @@ module NewsFetcher
             [:id, 'ID'],
             :date,
             :title,
+            :uri,
+            :author,
           ]
         end
 
-        def id
-          raise NotImplementedError, "#{__method__} not implemented"
-        end
-
-        def date
-          raise NotImplementedError, "#{__method__} not implemented"
-        end
-
-        def title
-          raise NotImplementedError, "#{__method__} not implemented"
-        end
-
         def eql?(other)
-          id.eql?(other.id)
+          @id.eql?(other.id)
         end
 
         def ==(other)
-          id == other.id
+          @id == other.id
         end
 
         def age
-          Time.now - date
+          Time.now - @date
         end
 
         def to_html
@@ -257,7 +254,7 @@ module NewsFetcher
         end
 
         def date_str
-          date.strftime('%e %B %Y')
+          @date.strftime('%e %B %Y')
         end
 
         def scrub_html(html)
