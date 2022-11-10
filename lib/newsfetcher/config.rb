@@ -34,11 +34,15 @@ module NewsFetcher
       (@parent&.merged || {}).merge(@hash)
     end
 
+    def has_key?(id)
+      @hash.has_key?(id)
+    end
+
     def method_missing(id, *args)
       if (key = id.to_s).sub!(/=$/, '')
         @hash[key.to_sym] = args.first
       else
-        if @hash.has_key?(id)
+        if has_key?(id)
           @hash[id]
         elsif @parent
           @parent.send(id, *args)
