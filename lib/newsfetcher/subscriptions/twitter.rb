@@ -65,7 +65,6 @@ module NewsFetcher
         attr_accessor :tweet
         attr_accessor :parent
         attr_accessor :replies
-        attr_accessor :uri
 
         def initialize(tweet)
           super(

@@ -87,7 +87,6 @@ module NewsFetcher
         attr_accessor :content
 
         def initialize(entry)
-          @entry = entry
           if entry.url
             begin
               uri = Addressable::URI.parse(entry.url.strip)
@@ -110,23 +109,21 @@ module NewsFetcher
 
         def to_html
           Simple::Builder.html_fragment do |html|
-            if title
+            if @title
               html.h1 do
-                html << title.to_html
+                html << @title.to_html
               end
             end
             html.h2 do
-              html << [date_str, author].compact.join(' • ').to_html
+              html << [date_str, @author].compact.join(' • ').to_html
             end
-            if uri
+            if @uri
               html.h3 do
-                html.a(uri.prettify, href: uri)
+                html.a(@uri.prettify, href: @uri)
               end
             end
-            if @content&.html?
-              html << scrub_html(@content)
-            elsif content
-              html << text_to_html(@content)
+            if @content
+              html << @content.html? ? scrub_html(@content) : text_to_html(@content)
             end
           end
         end

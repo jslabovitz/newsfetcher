@@ -249,10 +249,6 @@ module NewsFetcher
           Time.now - @date
         end
 
-        def to_html
-          raise NotImplementedError, "#{__method__} not implemented"
-        end
-
         def date_str
           @date.strftime('%e %B %Y')
         end
