@@ -117,15 +117,18 @@ module NewsFetcher
         end
 
         def process
-          active_items.each do |item|
+          filter_items
+          @items.each do |item|
             send_mail(make_mail(item))
             @history[item.id] = item.date
             @history.save(history_file)
           end
         end
 
-        def active_items
-          @items.reject { |item| @history.include?(item.id) || item.age > @config.max_age }
+        def filter_items
+          @items.reject! do |item|
+            @history.include?(item.id) || item.age > @config.max_age
+          end
        end
 
         def reset

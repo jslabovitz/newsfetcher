@@ -69,14 +69,13 @@ module NewsFetcher
           end
         end
 
-        def active_items
+        def filter_items
+          super
           if @config.ignore
             ignore_patterns = [@config.ignore].flatten.map { |r| Regexp.new(r) }
-            super.reject do |item|
+            @items.reject! do |item|
               ignore_patterns.find { |r| item.uri.to_s =~ r }
             end
-          else
-            super
           end
         end
 

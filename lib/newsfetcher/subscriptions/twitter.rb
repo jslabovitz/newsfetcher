@@ -11,7 +11,6 @@ module NewsFetcher
           @client = ::Twitter::REST::Client.new(@config.twitter)
           get_timeline
           find_threads
-          filter_items
         end
 
         def get_timeline
@@ -34,16 +33,17 @@ module NewsFetcher
         end
 
         def filter_items
+          super
           @items.reject! do |item|
             config = item_config(item)
             if (subtweet = item.subtweet)
               if config.ignore_subtweets
                 $logger.info { "#{@id}: Ignoring item with subtweet: #{item.id}" }
-                return true
+                next true
               end
               if item.screen_name == subtweet.screen_name
                 $logger.info { "#{@id}: Ignoring item with subtweet of self: #{item.id}" }
-                return true
+                next true
               end
             end
             false
