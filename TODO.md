@@ -17,16 +17,13 @@
 
 ## FEATURES
 
+- use Twitter lists to categorize tweets?
+
 - allow subscription of either timeline, or individual user IDs
 
-- allow individual tweet configuration by tweet ID
-  - takes priority over main configuration
-
-- ignore retweets with no text (default: off)
+- ignore text-less retweets of already-seen tweets
 
 - ignore retweets of tweets that are >n days older than retweet (default: 1)
-
-- ignore retweets of tweets by same user (default: true)
 
 - ignore retweets of retweets, if <75 chars? (default: true)
 
