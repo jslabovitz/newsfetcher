@@ -11,6 +11,7 @@ module NewsFetcher
           @client = ::Twitter::REST::Client.new(@config.twitter)
           get_timeline
           find_threads
+          filter_items
         end
 
         def get_timeline
@@ -30,6 +31,31 @@ module NewsFetcher
             end
           end
           @items = @tweets.reject(&:parent).map { |t| Item.new(t) }
+        end
+
+        def filter_items
+          @items.reject! do |item|
+            config = item_config(item)
+            if (subtweet = item.tweet.subtweet)
+              if config.ignore_subtweets
+                $logger.info { "#{@id}: Ignoring item with subtweet: #{item.id}" }
+                return true
+              end
+              if item.tweet.screen_name == subtweet.screen_name
+                $logger.info { "#{@id}: Ignoring item with subtweet of self: #{item.id}" }
+                return true
+              end
+            end
+            false
+          end
+        end
+
+        def item_config(item)
+          if @config.has_key?(:users) && (user_config = @config.users[item.tweet.screen_name])
+            @config.make(user_config)
+          else
+            @config
+          end
         end
 
       end
@@ -110,7 +136,15 @@ module NewsFetcher
         end
 
         def user
-          @user ||= "#{@tweet.user.name} (@#{@tweet.user.screen_name})"
+          @user ||= "#{user_name} (@#{screen_name})"
+        end
+
+        def user_name
+          @tweet.user.name
+        end
+
+        def screen_name
+          @tweet.user.screen_name
         end
 
         def title
