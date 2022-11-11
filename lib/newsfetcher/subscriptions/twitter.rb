@@ -29,7 +29,7 @@ module NewsFetcher
               item.parent = parent
             end
           end
-          @items.reject!(&:parent)
+          @items.reject!(&:has_parent?)
         end
 
         def filter_items
@@ -86,6 +86,10 @@ module NewsFetcher
             [:parent, @parent&.id],
             [:replies, 'Replies', @replies.map(&:id).join(', ')],
           ]
+        end
+
+        def has_parent?
+          @parent != nil
         end
 
         def in_reply_to_status_id

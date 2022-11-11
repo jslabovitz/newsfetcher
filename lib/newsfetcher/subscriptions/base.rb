@@ -245,7 +245,7 @@ module NewsFetcher
         end
 
         def ==(other)
-          @id == other.id
+          @id == other&.id
         end
 
         def age
