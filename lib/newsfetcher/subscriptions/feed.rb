@@ -43,6 +43,13 @@ module NewsFetcher
           end
         end
 
+        def initialize(**)
+          super
+          if @config.ignore
+            @ignore_patterns = [@config.ignore].flatten.map { |r| Regexp.new(r) }
+          end
+        end
+
         def get
           @title = nil
           @items = []
@@ -69,13 +76,9 @@ module NewsFetcher
           end
         end
 
-        def filter_items
-          super
-          if @config.ignore
-            ignore_patterns = [@config.ignore].flatten.map { |r| Regexp.new(r) }
-            @items.reject! do |item|
-              ignore_patterns.find { |r| item.uri.to_s =~ r }
-            end
+        def process
+          @items.reject! do |item|
+            @ignore_patterns&.find { |r| item.uri.to_s =~ r }
           end
         end
 

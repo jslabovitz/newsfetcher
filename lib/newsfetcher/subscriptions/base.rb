@@ -21,18 +21,10 @@ module NewsFetcher
         end
 
         def initialize(params={})
-          set(params)
-          if @dir && history_file.exist?
-            @history = History.load(history_file)
-            @history.prune(before: Time.now - @config.max_age) do |id, time|
-              $logger.info { "pruning #{id.inspect} (#{time})"}
-            end
-            @history.save(history_file)
-          else
-            @history = History.new
-          end
           @title = nil
           @items = []
+          set(params)
+          load_history
         end
 
         def inspect
@@ -102,34 +94,55 @@ module NewsFetcher
           end
         end
 
+        def load_history
+          if @dir && history_file.exist?
+            @history = History.load(history_file)
+            @history.prune(before: Time.now - @config.max_age) do |id, time|
+              $logger.info { "pruning #{id.inspect} (#{time})"}
+            end
+            @history.save(history_file)
+          else
+            @history = History.new
+          end
+        end
+
         def update
           $logger.debug { "#{@id}: updating" }
           begin
             get
+            remove_outdated
             process
+            deliver
           rescue Error => e
             $logger.error { "#{@id}: #{e}" }
           end
         end
 
         def get
-          raise NotImplementedError, "#{__method__} needs to be implemented in subclass"
+          # implemented in subclass
+        end
+
+        def remove_outdated
+          @items.reject! do |item|
+            if @history.include?(item.id) || item.age > @config.max_age
+              true
+            else
+              @history[item.id] = item.date
+              false
+            end
+          end
+          @history.save(history_file)
         end
 
         def process
-          filter_items
-          @items.each do |item|
-            send_mail(make_mail(item))
-            @history[item.id] = item.date
-            @history.save(history_file)
-          end
+          # implemented in subclass
         end
 
-        def filter_items
-          @items.reject! do |item|
-            @history.include?(item.id) || item.age > @config.max_age
+        def deliver
+          @items.sort_by(&:date).each do |item|
+            send_mail(make_mail(item))
           end
-       end
+        end
 
         def reset
           @history.reset(history_file)

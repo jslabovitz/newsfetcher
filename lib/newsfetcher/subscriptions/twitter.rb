@@ -6,56 +6,46 @@ module NewsFetcher
 
       class Subscription < Base::Subscription
 
-        def get
+        def initialize(**)
+          super
           @title = 'Twitter'
-          @client = ::Twitter::REST::Client.new(@config.twitter)
-          get_timeline
-          find_threads
+          if @config.has_key?(:users)
+            @user_configs = @config.users.map { |n, c| [n, @config.make(c)] }.to_hash
+          end
         end
 
-        def get_timeline
+        def get
+          client = ::Twitter::REST::Client.new(@config.twitter)
           latest_key, latest_time = @history.latest_entry
           last_id = latest_key&.to_i || 1
-          @items = @client.
-            home_timeline(count: 200, since_id: last_id, tweet_mode: 'extended').
-            map { |t| Item.new(t) }
-          @items.sort_by!(&:date)
+          tweets = items = client.home_timeline(count: 200, since_id: last_id, tweet_mode: 'extended')
+          @items = tweets.map { |t| Item.new(t) }
         end
 
-        def find_threads
+        def process
           @items.each do |item|
             if (id = item.in_reply_to_status_id) && (parent = @items.find { |i| i.id == id })
               parent.replies << item
               item.parent = parent
             end
           end
-          @items.reject!(&:has_parent?)
+          @items.reject! { |item| reject_item?(item) }
         end
 
-        def filter_items
-          super
-          @items.reject! do |item|
-            config = item_config(item)
-            if (subtweet = item.subtweet)
-              if config.ignore_subtweets
-                $logger.info { "#{@id}: Ignoring item with subtweet: #{item.id}" }
-                next true
-              end
-              if item.screen_name == subtweet.screen_name
-                $logger.info { "#{@id}: Ignoring item with subtweet of self: #{item.id}" }
-                next true
-              end
+        def reject_item?(item)
+          return true if item.has_parent?
+          config = @user_configs&[item.screen_name] || @config
+          if (subtweet = item.subtweet)
+            if config.ignore_subtweets
+              $logger.info { "#{@id}: Ignoring item with subtweet: #{item.id}" }
+              return true
             end
-            false
+            if item.screen_name == subtweet.screen_name
+              $logger.info { "#{@id}: Ignoring item with subtweet of self: #{item.id}" }
+              return true
+            end
           end
-        end
-
-        def item_config(item)
-          if @config.has_key?(:users) && (user_config = @config.users[item.screen_name])
-            @config.make(user_config)
-          else
-            @config
-          end
+          false
         end
 
       end
