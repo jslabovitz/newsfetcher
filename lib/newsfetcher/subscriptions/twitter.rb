@@ -24,7 +24,7 @@ module NewsFetcher
 
         def find_threads
           @items.each do |item|
-            if (id = item.in_reply_to_status_id) && (parent = @items.find { |i| i.id == id })
+            if (id = item.in_reply_to_status_id) && (parent = @items.find { |i| i.id == id.to_s })
               parent.replies << item
               item.parent = parent
             end
