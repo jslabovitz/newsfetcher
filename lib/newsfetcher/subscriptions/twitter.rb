@@ -24,7 +24,7 @@ module NewsFetcher
 
         def find_threads
           @items.each do |item|
-            if (id = item.in_reply_to_status_id) && (parent = @items.find { |i| i.id == id.to_s })
+            if (id = item.in_reply_to_status_id) && (parent = @items.find { |i| i.id == id })
               parent.replies << item
               item.parent = parent
             end
@@ -93,7 +93,7 @@ module NewsFetcher
         end
 
         def in_reply_to_status_id
-          @tweet.in_reply_to_status_id
+          @tweet.in_reply_to_status_id&.to_s
         end
 
         def user_name
