@@ -37,14 +37,14 @@ module NewsFetcher
           @items.reject! do |item|
             config = item_config(item)
             if (subtweet = item.subtweet)
-              # if config.ignore_subtweets
-              #   $logger.info { "#{@id}: Ignoring item with subtweet: #{item.id}" }
-              #   next true
-              # end
-              # if item.screen_name == subtweet.screen_name
-              #   $logger.info { "#{@id}: Ignoring item with subtweet of self: #{item.id}" }
-              #   next true
-              # end
+              if config.ignore_subtweets
+                $logger.info { "#{@id}: Ignoring item with subtweet: #{item.id}" }
+                next true
+              end
+              if item.screen_name == subtweet.screen_name
+                $logger.info { "#{@id}: Ignoring item with subtweet of self: #{item.id}" }
+                next true
+              end
             end
             false
           end
