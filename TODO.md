@@ -1,7 +1,5 @@
 ## BUGS
 
-- save individual tweets (not just threads) in history
-
 
 ## ARCHITECTURAL IMPROVEMENTS
 
@@ -13,6 +11,7 @@
 
 - expand testing
   - use Mail::TestMailer to test results
+  - use mock Twitter/RSS feeds to test features
 
 
 ## FEATURES
