@@ -48,10 +48,6 @@ module NewsFetcher
           ]
         end
 
-        def path(delim='/')
-          @id.split('/')[0..-2].join(delim)
-        end
-
         def config_file
           raise Error, "dir not set" unless @dir
           @dir / ConfigFileName
@@ -184,13 +180,14 @@ module NewsFetcher
         def send_mail(mail)
           deliver_method, deliver_params =
             @config.deliver_method&.to_sym, @config.deliver_params
-          $logger.info { "#{@id}: Sending item via #{deliver_method || 'default'}: #{mail.subject.inspect}" }
+          $logger.info { "#{@id}: Sending item to #{mail.to.join(', ')} via #{deliver_method || 'default'}: #{mail.subject.inspect}" }
           case deliver_method.to_sym
           when :maildir
             location = deliver_params[:location] or raise Error, "location not found in deliver_params"
-            dir = Path.new(location).expand_path
-            folder = '.' + path('.')
-            maildir = Maildir.new(dir / folder)
+            location = Path.new(location).expand_path
+            components = @id.split('/')
+            path = (components.length == 1) ? components.first : components[0..-2].join('.')
+            maildir = Maildir.new(location / ('.' + path))
             maildir.serializer = Maildir::Serializer::Mail.new
             maildir.add(mail)
           else
