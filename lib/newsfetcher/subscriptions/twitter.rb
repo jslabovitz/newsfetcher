@@ -10,7 +10,9 @@ module NewsFetcher
           super
           @title = 'Twitter'
           if @config.has_key?(:users)
-            @user_configs = @config.users.map { |n, c| [n, @config.make(c)] }.to_hash
+            @user_configs = @config.users.map { |n, c| [n, @config.make(c)] }.to_h
+          else
+            @user_configs = {}
           end
         end
 
@@ -34,7 +36,7 @@ module NewsFetcher
 
         def reject_item?(item)
           return true if item.has_parent?
-          config = @user_configs&[item.screen_name] || @config
+          config = @user_configs[item.screen_name] || @config
           if (subtweet = item.subtweet)
             if config.ignore_subtweets
               $logger.info { "#{@id}: Ignoring item with subtweet: #{item.id}" }
