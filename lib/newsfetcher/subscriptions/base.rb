@@ -80,7 +80,7 @@ module NewsFetcher
 
         def status
           if (a = age)
-            if a > @config.dormant_time
+            if a > @config.max_age
               :dormant
             else
               :active
