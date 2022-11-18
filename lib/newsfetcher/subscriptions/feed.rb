@@ -78,7 +78,10 @@ module NewsFetcher
 
         def process
           @items.reject! do |item|
-            @ignore_patterns&.find { |r| item.uri.to_s =~ r }
+            if @ignore_patterns&.find { |r| item.uri.to_s =~ r }
+              $logger.debug { "#{@id}: removing ignored item #{item.id}" }
+              true
+            end
           end
         end
 

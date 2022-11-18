@@ -120,7 +120,11 @@ module NewsFetcher
 
         def remove_outdated
           @items.reject! do |item|
-            if @history.include?(item.id) || item.age > @config.max_age
+            if item.age > @config.max_age
+              $logger.debug { "#{@id}: removing outdated item #{item.id}" }
+              true
+            elsif @history.include?(item.id)
+              $logger.debug { "#{@id}: removing seen item #{item.id}" }
               true
             else
               @history[item.id] = item.date
@@ -135,6 +139,7 @@ module NewsFetcher
         end
 
         def deliver
+          $logger.debug { "#{@id}: no items to deliver" } if @items.empty?
           @items.sort_by(&:date).each do |item|
             send_mail(make_mail(item))
           end
