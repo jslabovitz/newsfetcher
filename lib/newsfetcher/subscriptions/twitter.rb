@@ -42,10 +42,24 @@ module NewsFetcher
               $logger.info { "#{@id}: Ignoring item with subtweet: #{item.id}" }
               return true
             end
-            if item.screen_name == subtweet.screen_name
+            if config.ignore_self_subtweets && item.screen_name == item.subtweet.screen_name
               $logger.info { "#{@id}: Ignoring item with subtweet of self: #{item.id}" }
               return true
             end
+          end
+          if config.ignore_quote_tweets && item.quoted_tweet
+            if !config.ignore_quote_tweets_length
+              $logger.info { "#{@id}: Ignoring item with quoted tweet: #{item.id}" }
+              return true
+            end
+            if item.text.length < config.ignore_quote_tweets_length
+              $logger.info { "#{@id}: Ignoring item with short quoted tweet: #{item.id}" }
+              return true
+            end
+          end
+          if config.ignore_retweets && item.retweeted_tweet
+            $logger.info { "#{@id}: Ignoring item with retweet: #{item.id}" }
+            return true
           end
           false
         end
