@@ -147,12 +147,8 @@ module NewsFetcher
                 html.a(@author, href: @tweet.uri)
               end
             end
-            unless @tweet.retweet?
-              html.p do
-                html << text.gsub("\n", '<br>')
-              end
-            end
-            if @tweet.retweet? || @tweet.quote?
+            html.p { html << text.gsub("\n", '<br>') }
+            if subtweet
               html.div(class: 'blockquote') do
                 html << subtweet.to_html
               end
