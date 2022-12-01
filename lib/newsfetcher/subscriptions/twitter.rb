@@ -37,7 +37,7 @@ module NewsFetcher
         def reject_item?(item)
           return true if item.has_parent?
           config = @user_configs[item.screen_name] || @config
-          if (subtweet = item.subtweet)
+          if item.subtweet
             if config.ignore_subtweets
               $logger.info { "#{@id}: Ignoring item with subtweet: #{item.id}" }
               return true
@@ -115,15 +115,15 @@ module NewsFetcher
         end
 
         def retweeted_tweet
-          (t = @tweet.retweet?) ? self.class.new(@tweet.retweeted_tweet) : nil
+          @retweeted_tweet ||= (@tweet.retweet? ? self.class.new(@tweet.retweeted_tweet) : nil)
         end
 
         def quoted_tweet
-          (t = @tweet.quote?) ? self.class.new(@tweet.quoted_tweet) : nil
+          @quoted_tweet ||= (@tweet.quote? ? self.class.new(@tweet.quoted_tweet) : nil)
         end
 
         def subtweet
-          retweeted_tweet || quoted_tweet
+          @subtweet ||= (retweeted_tweet || quoted_tweet)
         end
 
         def to_html(show_header: true)
