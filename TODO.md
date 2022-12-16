@@ -17,11 +17,7 @@
 ## FEATURES
 
 - Twitter:
-  - use lists to categorize tweets?
-  - allow subscription of either timeline, or individual user IDs
-  - ignore text-less retweets of already-seen tweets
-  - ignore retweets of tweets that are >n days older than retweet (default: 1)
-  - ignore retweets of retweets, if <75 chars? (default: true)
+  - allow subscription to individual user IDs
 
 - allow 'add' to take 'id' option to customize ID
 
