@@ -16,11 +16,41 @@ module NewsFetcher
           end
         end
 
+        def client
+          @client ||= ::Twitter::REST::Client.new(@config.twitter)
+        end
+
+        def show_lists
+          client.lists.each do |list|
+            %i[
+              id
+              uri
+              description
+              full_name
+              member_count
+              subscriber_count
+              created_at
+              mode
+              name
+              slug
+              user
+            ].each do |key|
+              puts '%16s: %s' % [key, list.send(key)]
+            end
+            puts '%16s: %s' % ['user_id', list.user.id]
+            puts
+          end
+        end
+
         def get
-          client = ::Twitter::REST::Client.new(@config.twitter)
           latest_key, latest_time = @history.latest_entry
           last_id = latest_key&.to_i || 1
-          tweets = items = client.home_timeline(count: 200, since_id: last_id, tweet_mode: 'extended')
+          params = { count: 200, since_id: last_id, tweet_mode: 'extended' }
+          if @config.list_timeline
+            tweets = client.list_timeline(**@config.list_timeline, **params)
+          else
+            tweets = client.home_timeline(**params)
+          end
           @items = tweets.map { |t| Item.new(t) }
         end
 
