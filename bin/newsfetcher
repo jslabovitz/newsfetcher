@@ -14,5 +14,7 @@ SimpleCommand::Commander.new(
   'remove' => NewsFetcher::Commands::Remove,
   'reset' => NewsFetcher::Commands::Reset,
   'show' => NewsFetcher::Commands::Show,
+  'twitter-show-lists' => NewsFetcher::Commands::TwitterShowLists,
+  'twitter-show-list-members' => NewsFetcher::Commands::TwitterShowListMembers,
   'update' => NewsFetcher::Commands::Update,
 ).run(ARGV)

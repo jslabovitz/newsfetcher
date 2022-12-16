@@ -25,20 +25,27 @@ module NewsFetcher
             %i[
               id
               uri
-              description
+              name
               full_name
+              slug
+              description
               member_count
               subscriber_count
               created_at
               mode
-              name
-              slug
               user
             ].each do |key|
               puts '%16s: %s' % [key, list.send(key)]
             end
             puts '%16s: %s' % ['user_id', list.user.id]
             puts
+          end
+        end
+
+        def show_list_members
+          raise Error, "Not configured for list" unless @config.list_timeline
+          client.list_members(**@config.list_timeline).each do |member|
+            puts "\t" + member.screen_name
           end
         end
 
