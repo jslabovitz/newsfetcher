@@ -75,7 +75,7 @@ module NewsFetcher
           return true if item.has_parent?
           config = @user_configs[item.screen_name] || @config
           if config.ignore_text
-            if item.text =~ Regexp.new(config.ignore_text, Regexp::IGNORE_CASE)
+            if item.text =~ Regexp.new(config.ignore_text, Regexp::IGNORECASE)
               $logger.info { "#{@id}: Ignoring item based on text: #{item.id}" }
               return true
             end
