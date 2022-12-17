@@ -74,6 +74,12 @@ module NewsFetcher
         def reject_item?(item)
           return true if item.has_parent?
           config = @user_configs[item.screen_name] || @config
+          if config.ignore_text
+            if item.text =~ Regexp.new(config.ignore_text, Regexp::IGNORE_CASE)
+              $logger.info { "#{@id}: Ignoring item based on text: #{item.id}" }
+              return true
+            end
+          end
           if item.subtweet
             if config.ignore_subtweets
               $logger.info { "#{@id}: Ignoring item with subtweet: #{item.id}" }
