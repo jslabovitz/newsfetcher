@@ -72,7 +72,7 @@ module NewsFetcher
         def process
           @items.reject! do |item|
             if @config.ignore_uris
-              regexps = @config.ignore_uris.map { |r| Regexp.new(r) }
+              regexps = [@config.ignore_uris].flatten.map { |r| Regexp.new(r) }
               if regexps.find { |r| item.uri.to_s =~ r }
                 $logger.debug { "#{@id}: removing ignored item #{item.id}" }
                 true
