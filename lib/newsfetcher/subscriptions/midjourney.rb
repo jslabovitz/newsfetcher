@@ -39,7 +39,7 @@ module NewsFetcher
         def initialize(job)
           super(
             id: job['id'],
-            date: DateTime.parse(job['enqueue_time']),
+            date: DateTime.parse(job['enqueue_time']).to_time,
             title: job['prompt'],
             author: job['username'],
             prompt: job['prompt'],
