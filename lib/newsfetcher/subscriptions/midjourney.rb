@@ -49,20 +49,18 @@ module NewsFetcher
 
         def to_html
           Simple::Builder.html_fragment do |html|
-            if @title
-              html.h1 do
-                html << @title.to_html
-              end
-            end
-            html.h2 do
-              html << [date_str, @author].compact.join(' • ').to_html
-            end
             @images.each do |image|
               html.p do
                 html.a(href: image) do
                   html.img(src: image)
                 end
               end
+            end
+            html.h1 do
+              html << @title.to_html
+            end
+            html.h2 do
+              html << [date_str, @author].compact.join(' • ').to_html
             end
           end
         end
