@@ -18,11 +18,11 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'addressable', '~> 2.8'
   s.add_dependency 'addressable-prettify', '~> 0.1'
-  s.add_dependency 'erb', '~> 2.2'
-  s.add_dependency 'faraday', '~> 2.5'
+  s.add_dependency 'erb', '~> 4.0'
+  s.add_dependency 'faraday', '~> 2.7'
   s.add_dependency 'feedjira', '~> 3.2'
   s.add_dependency 'loofah', '~> 2.19'
-  s.add_dependency 'mail', '~> 2.7'
+  s.add_dependency 'mail', '~> 2.8'
   s.add_dependency 'maildir', '~> 2.2'
   s.add_dependency 'net-smtp', '~> 0.3'   # for mail
   s.add_dependency 'path', '~> 2.0'
@@ -35,8 +35,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'simple-printer', '~> 0.1'
   s.add_dependency 'twitter', '~> 7.0'
 
-  s.add_development_dependency 'bundler', '~> 2.3'
-  s.add_development_dependency 'minitest', '~> 5.16'
+  s.add_development_dependency 'bundler', '~> 2.4'
+  s.add_development_dependency 'minitest', '~> 5.17'
   s.add_development_dependency 'minitest-power_assert', '~> 0.3'
   s.add_development_dependency 'rake', '~> 13.0'
 end
