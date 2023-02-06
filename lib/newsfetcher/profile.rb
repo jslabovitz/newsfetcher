@@ -52,7 +52,7 @@ module NewsFetcher
       ids.map do |id|
         dir = subscriptions_dir / id
         config = @config.load(dir / ConfigFileName)
-        klass = Subscriptions.const_get("#{(config.type || 'feed').capitalize}::Subscription")
+        klass = SubscriptionClassForType[config.type || 'feed']
         klass.new(id: id, dir: dir, config: config)
       end.
         reject { |s| s.config.disable }.

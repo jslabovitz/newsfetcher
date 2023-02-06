@@ -6,6 +6,13 @@ module NewsFetcher
 
       class Subscription < Base::Subscription
 
+        def self.make(args)
+          id, config_file = *args
+          config_file = Path.new(config_file)
+          config = Config.new(twitter: JSON.parse(config_file.read))
+          Subscriptions::Twitter::Subscription.new(id: id, config: config)
+        end
+
         def initialize(**)
           super
           @title = 'Twitter'

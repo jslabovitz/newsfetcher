@@ -6,12 +6,9 @@ module NewsFetcher
 
       def run(args)
         super
-        uri, path = *args
-        raise Error, "No URI specified" unless uri
-        uri = Addressable::URI.parse(uri)
-        subscription = Subscriptions::Feed::Subscription.new(
-          id: Subscriptions::Feed::Subscription.uri_to_id(uri, path: path),
-          config: Config.new(uri: uri))
+        klass = SubscriptionClassForType[@type || 'feed'] \
+          or raise Error, "Unknown subscription type: #{@type.inspect}"
+        subscription = klass.make(*args)
         @profile.add_subscription(subscription)
         warn "Added subscription: #{subscription.id}"
       end

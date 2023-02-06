@@ -16,6 +16,15 @@ module NewsFetcher
         include SetParams
         include Simple::Printer::Printable
 
+        def self.inherited(subclass)
+          @@classes ||= []
+          @@classes << subclass
+        end
+
+        def self.classes
+          @@classes
+        end
+
         def self.type
           to_s.split('::')[-2].downcase
         end

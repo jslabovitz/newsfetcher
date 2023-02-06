@@ -4,7 +4,6 @@ require 'newsfetcher'
 
 SimpleCommand::Commander.new(
   'add' => NewsFetcher::Commands::Add,
-  'add-twitter' => NewsFetcher::Commands::AddTwitter,
   'dir' => NewsFetcher::Commands::Dir,
   'discover' => NewsFetcher::Commands::Discover,
   'edit' => NewsFetcher::Commands::Edit,

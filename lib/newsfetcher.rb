@@ -67,6 +67,7 @@ module NewsFetcher
     main_stylesheet: File.join(File.dirname(__FILE__), '../message/stylesheet.css'),
     mail_subject: '[<%= subscription_id %>] <%= item_title %>',
   )
+  SubscriptionClassForType = Subscriptions::Base::Subscription.classes.map { |c| [c.type, c] }.to_h
 
 end
 
