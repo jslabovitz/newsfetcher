@@ -58,7 +58,11 @@ module NewsFetcher
               html << [date_str, @author].compact.join(' • ').to_html
             end
             @images.each do |image|
-              html.p { html.img(src: image, width: '100%', height: '100%') }
+              html.p do
+                html.a(href: image) do
+                  html.img(src: image)
+                end
+              end
             end
           end
         end
