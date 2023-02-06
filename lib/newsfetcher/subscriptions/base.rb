@@ -20,6 +20,26 @@ module NewsFetcher
           to_s.split('::')[-2].downcase
         end
 
+        def self.uri_to_id(uri, path: nil)
+          uri = Addressable::URI.parse(uri)
+          id = [
+            uri.host.to_s \
+              .sub(/^(www|ssl|en|feeds|rss|blogs?|news).*?\./i, '') \
+              .sub(/\.(com|org|net|info|edu|co\.uk|wordpress\.com|blogspot\.com|feedburner\.com)$/i, ''),
+            uri.path.to_s \
+              .gsub(/\b(\.?feeds?|index|atom|rss|rss2|xml|rdf|php|blog|posts|default)\b/i, ''),
+            uri.query.to_s \
+              .gsub(/\b(format|feed|type|q)=(atom|rss\.xml|rss2?|xml)/i, ''),
+          ] \
+            .join(' ')
+            .downcase
+            .gsub(/[^a-z0-9]+/, ' ')  # non-alphanumeric
+            .strip
+            .gsub(/\s+/, '-')
+          id = "#{path}/#{id}" if path
+          id
+        end
+
         def initialize(params={})
           @title = nil
           @items = []
