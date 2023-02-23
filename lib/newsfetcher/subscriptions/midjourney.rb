@@ -20,11 +20,8 @@ module NewsFetcher
           @items = []
           resource = Resource.get(@config.uri)
           html = Nokogiri::HTML(resource.content)
-# ;;puts html
           json = html.at_xpath('//script[@id="__NEXT_DATA__"]')
-# ;;pp json
           data = JSON.load(json)
-# ;;pp data
           jobs = data['props']['pageProps']['jobs']
           @items += jobs.map { |j| Item.new(j) }
         end
