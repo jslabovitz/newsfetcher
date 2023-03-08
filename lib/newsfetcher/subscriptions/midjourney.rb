@@ -23,7 +23,7 @@ module NewsFetcher
           json = html.at_xpath('//script[@id="__NEXT_DATA__"]')
           data = JSON.load(json)
           jobs = data['props']['pageProps']['jobs']
-          @items += jobs.map { |j| Item.new(j) }
+          @items += jobs.reject { |j| j['msg'] =~ /No jobs found/ }.map { |j| Item.new(j) }
         end
 
       end
