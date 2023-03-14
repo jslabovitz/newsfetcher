@@ -11,13 +11,10 @@
 
 - expand testing
   - use Mail::TestMailer to test results
-  - use mock Twitter/RSS feeds to test features
+  - use mock feeds/pages to test features
 
 
 ## FEATURES
-
-- Twitter:
-  - allow subscription to individual user IDs
 
 - allow 'add' to take 'id' option to customize ID
 

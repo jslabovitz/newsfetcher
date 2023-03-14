@@ -22,7 +22,6 @@ require 'set_params'
 require 'simple-builder'
 require 'simple-command'
 require 'simple-printer'
-require 'twitter'
 
 module NewsFetcher
 
@@ -56,7 +55,6 @@ require 'newsfetcher/scrubbers'
 require 'newsfetcher/subscriptions/base'
 require 'newsfetcher/subscriptions/feed'
 require 'newsfetcher/subscriptions/midjourney'
-require 'newsfetcher/subscriptions/twitter'
 
 module NewsFetcher
 

@@ -19,7 +19,6 @@ module NewsFetcher
       @tmp_dir.rmtree if @tmp_dir.exist?
       @dir = @tmp_dir / 'newsfetcher'
       @msgs_dir = @tmp_dir / 'msgs'
-      @twitter_config_file = Path.new('test/twitter.json')
       config = BaseConfig.make(
         mail_from: 'johnl@johnlabovitz.com',
         mail_to: 'johnl@johnlabovitz.com',
@@ -45,12 +44,6 @@ module NewsFetcher
         subscription.config.disable = disable
         @profile.add_subscription(subscription)
       end
-      # add twitter
-      twitter_config = config.make(twitter: JSON.parse(@twitter_config_file.read))
-      twitter_subscription = Subscriptions::Twitter::Subscription.new(
-        id: 'twitter',
-        config: twitter_config)
-      @profile.add_subscription(twitter_subscription)
       # update
       @profile.find_subscriptions.each(&:update)
       @msgs_dir.mkpath
@@ -61,7 +54,6 @@ module NewsFetcher
       end
       found_subscription = @profile.find_subscriptions(ids: %w[news/nytimes-services-nyt-homepage]).first
       assert { found_subscription.history_file.exist? }
-      assert { twitter_subscription.history_file.exist? }
     end
 
   end
