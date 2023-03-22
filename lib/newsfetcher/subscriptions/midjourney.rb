@@ -22,8 +22,20 @@ module NewsFetcher
           html = Nokogiri::HTML(resource.content)
           json = html.at_xpath('//script[@id="__NEXT_DATA__"]')
           data = JSON.load(json)
-          jobs = data['props']['pageProps']['jobs']
-          @items += jobs.reject { |j| j['msg'] =~ /No jobs found/ }.map { |j| Item.new(j) }
+          begin
+            jobs = data['props']['pageProps']['jobs']
+            case jobs
+            when Array
+              @items += jobs.map { |j| Item.new(j) }
+            when { 'msg' => 'No jobs found' }
+              # ignore
+            else
+              raise Error, "Unexpected result: #{jobs.inspect}"
+            end
+          rescue => e
+            ;;pp data
+            raise e
+          end
         end
 
       end
