@@ -42,18 +42,36 @@ module NewsFetcher
 
       class Item < Base::Item
 
-        attr_accessor :prompt
         attr_accessor :images
 
+        AttrMap = {
+          'id' => :id,
+          'enqueue_time' => proc { |v|
+            { date: DateTime.parse(v).to_time }
+          },
+          'prompt' => :title,
+          'username' => :author,
+          'image_paths' => proc { |v|
+            { images: v.map { |s| Addressable::URI.parse(s) } }
+          },
+        }
+
         def initialize(job)
-          super(
-            id: job['id'],
-            date: DateTime.parse(job['enqueue_time']).to_time,
-            title: job['prompt'],
-            author: job['username'],
-            prompt: job['prompt'],
-            images: job['image_paths'].map { |s| Addressable::URI.parse(s) },
-          )
+          super()
+          AttrMap.each do |str, info|
+            value = job[str] or raise Error, "Missing job info for key #{str.inspect}"
+            hash = case info
+            when nil
+              { str.to_sym => value }
+            when Symbol
+              { info => value }
+            when Proc
+              info.call(value)
+            else
+              raise
+            end
+            set(hash)
+          end
         end
 
         def to_html
