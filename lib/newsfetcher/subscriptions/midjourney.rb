@@ -27,7 +27,7 @@ module NewsFetcher
             case jobs
             when Array
               @items += jobs.map { |j| Item.new(j) }
-            when { 'msg' => 'No jobs found' }
+            when { 'msg' => 'No jobs found.' }
               # ignore
             else
               raise Error, "Unexpected result: #{jobs.inspect}"
