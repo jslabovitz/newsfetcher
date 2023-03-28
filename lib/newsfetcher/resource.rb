@@ -44,7 +44,8 @@ module NewsFetcher
       when 200...300
         @content = response.body
       when 300...400
-        @redirected_uri = @current_uri.join(Addressable::URI.parse(response.headers[:location]))
+        location = response.headers[:location] or raise Error, "No Location header found in redirect"
+        @redirected_uri = @current_uri.join(Addressable::URI.parse(location))
         @moved = (response.status == 302)
         raise Error, "Too many redirects" if @redirects == @max_redirects
         @redirects += 1
