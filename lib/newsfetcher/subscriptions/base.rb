@@ -233,7 +233,7 @@ module NewsFetcher
 
         def render_item(item)
           make_styles unless @styles
-          Simple::Builder.html4_document do |html|
+          Simple::Builder.build_html4_document do |html|
             html.html do
               html.head do
                 html.meta(name: 'x-apple-disable-message-reformatting')
@@ -311,7 +311,7 @@ module NewsFetcher
         end
 
         def text_to_html(text)
-          Simple::Builder.html_fragment do |html|
+          Simple::Builder.build_html do |html|
             text.split("\n").each_with_index do |line, i|
               html.br unless i == 0
               html.text(line)

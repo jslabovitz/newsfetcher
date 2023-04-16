@@ -75,7 +75,7 @@ module NewsFetcher
         end
 
         def to_html
-          Simple::Builder.html_fragment do |html|
+          Simple::Builder.build_html do |html|
             @images.each do |image|
               html.p do
                 html.a(href: image) do

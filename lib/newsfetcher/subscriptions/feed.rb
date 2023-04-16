@@ -98,7 +98,7 @@ module NewsFetcher
         end
 
         def to_html
-          Simple::Builder.html_fragment do |html|
+          Simple::Builder.build_html do |html|
             if @title
               html.h1 do
                 html << @title.to_html
