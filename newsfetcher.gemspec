@@ -24,7 +24,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'loofah', '~> 2.19'
   s.add_dependency 'mail', '~> 2.8'
   s.add_dependency 'maildir', '~> 2.2'
-  s.add_dependency 'net-smtp', '~> 0.3'   # for mail
   s.add_dependency 'path', '~> 2.1'
   s.add_dependency 'pragmatic_segmenter', '~> 0.3'
   s.add_dependency 'rubypants', '~> 0.7'
