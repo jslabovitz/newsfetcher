@@ -218,10 +218,9 @@ module NewsFetcher
           case deliver_method.to_sym
           when :maildir
             location = deliver_params[:location] or raise Error, "location not found in deliver_params"
-            location = Path.new(location).expand_path
-            components = @id.split('/')
-            path = (components.length == 1) ? components.first : components[0..-2].join('.')
-            maildir = Maildir.new(location / ('.' + path))
+            folder = deliver_params[:folder]
+            dir = maildir_directory(location: location, folder: folder)
+            maildir = Maildir.new(dir)
             maildir.serializer = Maildir::Serializer::Mail.new
             maildir.add(mail)
           else
@@ -229,6 +228,15 @@ module NewsFetcher
             mail.perform_deliveries = true
             mail.deliver!
           end
+        end
+
+        def maildir_directory(location:, folder:)
+          location = Path.new(location).expand_path
+          components = @id.split('/')
+          components.pop unless components.length == 1
+          components.unshift(folder) if folder
+          components.unshift('')
+          location / components.join('.')
         end
 
         def render_item(item)
