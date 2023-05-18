@@ -1,0 +1,9 @@
+#!/usr/bin/zsh
+
+source ~/.zshrc
+
+cd ~/src/newsfetcher
+bundle exec bin/newsfetcher update
+
+#mbsync -q -a
+mbsync -a
