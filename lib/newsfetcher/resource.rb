@@ -21,6 +21,7 @@ module NewsFetcher
       @redirected_uri = nil
       @timeout = 30
       @max_redirects = 5
+      @max_tries = 3
       @redirects = 0
       @moved = false
       set(params)
@@ -28,6 +29,7 @@ module NewsFetcher
 
     def get
       @current_uri = @redirected_uri || @uri
+      @tries = 0
       @content = nil
       response = silence_warnings do
         connection = Faraday.new(
@@ -36,8 +38,15 @@ module NewsFetcher
           ssl: { verify: false })
         begin
           connection.get
-        rescue Faraday::ConnectionFailed, Zlib::BufError, StandardError => e
-          raise Error, "Network error: #{e.message} (#{e.class})"
+        rescue Faraday::ConnectionFailed => e
+          if @tries < @max_tries
+            @tries += 1
+            retry
+          else
+            raise Error, "Connection error: #{e.message} (#{e.class})"
+          end
+        rescue Zlib::BufError, StandardError => e
+          raise Error, "Error: #{e.message} (#{e.class})"
         end
       end
       case response.status
