@@ -32,6 +32,11 @@ module NewsFetcher
           end
         end
 
+        def initialize(params={})
+          super
+          @ignore_uris = [@config.ignore_uris].flatten.compact.map { |r| Regexp.new(r) }
+        end
+
         def get
           @title = nil
           @items = []
@@ -50,16 +55,8 @@ module NewsFetcher
           @items += feedjira.entries.map { |e| Item.new(e) }
         end
 
-        def process
-          if @config.ignore_uris
-            regexps = [@config.ignore_uris].flatten.map { |r| Regexp.new(r) }
-            @items.reject! do |item|
-              if regexps.find { |r| item.uri.to_s =~ r }
-                $logger.debug { "#{@id}: removing ignored item #{item.id}" }
-                true
-              end
-            end
-          end
+        def reject_item?(item)
+          super or (uri = @ignore_uris.find { |r| item.uri.to_s =~ r }) && 'ignored item'
         end
 
       end

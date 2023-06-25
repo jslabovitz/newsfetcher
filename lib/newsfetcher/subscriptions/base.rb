@@ -133,12 +133,20 @@ module NewsFetcher
           end
         end
 
+        def update_history
+          @items.each do |item|
+            #FIXME: make entry with timestamp
+            @history[item.id] = item.date
+          end
+          @history.save
+        end
+
         def update
           $logger.debug { "#{@id}: updating" }
           begin
             get
-            remove_outdated
-            process
+            reject_items
+            update_history
             deliver
           rescue Error => e
             $logger.error { "#{@id}: #{e}" }
@@ -149,24 +157,23 @@ module NewsFetcher
           # implemented in subclass
         end
 
-        def remove_outdated
+        def reject_items
           @items.reject! do |item|
-            if item.age > @config.max_age
-              $logger.debug { "#{@id}: removing outdated item #{item.id}" }
+            if (reason = reject_item?(item))
+              $logger.debug { "#{@id}: removing item: #{reason} #{item.id}" }
               true
-            elsif @history.include?(item.id)
-              $logger.debug { "#{@id}: removing seen item #{item.id}" }
-              true
-            else
-              @history[item.id] = item.date
-              false
             end
           end
-          @history.save
         end
 
-        def process
-          # implemented in subclass
+        def reject_item?(item)
+          if item.age > @config.max_age
+            'outdated item'
+          elsif @history.include?(item.id)
+            'seen item'
+          else
+            nil
+          end
         end
 
         def deliver
