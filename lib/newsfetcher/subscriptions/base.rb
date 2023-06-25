@@ -184,12 +184,12 @@ module NewsFetcher
         end
 
         def fix
+          @history.save
         end
 
         def edit
-          system(
-            ENV['EDITOR'] || 'vi',
-            config_file.to_s)
+          editor = ENV['EDITOR'] or raise Error, "No editor defined in $EDITOR"
+          system(editor, config_file.to_s)
         end
 
         def make_mail(item)
