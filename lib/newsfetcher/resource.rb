@@ -24,7 +24,7 @@ module NewsFetcher
       @max_tries = 3
       @redirects = 0
       @moved = false
-      set(params)
+      super(params)
     end
 
     def get

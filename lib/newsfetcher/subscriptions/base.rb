@@ -52,7 +52,7 @@ module NewsFetcher
         def initialize(params={})
           @title = nil
           @items = []
-          set(params)
+          super
           load_history
         end
 

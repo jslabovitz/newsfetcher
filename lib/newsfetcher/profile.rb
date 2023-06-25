@@ -8,7 +8,7 @@ module NewsFetcher
     include SetParams
 
     def initialize(params={})
-      set(params)
+      super
       setup_logger
     end
 

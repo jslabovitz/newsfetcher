@@ -17,7 +17,7 @@ module NewsFetcher
 
     def initialize(params={})
       @entries = {}
-      set(params)
+      super
     end
 
     def save(file)
