@@ -125,7 +125,9 @@ module NewsFetcher
             @history.prune(before: Time.now - @config.max_age) do |id, time|
               $logger.info { "pruning #{id.inspect} (#{time})"}
             end
-            @history.save(history_file)
+            @history.save
+          elsif @dir
+            @history = History.new(file: history_file)
           else
             @history = History.new
           end
@@ -160,7 +162,7 @@ module NewsFetcher
               false
             end
           end
-          @history.save(history_file)
+          @history.save
         end
 
         def process
@@ -175,7 +177,7 @@ module NewsFetcher
         end
 
         def reset
-          @history.reset(history_file)
+          @history.reset
         end
 
         def remove

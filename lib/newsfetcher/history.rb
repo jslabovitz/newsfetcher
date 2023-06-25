@@ -2,6 +2,7 @@ module NewsFetcher
 
   class History
 
+    attr_accessor :file
     attr_accessor :entries
 
     include SetParams
@@ -12,7 +13,7 @@ module NewsFetcher
       rescue JSON::ParserError => e
         raise Error, "Bad JSON file: #{file.to_s.inspect}: #{e}"
       end
-      new(entries: entries)
+      new(file: file, entries: entries)
     end
 
     def initialize(params={})
@@ -20,13 +21,13 @@ module NewsFetcher
       super
     end
 
-    def save(file)
-      file.write(JSON.pretty_generate(@entries))
+    def save
+      @file.write(JSON.pretty_generate(@entries))
     end
 
-    def reset(file)
+    def reset
       @entries.clear
-      save(file)
+      save(@file)
     end
 
     def prune(before:, &block)
