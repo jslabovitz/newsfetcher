@@ -3,7 +3,10 @@
 
 ## ARCHITECTURAL IMPROVEMENTS
 
-- use Simple::History
+- save response status in history
+  - separate from items
+
+- convert history values from simple timestamp to History::Entry objects
 
 - rename 'path' to 'section'?
 
