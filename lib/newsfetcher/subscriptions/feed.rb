@@ -47,7 +47,7 @@ module NewsFetcher
           end
           Feedjira.configure { |c| c.strip_whitespace = true }
           begin
-            feedjira = Feedjira.parse(resource.content.force_encoding(Encoding::UTF_8))
+            feedjira = Feedjira.parse(resource.content)
           rescue StandardError, Feedjira::NoParserAvailable, Date::Error => e
             raise Error, "Can't parse XML feed from #{resource.uri}: #{e}"
           end
