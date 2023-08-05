@@ -2,16 +2,4 @@
 
 require 'newsfetcher'
 
-SimpleCommand::Commander.new(
-  'add' => NewsFetcher::Commands::Add,
-  'dir' => NewsFetcher::Commands::Dir,
-  'discover' => NewsFetcher::Commands::Discover,
-  'edit' => NewsFetcher::Commands::Edit,
-  'fix' => NewsFetcher::Commands::Fix,
-  'get' => NewsFetcher::Commands::Get,
-  'init' => NewsFetcher::Commands::Init,
-  'remove' => NewsFetcher::Commands::Remove,
-  'reset' => NewsFetcher::Commands::Reset,
-  'show' => NewsFetcher::Commands::Show,
-  'update' => NewsFetcher::Commands::Update,
-).run(ARGV)
+SimpleCommand::Commander.new.run(ARGV)
