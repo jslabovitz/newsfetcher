@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.require_path  = 'lib'
 
   s.add_dependency 'addressable', '~> 2.8'
-  s.add_dependency 'addressable-prettify', '~> 0.1'
+  s.add_dependency 'addressable-prettify', '~> 0.2'
   s.add_dependency 'erb', '~> 4.0'
   s.add_dependency 'faraday', '~> 2.7'
   s.add_dependency 'feedjira', '~> 3.2'
