@@ -20,11 +20,15 @@ module NewsFetcher
       @dir = @tmp_dir / 'newsfetcher'
       @msgs_dir = @tmp_dir / 'msgs'
       config = BaseConfig.make(
-        mail_from: 'johnl@johnlabovitz.com',
-        mail_to: 'johnl@johnlabovitz.com',
+        mail_from: 'newsfetcher',
+        mail_to: 'johnl',
         log_level: :error,
-        deliver_method: :test,
-        deliver_params: { location: @msgs_dir.to_s },
+        deliver_method: :maildir,
+        deliver_params: {
+          location: @msgs_dir.to_s,
+          folder: 'News'
+        },
+        consolidate: false,
       )
       @profile = Profile.new(dir: @dir, config: config)
       @profile.save
@@ -47,12 +51,6 @@ module NewsFetcher
       end
       # update
       @profile.find_subscriptions.each(&:update)
-      @msgs_dir.mkpath
-      Mail::TestMailer.deliveries.each_with_index do |mail, i|
-        base = @msgs_dir / ('%04d' % i)
-        base.add_extension('.eml').write(mail)
-        base.add_extension('.html').write(mail.body)
-      end
       found_subscription = @profile.find_subscriptions(ids: %w[news/nytimes-services-nyt-homepage]).first
       assert { found_subscription.history_file.exist? }
     end
