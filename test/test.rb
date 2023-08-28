@@ -38,9 +38,10 @@ module NewsFetcher
       @subscriptions = [
         ['https://johnlabovitz.com', 'mine'],
         ['http://nytimes.com', 'news'],
-        ['https://www.theguardian.com', 'news', true],
+        ['http://elpais.com', 'news', true],
       ].map do |uri, path, disable|
-        subscription = Subscriptions::Feed::Subscription.discover_feeds(uri, path: path).first
+        subscriptions = Subscriptions::Feed::Subscription.discover_feeds(uri, path: path)
+        subscription = subscriptions.first or raise "Can't discover feeds at #{uri}"
         subscription.config.disable = disable
         @profile.add_subscription(subscription)
       end
