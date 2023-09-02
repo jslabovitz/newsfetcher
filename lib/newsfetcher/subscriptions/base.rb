@@ -242,9 +242,7 @@ module NewsFetcher
         def maildir_directory(location:, folder:)
           location = Path.new(location).expand_path
           components = @id.split('/')
-          if @config.consolidate
-            components.pop unless components.length == 1
-          end
+          components.pop if @config.consolidate && components.length > 1
           components.unshift(folder) if folder
           components.unshift('')
           location / components.join('.')
