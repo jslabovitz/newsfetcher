@@ -4,17 +4,13 @@
 ## ARCHITECTURAL IMPROVEMENTS
 
 - save response status in history
-  - separate from items
+  - will need history entry to be hash/object, not just timestamp
 
 - convert history values from simple timestamp to History::Entry objects
 
 - rename 'path' to 'section'?
 
 - add per-subscription locks to avoid access by multiple processes/threads
-
-- expand testing
-  - use Mail::TestMailer to test results
-  - use mock feeds/pages to test features
 
 
 ## FEATURES
@@ -30,6 +26,7 @@
   - element (XPath) change (by hash?)
 
 - auto-discover on 'add'
+  - or auto-add on discover?
 
 - allow update by section (eg, world)
 
