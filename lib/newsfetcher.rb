@@ -54,7 +54,6 @@ require 'newsfetcher/resource'
 require 'newsfetcher/scrubbers'
 require 'newsfetcher/subscriptions/base'
 require 'newsfetcher/subscriptions/feed'
-require 'newsfetcher/subscriptions/midjourney'
 
 module NewsFetcher
 
