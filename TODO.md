@@ -3,10 +3,14 @@
 
 ## ARCHITECTURAL IMPROVEMENTS
 
+- re-combine Subscription Base + Feed
+  - just make this all about RSS/Atom
+
 - save response status in history
   - separate from items
 
 - convert history values from simple timestamp to History::Entry objects
+  - call History#latest, then use entry.time instead of time, etc.
 
 - rename 'path' to 'section'?
 
