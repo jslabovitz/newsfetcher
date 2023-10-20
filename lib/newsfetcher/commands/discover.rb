@@ -6,9 +6,12 @@ module NewsFetcher
 
       def run(args)
         super
-        args.each do |uri|
-          Subscriptions::Feed::Subscription.discover_feeds(uri).each do |subscription|
-            subscription.print
+        args.map { |a| Addressable::URI.parse(a) }.each do |uri|
+          Resource.get(uri).feeds.each do |feed|
+            feed.each do |key, value|
+              puts "%10s: %s" % [key, value]
+            end
+            puts
           end
         end
       end

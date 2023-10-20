@@ -60,13 +60,14 @@ module NewsFetcher
         sort_by { |s| s.send(sort).to_s }
     end
 
-    def add_subscription(subscription, **options)
+    def add_subscription(subscription)
       subscription.dir = subscriptions_dir / subscription.id
       subscription.config.parent = @config
       subscription.config.type = subscription.class.type
       raise Error, "Subscription already exists (as #{subscription.id})" if subscription.exist?
       subscription.save
       $logger.info { "Saved new subscription to #{subscription.id}" }
+      subscription
     end
 
   end

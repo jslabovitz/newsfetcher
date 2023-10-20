@@ -29,9 +29,14 @@ module NewsFetcher
           to_s.split('::')[-2].downcase
         end
 
-        def self.uri_to_id(uri, path: nil)
-          uri = Addressable::URI.parse(uri)
-          id = [
+        def self.make_id(uri:, id: nil, path: nil)
+          id ||= derive_id(uri)
+          id = "#{path}/#{id}" if path
+          id
+        end
+
+        def self.derive_id(uri)
+          [
             uri.host.to_s \
               .sub(/^(www|ssl|en|feeds|rss|blogs?|news).*?\./i, '') \
               .sub(/\.(com|org|net|info|edu|co\.uk|wordpress\.com|blogspot\.com|feedburner\.com)$/i, ''),
@@ -45,8 +50,6 @@ module NewsFetcher
             .gsub(/[^a-z0-9]+/, ' ')  # non-alphanumeric
             .strip
             .gsub(/\s+/, '-')
-          id = "#{path}/#{id}" if path
-          id
         end
 
         def initialize(params={})
@@ -181,6 +184,16 @@ module NewsFetcher
           @items.sort_by(&:date).each do |item|
             send_mail(make_mail(item))
           end
+        end
+
+        def enable
+          @config.disable = false
+          save
+        end
+
+        def disable
+          @config.disable = true
+          save
         end
 
         def reset

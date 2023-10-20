@@ -17,7 +17,7 @@ module NewsFetcher
     end
 
     def initialize(uri, params={})
-      @uri = Addressable::URI.parse(uri.to_s)
+      @uri = uri
       @redirected_uri = nil
       @timeout = 30
       @max_redirects = 5
@@ -63,6 +63,15 @@ module NewsFetcher
         raise Error, "HTTP error: #{response.reason_phrase} (#{response.status})"
       else
         raise Error, "Unexpected HTTP response: #{response.reason_phrase} (#{response.status})"
+      end
+    end
+
+    def feeds
+      html = Nokogiri::HTML::Document.parse(@content)
+      html.xpath('//link[@rel="alternate"]').select { |link| FeedTypes.include?(link['type']) }.map do |link|
+        attrs = link.attributes.map { |n, a| [n.to_sym, a.value] }.to_h
+        attrs[:href] = uri.join(attrs[:href])
+        attrs
       end
     end
 

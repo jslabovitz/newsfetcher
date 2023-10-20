@@ -6,32 +6,6 @@ module NewsFetcher
 
       class Subscription < Base::Subscription
 
-        def self.make(args)
-          uri, path = *args
-          raise Error, "No URI specified" unless uri
-          uri = Addressable::URI.parse(uri)
-          new(
-            id: uri_to_id(uri, path: path),
-            config: Config.new(uri: uri))
-        end
-
-        def self.discover_feeds(uri, path: nil)
-          uri = Addressable::URI.parse(uri)
-          raise Error, "Bad URI: #{uri}" unless uri.absolute?
-          begin
-            resource = Resource.get(uri)
-          rescue Error => e
-            raise Error, "Failed to get #{uri}: #{e}"
-          end
-          html = Nokogiri::HTML::Document.parse(resource.content)
-          html.xpath('//link[@rel="alternate"]').select { |link| FeedTypes.include?(link['type']) }.map do |link|
-            feed_uri = uri.join(link['href'])
-            new(
-              id: uri_to_id(feed_uri, path: path),
-              config: Config.new(uri: feed_uri))
-          end
-        end
-
         def initialize(params={})
           super
           @ignore_uris = [@config.ignore_uris].flatten.compact.map { |r| Regexp.new(r) }

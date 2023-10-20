@@ -39,20 +39,30 @@ module NewsFetcher
       config = BaseConfig.load(config_file)
       @profile = Profile.new(dir: @dir, config: config)
       # add web sites
-      @subscriptions = [
+      specs = [
         ['https://johnlabovitz.com', 'mine'],
         ['http://nytimes.com', 'news'],
-        ['http://elpais.com', 'news', true],
-      ].map do |uri, path, disable|
-        subscriptions = Subscriptions::Feed::Subscription.discover_feeds(uri, path: path)
-        subscription = subscriptions.first or raise "Can't discover feeds at #{uri}"
-        subscription.config.disable = disable
+        ['http://elpais.com', 'news', 'elpais'],
+      ].map do |uri, path, id|
+        uri = Addressable::URI.parse(uri)
+        feeds = Resource.get(uri).feeds
+        feed = feeds.first or raise "Can't discover feeds at #{uri}"
+        feed_uri = feed[:href] or raise "Can't find feed URI"
+        subscription = Subscriptions::Feed::Subscription.new(
+          id: Subscriptions::Feed::Subscription.make_id(uri: feed_uri, id: id, path: path),
+          config: Config.new(uri: feed_uri))
         @profile.add_subscription(subscription)
       end
+      subscriptions = @profile.find_subscriptions
+      assert { subscriptions.count == specs.count }
+      # disable
+      subscription = @profile.find_subscriptions(ids: %w[news/elpais]).first
+      subscription.disable
       # update
-      @profile.find_subscriptions.each(&:update)
-      found_subscription = @profile.find_subscriptions(ids: %w[news/nytimes-services-nyt-homepage]).first
-      assert { found_subscription.history_file.exist? }
+      subscriptions.each(&:update)
+      # find
+      subscription = @profile.find_subscriptions(ids: %w[news/nytimes-services-nyt-homepage]).first
+      assert { subscription.history_file.exist? }
     end
 
   end
