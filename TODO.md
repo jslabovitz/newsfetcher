@@ -7,7 +7,7 @@
   - just make this all about RSS/Atom
 
 - save response status in history
-  - separate from items
+  - will need history entry to be hash/object, not just timestamp
 
 - convert history values from simple timestamp to History::Entry objects
   - call History#latest, then use entry.time instead of time, etc.
@@ -15,10 +15,6 @@
 - rename 'path' to 'section'?
 
 - add per-subscription locks to avoid access by multiple processes/threads
-
-- expand testing
-  - use Mail::TestMailer to test results
-  - use mock feeds/pages to test features
 
 
 ## FEATURES
@@ -34,6 +30,7 @@
   - element (XPath) change (by hash?)
 
 - auto-discover on 'add'
+  - or auto-add on discover?
 
 - allow update by section (eg, world)
 

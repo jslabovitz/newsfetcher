@@ -28,7 +28,6 @@ module NewsFetcher
           location: @msgs_dir.to_s,
           folder: 'News'
         },
-        consolidate: false,
       )
       @profile = Profile.new(dir: @dir, config: config)
       @profile.save
