@@ -52,8 +52,7 @@ module NewsFetcher
       ids.map do |id|
         dir = subscriptions_dir / id
         config = @config.load(dir / ConfigFileName)
-        klass = SubscriptionClassForType[config.type || 'feed']
-        klass.new(id: id, dir: dir, config: config)
+        Subscription.new(id: id, dir: dir, config: config)
       end.
         reject { |s| s.config.disable }.
         select { |s| status.nil? || status.include?(s.status) }.
@@ -63,7 +62,6 @@ module NewsFetcher
     def add_subscription(subscription)
       subscription.dir = subscriptions_dir / subscription.id
       subscription.config.parent = @config
-      subscription.config.type = subscription.class.type
       raise Error, "Subscription already exists (as #{subscription.id})" if subscription.exist?
       subscription.save
       $logger.info { "Saved new subscription to #{subscription.id}" }

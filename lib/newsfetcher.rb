@@ -48,11 +48,11 @@ require 'newsfetcher/extensions/string'
 require 'newsfetcher/config'
 require 'newsfetcher/error'
 require 'newsfetcher/history'
+require 'newsfetcher/item'
 require 'newsfetcher/profile'
 require 'newsfetcher/resource'
 require 'newsfetcher/scrubbers'
-require 'newsfetcher/subscriptions/base'
-require 'newsfetcher/subscriptions/feed'
+require 'newsfetcher/subscription'
 
 module NewsFetcher
 
@@ -64,7 +64,6 @@ module NewsFetcher
     main_stylesheet: File.join(File.dirname(__FILE__), '../message/stylesheet.css'),
     mail_subject: '[<%= subscription_id %>] <%= item_title %>',
   )
-  SubscriptionClassForType = Subscriptions::Base::Subscription.classes.map { |c| [c.type, c] }.to_h
 
 end
 

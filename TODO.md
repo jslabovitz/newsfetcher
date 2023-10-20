@@ -3,9 +3,6 @@
 
 ## ARCHITECTURAL IMPROVEMENTS
 
-- re-combine Subscription Base + Feed
-  - just make this all about RSS/Atom
-
 - save response status in history
   - will need history entry to be hash/object, not just timestamp
 
@@ -23,11 +20,6 @@
 
 - add 'remove' feature
   - specifies XPath expression to remove
-
-- implement page subscription type
-  - page check
-  - last-modified
-  - element (XPath) change (by hash?)
 
 - auto-discover on 'add'
   - or auto-add on discover?

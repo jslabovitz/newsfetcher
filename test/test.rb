@@ -47,9 +47,7 @@ module NewsFetcher
         feeds = Resource.get(uri).feeds
         feed = feeds.first or raise "Can't discover feeds at #{uri}"
         feed_uri = feed[:href] or raise "Can't find feed URI"
-        subscription = Subscriptions::Feed::Subscription.new(
-          id: Subscriptions::Feed::Subscription.make_id(uri: feed_uri, id: id, path: path),
-          config: Config.new(uri: feed_uri))
+        subscription = Subscription.make(uri: feed_uri, id: id, path: path)
         @profile.add_subscription(subscription)
       end
       subscriptions = @profile.find_subscriptions
