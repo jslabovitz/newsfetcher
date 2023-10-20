@@ -25,7 +25,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'mail', '~> 2.8'
   s.add_dependency 'maildir', '~> 2.2'
   s.add_dependency 'path', '~> 2.1'
-  s.add_dependency 'pragmatic_segmenter', '~> 0.3'
   s.add_dependency 'rubypants', '~> 0.7'
   s.add_dependency 'sassc', '~> 2.4'
   s.add_dependency 'set_params', '~> 0.2'
@@ -34,7 +33,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'simple-printer', '~> 0.2'
 
   s.add_development_dependency 'bundler', '~> 2.4'
-  s.add_development_dependency 'minitest', '~> 5.19'
+  s.add_development_dependency 'minitest', '~> 5.20'
   s.add_development_dependency 'minitest-power_assert', '~> 0.3'
   s.add_development_dependency 'rake', '~> 13.0'
 end
