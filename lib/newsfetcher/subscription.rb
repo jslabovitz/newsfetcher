@@ -142,6 +142,7 @@ module NewsFetcher
       @title = nil
       @items = []
       uri = @config.uri or raise Error, "No URI defined for #{@id}"
+      uri = Addressable::URI.parse(uri)
       resource = Resource.get(uri)
       if resource.moved && !@config.ignore_moved
         $logger.warn { "#{@id}: URI #{resource.uri} moved to #{resource.redirected_uri}" }
