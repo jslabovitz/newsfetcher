@@ -55,50 +55,6 @@ module NewsFetcher
       Time.now - @date
     end
 
-    def date_str
-      @date.strftime('%e %B %Y')
-    end
-
-    def scrub_html(html)
-      Loofah.fragment(html).
-        scrub!(:prune).
-        scrub!(Scrubber::RemoveExtras).
-        scrub!(Scrubber::RemoveVoxFooter).
-        scrub!(Scrubber::RemoveStyling).
-        scrub!(Scrubber::ReplaceBlockquote).
-        to_html
-    end
-
-    def text_to_html(text)
-      Simple::Builder.build_html do |html|
-        text.split("\n").each_with_index do |line, i|
-          html.br unless i == 0
-          html.text(line)
-        end
-      end.to_html
-    end
-
-    def to_html
-      Simple::Builder.build_html do |html|
-        if @title
-          html.h1 do
-            html << @title.to_html
-          end
-        end
-        html.h2 do
-          html << [date_str, @author].compact.join(' • ').to_html
-        end
-        if @uri
-          html.h3 do
-            html.a(@uri.prettify, href: @uri)
-          end
-        end
-        if @content
-          html << (@content.html? ? scrub_html(@content) : text_to_html(@content))
-        end
-      end
-    end
-
   end
 
 end

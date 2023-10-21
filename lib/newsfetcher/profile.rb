@@ -10,6 +10,7 @@ module NewsFetcher
     def initialize(params={})
       super
       setup_logger
+      setup_styles
     end
 
     def setup_logger
@@ -19,6 +20,15 @@ module NewsFetcher
           "%s %5s: %s\n" % [timestamp.strftime('%FT%T%:z'), severity, msg]
         },
       )
+    end
+
+    def setup_styles
+      raise Error, "dir not set" unless @dir
+      @styles = [@config.main_stylesheet, @config.aux_stylesheets].compact.map do |file|
+        file = Path.new(file)
+        file = @dir / file if file.relative?
+        SassC::Engine.new(file.read, syntax: :scss, style: :compressed).render
+      end
     end
 
     def dir=(dir)
@@ -49,23 +59,35 @@ module NewsFetcher
       status = [status].flatten.compact if status
       sort ||= :id
       ids = all_ids if ids.nil? || ids.empty?
-      ids.map do |id|
+      subscriptions = ids.map do |id|
         dir = subscriptions_dir / id
-        config = @config.load(dir / ConfigFileName)
-        Subscription.new(id: id, dir: dir, config: config)
-      end.
+        Subscription.new(
+          id: id,
+          dir: dir,
+          config: @config.load(dir / ConfigFileName),
+          formatter: @formatter)
+      end
+      subscriptions.
         reject { |s| s.config.disable }.
         select { |s| status.nil? || status.include?(s.status) }.
         sort_by { |s| s.send(sort).to_s }
     end
 
-    def add_subscription(subscription)
-      subscription.dir = subscriptions_dir / subscription.id
-      subscription.config.parent = @config
+    def add_subscription(uri:, id: nil, path: nil)
+      id = Subscription.make_id(uri) unless id
+      id = "#{path}/#{id}" if path
+      subscription = Subscription.new(
+        id: id,
+        dir: subscriptions_dir / id,
+        config: @config.make(uri: uri))
       raise Error, "Subscription already exists (as #{subscription.id})" if subscription.exist?
       subscription.save
       $logger.info { "Saved new subscription to #{subscription.id}" }
       subscription
+    end
+
+    def update_subscription(subscription)
+      subscription.update(styles: @styles)
     end
 
   end

@@ -5,20 +5,12 @@ module NewsFetcher
     attr_accessor :id
     attr_accessor :dir
     attr_accessor :config
-    attr_accessor :styles
+    attr_accessor :formatter
     attr_accessor :items
     attr_accessor :title
 
     include SetParams
     include Simple::Printer::Printable
-
-    def self.make(uri:, id: nil, path: nil)
-      id = make_id(uri) unless id
-      id = "#{path}/#{id}" if path
-      new(
-        id: id,
-        config: Config.new(uri: uri))
-    end
 
     def self.make_id(uri)
       [
@@ -83,6 +75,10 @@ module NewsFetcher
       @config.save(config_file)
     end
 
+    def effective_title
+      @config.title || @title
+    end
+
     def age
       latest_key, latest_time = @history.latest_entry
       if latest_time
@@ -126,7 +122,10 @@ module NewsFetcher
       @history.save
     end
 
-    def update
+    def update(styles:)
+      @formatter = Formatter.new(
+        styles: styles,
+        subscription: self)
       $logger.debug { "#{@id}: updating" }
       begin
         get
@@ -177,9 +176,11 @@ module NewsFetcher
     end
 
     def deliver
+      raise "No formatter defined" unless @formatter
       $logger.debug { "#{@id}: no items to deliver" } if @items.empty?
       @items.sort_by(&:date).each do |item|
-        send_mail(make_mail(item))
+        mail = @formatter.make_mail(item: item)
+        send_mail(mail)
       end
     end
 
@@ -211,25 +212,6 @@ module NewsFetcher
       system(editor, config_file.to_s)
     end
 
-    def make_mail(item)
-      mail_from    = @config.mail_from or raise Error, "mail_from not specified in config"
-      mail_to      = @config.mail_to or raise Error, "mail_to not specified in config"
-      mail_subject = @config.mail_subject or raise Error, "mail_subject not specified in config"
-      fields = {
-        subscription_id: @id,
-        item_title: item.title,
-      }
-      mail = Mail.new
-      mail.date =         item.date
-      mail.from =         ERB.new(mail_from).result_with_hash(fields)
-      mail.to =           ERB.new(mail_to).result_with_hash(fields)
-      mail.subject =      ERB.new(mail_subject).result_with_hash(fields)
-      mail.content_type = 'text/html'
-      mail.charset =      'utf-8'
-      mail.body =         render_item(item)
-      mail
-    end
-
     def send_mail(mail)
       deliver_method, deliver_params =
         @config.deliver_method&.to_sym, @config.deliver_params
@@ -256,36 +238,6 @@ module NewsFetcher
       components.unshift(folder) if folder
       components.unshift('')
       location / components.join('.')
-    end
-
-    def render_item(item)
-      make_styles unless @styles
-      Simple::Builder.build_html4_document do |html|
-        html.html do
-          html.head do
-            html.meta(name: 'x-apple-disable-message-reformatting')
-            html.meta(name: 'viewport', content: 'width=device-width, initial-scale=1')
-            @styles.each do |style|
-              html.style { html << style }
-            end
-          end
-          html.body do
-            html.div(class: 'header') do
-              html << ('%s [%s]' % [@config.title || @title, @id]).to_html
-            end
-            html << item.to_html
-          end
-        end
-      end.to_html
-    end
-
-    def make_styles
-      raise Error, "dir not set" unless @dir
-      @styles = [@config.main_stylesheet, @config.aux_stylesheets].compact.map do |file|
-        file = Path.new(file)
-        file = @dir / file if file.relative?
-        SassC::Engine.new(file.read, syntax: :scss, style: :compressed).render
-      end
     end
 
   end
