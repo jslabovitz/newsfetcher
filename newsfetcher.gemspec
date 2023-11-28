@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'erb', '~> 4.0'
   s.add_dependency 'faraday', '~> 2.7'
   s.add_dependency 'feedjira', '~> 3.2'
-  s.add_dependency 'loofah', '~> 2.21'
+  s.add_dependency 'loofah', '~> 2.22'
   s.add_dependency 'mail', '~> 2.8'
   s.add_dependency 'maildir', '~> 2.2'
   s.add_dependency 'path', '~> 2.1'
@@ -35,5 +35,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'bundler', '~> 2.4'
   s.add_development_dependency 'minitest', '~> 5.20'
   s.add_development_dependency 'minitest-power_assert', '~> 0.3'
-  s.add_development_dependency 'rake', '~> 13.0'
+  s.add_development_dependency 'rake', '~> 13.1'
 end
