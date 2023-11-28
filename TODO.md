@@ -9,10 +9,11 @@
 
 - add per-subscription locks to avoid access by multiple processes/threads
 
-- define keys on config hash
-  - avoid errors in using wrong/ignored keys
-  - just use attr's, instead of hash?
-  - pre-parse values, using defined types -- eg, array of URLs
+- move Config out to separate Simple::Config gem
+  - use instance methods instead of hash
+  - implement DSL to set fields, and do parsing
+
+- split mail delivery out to own class?
 
 
 ## FEATURES
@@ -24,7 +25,7 @@
 - implement retry on error in fetching/parsing
   - only show error if > retry count
 
-- allow unit suffixes on durations (s, m, h, d)
+- allow unit suffixes on durations (s, m, h, d, w)
 
 - allow 'add' to take 'id' option to customize ID
 
