@@ -1,8 +1,4 @@
 $VERBOSE = false
-# avoid annoying warning
-class Object
-  def tainted?; false; end
-end
 
 require 'minitest/autorun'
 require 'minitest/power_assert'
