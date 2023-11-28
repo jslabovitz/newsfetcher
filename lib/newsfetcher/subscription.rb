@@ -5,7 +5,7 @@ module NewsFetcher
     attr_accessor :id
     attr_accessor :dir
     attr_accessor :config
-    attr_accessor :formatter
+    attr_accessor :styles
     attr_accessor :items
     attr_accessor :title
 
@@ -34,6 +34,7 @@ module NewsFetcher
       @items = []
       super
       @ignore_uris = [@config.ignore_uris].flatten.compact.map { |r| Regexp.new(r) }
+      @formatter = Formatter.new(styles: @styles, subscription: self)
       load_history
     end
 
@@ -122,10 +123,7 @@ module NewsFetcher
       @history.save
     end
 
-    def update(styles:)
-      @formatter = Formatter.new(
-        styles: styles,
-        subscription: self)
+    def update
       $logger.debug { "#{@id}: updating" }
       begin
         get

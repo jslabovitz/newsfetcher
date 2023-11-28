@@ -65,7 +65,7 @@ module NewsFetcher
           id: id,
           dir: dir,
           config: @config.load(dir / ConfigFileName),
-          formatter: @formatter)
+          styles: @styles)
       end
       subscriptions.
         reject { |s| s.config.disable }.
@@ -79,7 +79,8 @@ module NewsFetcher
       subscription = Subscription.new(
         id: id,
         dir: subscriptions_dir / id,
-        config: @config.make(uri: uri))
+        config: @config.make(uri: uri),
+        styles: @styles)
       raise Error, "Subscription already exists (as #{subscription.id})" if subscription.exist?
       subscription.save
       $logger.info { "Saved new subscription to #{subscription.id}" }
@@ -87,7 +88,7 @@ module NewsFetcher
     end
 
     def update_subscription(subscription)
-      subscription.update(styles: @styles)
+      subscription.update
     end
 
   end
