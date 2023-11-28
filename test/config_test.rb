@@ -38,12 +38,8 @@ module NewsFetcher
       @config1.save(file)
       assert { file.exist? }
       config = Config.load(file)
-      assert { config == @config1 }
-    end
-
-    def test_merged
-      h = @config1.hash.merge(@config2.hash).merge(@config3.hash)
-      assert { @config3.merged == h }
+      assert { config.a == 1 }
+      assert { config.b == 2 }
     end
 
     def test_assign

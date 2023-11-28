@@ -13,10 +13,6 @@ module NewsFetcher
       @hash = params
     end
 
-    def ==(other)
-      @hash == other.hash
-    end
-
     def load(file)
       self.class.load(file).tap { |c| c.parent = self }
     end
@@ -28,10 +24,6 @@ module NewsFetcher
     def save(file)
       file.dirname.mkpath unless file.dirname.exist?
       file.write(JSON.pretty_generate(@hash))
-    end
-
-    def merged
-      (@parent&.merged || {}).merge(@hash)
     end
 
     def has_key?(id)
