@@ -62,7 +62,18 @@ module NewsFetcher
     log_level: :warn,
     max_age: 30 * DaySecs,
     main_stylesheet: File.join(File.dirname(__FILE__), '../message/stylesheet.css'),
+    # aux_stylesheets: nil,
+    # deliver_method: nil,
+    # deliver_params: nil,
+    # mail_from: nil,
+    # mail_to: nil,
     mail_subject: '[<%= subscription_id %>] <%= item_title %>',
+    # uri: nil,
+    # title: nil,
+    # disable: false,
+    # ignore_uris: nil,
+    # ignore_moved: false,
+    # consolidate: false,
   )
 
 end
