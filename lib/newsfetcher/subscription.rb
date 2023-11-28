@@ -45,12 +45,12 @@ module NewsFetcher
     def printable
       [
         [:id, 'ID'],
-        [:uri, 'URI', config.uri],
+        [:uri, 'URI', @config.uri],
         :dir,
         :title,
         :status,
         [:age, 'Age', (a = age) ? '%d days' % (a / 60 / 60 / 24) : 'never'],
-        [:disable, 'Disable', config.disable],
+        [:disable, 'Disable', @config.disable],
         :items,
       ]
     end
