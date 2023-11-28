@@ -24,7 +24,7 @@ module NewsFetcher
 
     def setup_styles
       raise Error, "dir not set" unless @dir
-      @styles = [@config.main_stylesheet, @config.aux_stylesheets].compact.map do |file|
+      @styles = [@config.main_stylesheet, @config.aux_stylesheets].flatten.compact.map do |file|
         file = Path.new(file)
         file = @dir / file if file.relative?
         SassC::Engine.new(file.read, syntax: :scss, style: :compressed).render
