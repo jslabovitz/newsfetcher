@@ -57,7 +57,7 @@ module NewsFetcher
       subscription = @profile.find_subscriptions(ids: %w[news/elpais]).first
       subscription.disable
       # update
-      subscriptions.each { |s| @profile.update_subscription(s) }
+      subscriptions.each(&:update)
       # find
       subscription = @profile.find_subscriptions(ids: %w[news/nytimes-services-nyt-homepage]).first
       assert { subscription.history_file.exist? }

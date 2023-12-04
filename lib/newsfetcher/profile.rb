@@ -87,10 +87,6 @@ module NewsFetcher
       subscription
     end
 
-    def update_subscription(subscription)
-      subscription.update
-    end
-
   end
 
 end
