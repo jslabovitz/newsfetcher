@@ -8,7 +8,7 @@ module NewsFetcher
         super
         @profile.find_subscriptions(
           ids: args,
-          status: @status&.split(',').map(&:to_sym),
+          status: @status&.split(',')&.map(&:to_sym),
           sort: @sort&.to_sym,
         ).each do |subscription|
           subscription.print
