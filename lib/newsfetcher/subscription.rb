@@ -49,7 +49,7 @@ module NewsFetcher
         :dir,
         :title,
         :status,
-        [:age, 'Age', (a = age) ? '%d days' % (a / 60 / 60 / 24) : 'never'],
+        [:age, 'Age', (a = age) ? '%d days' % (a.to_f / 60 / 60 / 24) : 'never'],
         ['Disable', @config.disable],
         :items,
       ]
