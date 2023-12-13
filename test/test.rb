@@ -43,10 +43,12 @@ module NewsFetcher
         ['http://nytimes.com', 'news'],
         ['http://elpais.com', 'news', 'elpais'],
       ].map do |uri, path, id|
-        uri = Addressable::URI.parse(uri)
-        feeds = Resource.get(uri).feeds
-        feed = feeds.first or raise "Can't discover feeds at #{uri}"
-        uri = feed[:href] or raise "Can't find feed URI"
+        feeds = Fetcher.find_feeds(uri)
+        assert { feeds.kind_of?(Array) && feeds.count == 1 }
+        feed = feeds.first
+        assert { feed }
+        uri = feed[:uri]
+        assert { uri }
         subscription = @profile.add_subscription(uri: uri, id: id, path: path)
         assert { subscription }
         subscription

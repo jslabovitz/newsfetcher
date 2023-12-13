@@ -6,9 +6,17 @@ module NewsFetcher
 
       def run(args)
         super
-        @profile.find_subscriptions(ids: args).each do |subscription|
-          subscription.get
-          subscription.print
+        args.each do |uri|
+          fetcher = Fetcher.new(uri: uri)
+          feed = fetcher.parse_feed
+          puts
+          puts "URI: #{fetcher.uri}"
+          puts "Status: #{fetcher.response_status} #{fetcher.response_reason_phrase}"
+          puts "Title: #{feed[:title]}"
+          puts "Items:"
+          feed[:items].each do |item|
+            item.print
+          end
         end
       end
 

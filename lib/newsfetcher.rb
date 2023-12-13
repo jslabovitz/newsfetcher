@@ -51,7 +51,7 @@ require 'newsfetcher/formatter'
 require 'newsfetcher/history'
 require 'newsfetcher/item'
 require 'newsfetcher/profile'
-require 'newsfetcher/resource'
+require 'newsfetcher/fetcher'
 require 'newsfetcher/subscription'
 
 module NewsFetcher

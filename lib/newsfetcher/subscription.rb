@@ -136,22 +136,13 @@ module NewsFetcher
     end
 
     def get
-      @title = nil
-      @items = []
       uri = @config.uri or raise Error, "No URI defined for #{@id}"
-      uri = Addressable::URI.parse(uri)
-      resource = Resource.get(uri)
-      if resource.moved && !@config.ignore_moved
-        $logger.warn { "#{@id}: URI #{resource.uri} moved to #{resource.redirected_uri}" }
+      fetcher = Fetcher.new(uri: uri)
+      feed = fetcher.parse_feed
+      @title, @items = feed[:title], feed[:items]
+      if fetcher.moved && !@config.ignore_moved
+        $logger.warn { "#{@id}: URI #{fetcher.uri} moved to #{fetcher.actual_uri}" }
       end
-      Feedjira.configure { |c| c.strip_whitespace = true }
-      begin
-        feedjira = Feedjira.parse(resource.content)
-      rescue StandardError, Feedjira::NoParserAvailable, Date::Error => e
-        raise Error, "Can't parse XML feed from #{resource.uri}: #{e}"
-      end
-      @title ||= feedjira.title
-      @items += feedjira.entries.map { |e| Item.new(e) }
     end
 
     def reject_items
