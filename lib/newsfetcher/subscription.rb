@@ -117,7 +117,6 @@ module NewsFetcher
 
     def update_history
       @items.each do |item|
-        #FIXME: make entry with timestamp
         @history[item.id] = item.date
       end
       @history.save
