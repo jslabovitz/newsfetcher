@@ -1,9 +1,33 @@
+# TODO
+
+*** do fixup:
+  - change Subscription's disable' -> 'disabled'
+  - change deliver_params -> delivery_params
+  - change delivery_params.folder -> 'root_folder'
+
+- make sure Mailer.send_mail is threadsafe
+  - lock?
+  - or create queue, and have #send_mail add to queue if in threading mode
+    - separate thread to run Mailer#deliver?
+
+- save response status & timestamp
+
+- implement per-feed update interval
+  - eg, run `update` every 15 minutes via cron, but only updating every 12 hours
+  - add `update_interval` to BaseConfig
+
+- implement retry on error in fetching/parsing
+  - only show error if > retry count
+
+- set Subscription ivars on init from @config, instead of referring to later
+
+- re-implement Subscription#enable/disable
+
+
 ## BUGS
 
 
 ## IMPROVEMENTS
-
-- save response status & timestamp
 
 - rename 'path' to 'section'?
 
@@ -17,13 +41,6 @@
 
 
 ## FEATURES
-
-- implement per-feed update interval
-  - eg, run `update` every 15 minutes via cron, but only updating every 12 hours
-  - add `update_interval` to BaseConfig
-
-- implement retry on error in fetching/parsing
-  - only show error if > retry count
 
 - allow unit suffixes on durations (s, m, h, d, w)
 
