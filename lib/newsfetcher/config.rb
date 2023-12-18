@@ -48,27 +48,18 @@ module NewsFetcher
       file.write(JSON.pretty_generate(self))
     end
 
-    def has_key?(key)
-      @data.has_key?(key)
-    end
-
-    def fetch(key)
-      @data.fetch(key)
-    end
-
     def method_missing(id, *args)
-      unless id.to_s.end_with?('=')
-        if (field = @fields[id])
-          if has_key?(id)
-            return fetch(id)
-          elsif @parent
-            return @parent.send(id, *args)
-          else
-            return field.default
-          end
-        end
+      key = id.to_s.sub(/=$/, '').to_sym
+      field = @fields[key] or return super
+      if $&
+        @data[key] = args.first
+      elsif @data.has_key?(key)
+        @data[key]
+      elsif @parent
+        @parent.send(key)
+      else
+        field.default
       end
-      super
     end
 
     class Field
