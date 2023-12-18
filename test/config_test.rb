@@ -46,6 +46,21 @@ module NewsFetcher
       assert { config.b == 22 }
     end
 
+    def test_save
+      file = Path.new('test/tmp/config.json')
+      file.dirname.mkpath
+      file.unlink if file.exist?
+      @base_config.save(file)
+      config = @base_config.load(file)
+      assert { config.a == 1 }
+      assert { config.b == 2 }
+    end
+
+    def test_set
+      @base_config.d = 4
+      assert { @base_config.d == 4 }
+    end
+
   end
 
 end
