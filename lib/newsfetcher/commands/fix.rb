@@ -12,11 +12,11 @@ module NewsFetcher
         config = JSON.parse(config_file.read, symbolize_names: true)
         config[:delivery_method] = config.delete(:deliver_method)
         config[:delivery_params] = config.delete(:deliver_params)
-        config[:delivery_params][:dir] = config[:delivery_params].delete(:location)
-        if (folder = config[:delivery_params].delete(:folder))
+        config[:delivery_params][:dir] = config[:delivery_params]&.delete(:location)
+        if (folder = config[:delivery_params]&.delete(:folder))
           config[:root_folder] = folder
         end
-        config.save(config_file)
+        config_file.write(JSON.pretty_generate(config))
         # fix subscriptions
         profile_dir.glob('subscriptions/**/config.json').each do |config_file|
 ;;puts config_file
@@ -25,7 +25,7 @@ module NewsFetcher
             config[:disabled] = disable
           end
           config.delete(:type)
-          config.save(config_file)
+          config_file.write(JSON.pretty_generate(config))
         end
       end
 
