@@ -18,19 +18,18 @@ module NewsFetcher
       @tmp_dir = Path.new('test/tmp')
       @tmp_dir.rmtree if @tmp_dir.exist?
       @dir = @tmp_dir / 'newsfetcher'
+      @dir.mkpath
       @msgs_dir = @tmp_dir / 'msgs'
+      config_file = @dir / ConfigFileName
       config = BaseConfig.make(
         mail_from: 'newsfetcher',
         mail_to: 'johnl',
-        log_level: :error,
-        deliver_method: :maildir,
-        deliver_params: {
-          location: @msgs_dir.to_s,
-          folder: 'News'
-        },
+        log_level: :debug,
+        root_folder: 'News',
+        delivery_method: :maildir,
+        delivery_params: { dir: @msgs_dir.to_s },
       )
-      @profile = Profile.new(dir: @dir, config: config)
-      @profile.save
+      config.save(config_file)
     end
 
     def test_run
@@ -40,28 +39,25 @@ module NewsFetcher
       # add web sites
       initial_subscriptions = [
         ['https://johnlabovitz.com', 'mine'],
-        ['http://nytimes.com', 'news'],
-        ['http://elpais.com', 'news', 'elpais'],
+        ['http://nytimes.com', 'world'],
+        ['http://elpais.com', 'world', 'elpais'],
       ].map do |uri, path, id|
         feeds = Fetcher.find_feeds(uri)
-        assert { feeds.kind_of?(Array) && feeds.count == 1 }
+        assert { feeds.count == 1 }
         feed = feeds.first
         assert { feed }
         uri = feed[:uri]
         assert { uri }
-        subscription = @profile.add_subscription(uri: uri, id: id, path: path)
-        assert { subscription }
-        subscription
+        dir = @profile.add_subscription(uri: uri, id: id, path: path)
+        assert { dir.exist? }
+        dir
       end
       subscriptions = @profile.find_subscriptions
       assert { subscriptions.count == initial_subscriptions.count }
-      # disable
-      subscription = @profile.find_subscriptions(ids: %w[news/elpais]).first
-      subscription.disable
       # update
       subscriptions.each(&:update)
       # find
-      subscription = @profile.find_subscriptions(ids: %w[news/nytimes-services-nyt-homepage]).first
+      subscription = @profile.find_subscriptions(ids: %w[world/nytimes-services-nyt-homepage]).first
       assert { subscription.history_file.exist? }
     end
 

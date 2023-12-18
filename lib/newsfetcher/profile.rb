@@ -47,10 +47,6 @@ module NewsFetcher
       @dir / SubscriptionsDirName
     end
 
-    def save
-      @config.save(config_file)
-    end
-
     def all_ids
       subscriptions_dir.glob("**/#{ConfigFileName}").map { |p| p.dirname.relative_to(subscriptions_dir).to_s }
     end
@@ -60,31 +56,33 @@ module NewsFetcher
       sort ||= :id
       ids = all_ids if ids.nil? || ids.empty?
       subscriptions = ids.map do |id|
-        dir = subscriptions_dir / id
-        Subscription.new(
-          id: id,
-          dir: dir,
-          config: @config.load(dir / ConfigFileName),
-          styles: @styles)
+        subscription_dir = subscriptions_dir / id
+        begin
+          subscription_config = @config.load(subscription_dir / ConfigFileName)
+        rescue Config::Error => e
+          raise "#{id}: #{e}"
+        end
+        Subscription.new(id: id, dir: subscription_dir, config: subscription_config, styles: @styles)
       end
       subscriptions.
-        reject { |s| s.config.disable }.
+        reject { |s| s.config.disabled }.
         select { |s| status.nil? || status.include?(s.status) }.
         sort_by { |s| s.send(sort).to_s }
     end
 
     def add_subscription(uri:, id: nil, path: nil)
-      id = Subscription.make_id(uri) unless id
+      uri = Addressable::URI.parse(uri)
+      raise Error, "Bad URI: #{uri}" unless uri.absolute?
+      id ||= uri.make_subscription_id
       id = "#{path}/#{id}" if path
-      subscription = Subscription.new(
-        id: id,
-        dir: subscriptions_dir / id,
-        config: @config.make(uri: uri),
-        styles: @styles)
-      raise Error, "Subscription already exists (as #{subscription.id})" if subscription.exist?
-      subscription.save
-      $logger.info { "Saved new subscription to #{subscription.id}" }
-      subscription
+      subscription_dir = subscriptions_dir / id
+      raise Error, "Subscription already exists in #{subscription_dir}" if subscription_dir.exist?
+      subscription_dir.mkpath
+      config = @config.make(uri: uri)
+      config_file = subscription_dir / ConfigFileName
+      config.save(config_file)
+      $logger.info { "Saved new subscription to #{config_file}" }
+      subscription_dir
     end
 
   end

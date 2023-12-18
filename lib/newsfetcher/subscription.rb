@@ -12,29 +12,10 @@ module NewsFetcher
     include SetParams
     include Simple::Printer::Printable
 
-    def self.make_id(uri)
-      [
-        uri.host.to_s \
-          .sub(/^(www|ssl|en|feeds|rss|blogs?|news).*?\./i, '') \
-          .sub(/\.(com|org|net|info|edu|co\.uk|wordpress\.com|blogspot\.com|feedburner\.com)$/i, ''),
-        uri.path.to_s \
-          .gsub(/\b(\.?feeds?|index|atom|rss|rss2|xml|rdf|php|blog|posts|default)\b/i, ''),
-        uri.query.to_s \
-          .gsub(/\b(format|feed|type|q)=(atom|rss\.xml|rss2?|xml)/i, ''),
-      ] \
-        .join(' ')
-        .downcase
-        .gsub(/[^a-z0-9]+/, ' ')  # non-alphanumeric
-        .strip
-        .gsub(/\s+/, '-')
-    end
-
-    def initialize(params={})
+    def initialize(**params)
       @title = nil
       @items = []
       super
-      @ignore_uris = [@config.ignore_uris].flatten.compact.map { |r| Regexp.new(r) }
-      @formatter = Formatter.new(styles: @styles, subscription: self)
       load_history
     end
 
@@ -45,39 +26,19 @@ module NewsFetcher
     def printable
       [
         [:id, 'ID'],
-        ['URI', @config.uri],
+        [:uri, 'URI', @config.uri],
         :dir,
         :title,
         :status,
-        [:age, 'Age', (a = age) ? '%d days' % (a.to_f / 60 / 60 / 24) : 'never'],
-        ['Disable', @config.disable],
+        [:age, 'Age', (a = age) ? '%d days' % (a / DaySecs) : 'never'],
+        :disabled, 'Disabled', @config.disabled,
         :items,
       ]
-    end
-
-    def config_file
-      raise Error, "dir not set" unless @dir
-      @dir / ConfigFileName
     end
 
     def history_file
       raise Error, "dir not set" unless @dir
       @dir / HistoryFileName
-    end
-
-    def exist?
-      raise Error, "dir not set" unless @dir
-      @dir.exist?
-    end
-
-    def save
-      raise Error, "dir not set" unless @dir
-      @dir.mkpath unless @dir.exist?
-      @config.save(config_file)
-    end
-
-    def effective_title
-      @config.title || @title
     end
 
     def age
@@ -101,17 +62,22 @@ module NewsFetcher
       end
     end
 
+    def make_dotted_folder
+      components = @id.split('/')
+      components.pop if @config.consolidate && components.length > 1
+      components.unshift(@config.root_folder) if @config.root_folder
+      components.join('.')
+    end
+
     def load_history
-      if @dir && history_file.exist?
+      if history_file.exist?
         @history = History.load(history_file)
         @history.prune(before: Time.now - @config.max_age) do |id, time|
           $logger.info { "pruning #{id.inspect} (#{time})"}
         end
         @history.save
-      elsif @dir
-        @history = History.new(file: history_file)
       else
-        @history = History.new
+        @history = History.new(file: history_file)
       end
     end
 
@@ -125,6 +91,9 @@ module NewsFetcher
     def update
       $logger.debug { "#{@id}: updating" }
       begin
+        #FIXME: load response history
+        #FIXME: check response history against @update_interval
+        #FIXME: chain following methods so can break out? -- or just do 'or return'?
         get
         reject_items
         update_history
@@ -135,13 +104,15 @@ module NewsFetcher
     end
 
     def get
-      uri = @config.uri or raise Error, "No URI defined for #{@id}"
-      fetcher = Fetcher.new(uri: uri)
+      fetcher = Fetcher.new(uri: @config.uri)
       feed = fetcher.parse_feed
-      @title, @items = feed[:title], feed[:items]
       if fetcher.moved && !@config.ignore_moved
-        $logger.warn { "#{@id}: URI #{fetcher.uri} moved to #{fetcher.actual_uri}" }
+        $logger.warn { "#{@id}: URI #{@config.uri} moved to #{fetcher.actual_uri}" }
       end
+      @title = @config.title || feed[:title]
+      @items = feed[:items]
+      #FIXME: save response in full (as JSON or Marshal?)
+      #FIXME: save response history (timestamp => [code, status])
     end
 
     def reject_items
@@ -158,74 +129,99 @@ module NewsFetcher
         'outdated item'
       elsif @history.include?(item.id)
         'seen item'
-      elsif @ignore_uris.find { |r| item.uri.to_s =~ r }
+      elsif @config.ignore_uris.find { |r| item.uri.to_s =~ r }
         'ignored item'
       end
     end
 
     def deliver
-      raise "No formatter defined" unless @formatter
       $logger.debug { "#{@id}: no items to deliver" } if @items.empty?
       @items.sort_by(&:date).each do |item|
-        mail = @formatter.make_mail(item: item)
-        send_mail(mail)
+        deliver_item(item)
       end
-    end
-
-    def enable
-      @config.disable = false
-      save
-    end
-
-    def disable
-      @config.disable = true
-      save
     end
 
     def reset
       @history.reset
     end
 
-    def remove
-      raise Error, "dir not set" unless @dir
-      @dir.rmtree
-    end
-
     def fix
-      @history.save
     end
 
-    def edit
-      editor = ENV['EDITOR'] or raise Error, "No editor defined in $EDITOR"
-      system(editor, config_file.to_s)
-    end
-
-    def send_mail(mail)
-      deliver_method, deliver_params =
-        @config.deliver_method&.to_sym, @config.deliver_params
-      $logger.info { "#{@id}: Sending item to #{mail.to.join(', ')} via #{deliver_method || 'default'}: #{mail.subject.inspect}" }
-      case deliver_method.to_sym
-      when :maildir
-        location = deliver_params[:location] or raise Error, "location not found in deliver_params"
-        folder = deliver_params[:folder]
-        dir = maildir_directory(location: location, folder: folder)
-        maildir = Maildir.new(dir)
-        maildir.serializer = Maildir::Serializer::Mail.new
-        maildir.add(mail)
-      else
-        mail.delivery_method(deliver_method, deliver_params) if deliver_method
-        mail.perform_deliveries = true
-        mail.deliver!
+    def deliver_item(item)
+      folder = make_dotted_folder
+      fields = {
+        subscription_id: @id,
+        item_title: item.title,
+        subscription_folder: folder,
+      }
+      mail = Mail.new
+      mail.date =         item.date
+      mail.from =         ERB.new(@config.mail_from).result_with_hash(fields)
+      mail.to =           ERB.new(@config.mail_to).result_with_hash(fields)
+      mail.subject =      ERB.new(@config.mail_subject).result_with_hash(fields)
+      mail.content_type = 'text/html'
+      mail.charset =      'utf-8'
+      mail.body =         build_item_html(item)
+      delivery_method = @config.delivery_method
+      delivery_params = @config.delivery_params
+      $logger.info {
+        "#{@id}: Sending item to %s in folder %s via %s: %p" % [
+          mail.to.join(', '),
+          folder,
+          delivery_method || '<default>',
+          mail.subject,
+        ]
+      }
+      if delivery_method == :maildir
+        delivery_method = Mail::Maildir
+        delivery_dir = Path.new(delivery_params[:dir]) / ".#{folder}"
+        delivery_params = delivery_params.merge(dir: delivery_dir.to_s)
       end
+      mail.delivery_method(delivery_method, **delivery_params) if delivery_method
+      mail.deliver!
     end
 
-    def maildir_directory(location:, folder:)
-      location = Path.new(location).expand_path
-      components = @id.split('/')
-      components.pop if @config.consolidate && components.length > 1
-      components.unshift(folder) if folder
-      components.unshift('')
-      location / components.join('.')
+    def build_item_html(item)
+      Simple::Builder.build_html4_document do |html|
+        html.html do
+          html.head do
+            html.meta(name: 'x-apple-disable-message-reformatting')
+            html.meta(name: 'viewport', content: 'width=device-width, initial-scale=1')
+            @styles.each do |style|
+              html.style { html << style }
+            end
+          end
+          html.body do
+            html.div(class: 'header') do
+              html << ('%s [%s]' % [@title, @id]).to_html
+            end
+            if item.title
+              html.h1 do
+                html << item.title.to_html
+              end
+            end
+            html.h2 do
+              html << [
+                item.date.strftime('%e %B %Y'),
+                item.author,
+              ].compact.join(' • ').to_html
+            end
+            if item.uri
+              html.h3 do
+                html.a(item.uri.prettify, href: item.uri)
+              end
+            end
+            if item.content
+              if item.content.html?
+                html << Scrubber.scrub_html(item.content)
+              else
+                html << Scrubber.text_to_html(item.content)
+              end
+            end
+          end
+        end
+      end.to_html
     end
 
   end

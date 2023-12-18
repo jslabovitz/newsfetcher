@@ -2,46 +2,111 @@ module NewsFetcher
 
   class Config
 
-    attr_accessor :parent
-    attr_accessor :hash
+    class Error < StandardError; end
 
-    def self.load(file)
-      new(JSON.parse(file.read, symbolize_names: true))
+    attr_accessor :parent
+    attr_accessor :fields
+    attr_accessor :data
+
+    def self.define(definitions)
+      fields = {}
+      defaults = {}
+      definitions.each do |key, field|
+        field = Field.make(field)
+        fields[key] = field
+        defaults[key] = field.convert(field.default)
+      end
+      new(fields: fields, data: {})
     end
 
-    def initialize(params={})
-      @hash = params
+    def initialize(parent: nil, fields:, data:)
+      @parent = parent
+      @fields = fields
+      @data = data.map do |key, value|
+        field = @fields[key] or raise Error, "Unknown config key: #{key.inspect}"
+        [key, field.convert(value)]
+      end.to_h
     end
 
     def load(file)
-      self.class.load(file).tap { |c| c.parent = self }
+      make(**JSON.parse(file.read, symbolize_names: true))
     end
 
-    def make(params={})
-      self.class.new(params).tap { |c| c.parent = self }
+    def make(**data)
+      self.class.new(parent: self, fields: @fields, data: data)
+    end
+
+    def as_json(*opts)
+      @data.compact
+    end
+
+    def to_json(*opts)
+      as_json.to_json(*opts)
     end
 
     def save(file)
-      file.dirname.mkpath unless file.dirname.exist?
-      file.write(JSON.pretty_generate(@hash))
+      file.write(JSON.pretty_generate(self))
     end
 
-    def has_key?(id)
-      @hash.has_key?(id)
+    def has_key?(key)
+      @data.has_key?(key)
+    end
+
+    def fetch(key)
+      @data.fetch(key)
     end
 
     def method_missing(id, *args)
-      if (key = id.to_s).sub!(/=$/, '')
-        @hash[key.to_sym] = args.first
-      else
-        if has_key?(id)
-          @hash[id]
-        elsif @parent
-          @parent.send(id, *args)
-        else
-          nil
+      unless id.to_s.end_with?('=')
+        if (field = @fields[id])
+          if has_key?(id)
+            return fetch(id)
+          elsif @parent
+            return @parent.send(id, *args)
+          else
+            return field.default
+          end
         end
       end
+      super
+    end
+
+    class Field
+
+      attr_accessor :default
+      attr_accessor :converter
+
+      def self.make(obj)
+        case obj
+        when nil
+          new
+        when Proc
+          new(converter: obj)
+        when Hash
+          new(**obj)
+        when Field
+          obj
+        else
+          new(default: obj)
+        end
+      end
+
+      def initialize(default: nil, converter: nil)
+        @default = default
+        @converter = converter
+      end
+
+      def convert(value)
+        case @converter
+        when Symbol
+          value&.send(@converter)
+        when Proc
+          @converter.call(value)
+        else
+          value
+        end
+      end
+
     end
 
   end

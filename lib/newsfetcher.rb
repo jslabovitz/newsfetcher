@@ -44,37 +44,39 @@ end
 
 require 'newsfetcher/extensions/kernel'
 require 'newsfetcher/extensions/string'
+require 'newsfetcher/extensions/mail'
+require 'newsfetcher/extensions/addressable-uri'
 
 require 'newsfetcher/config'
 require 'newsfetcher/error'
-require 'newsfetcher/formatter'
+require 'newsfetcher/fetcher'
 require 'newsfetcher/history'
 require 'newsfetcher/item'
 require 'newsfetcher/profile'
-require 'newsfetcher/fetcher'
+require 'newsfetcher/scrubber'
 require 'newsfetcher/subscription'
 
 module NewsFetcher
 
   DaySecs = 24 * 60 * 60
-  BaseConfig = Config.new(
+  BaseConfig = Config.define(
     max_threads: 100,
-    log_level: :warn,
+    log_level: { default: :warn, converter: :to_sym },
     max_age: 30 * DaySecs,
     main_stylesheet: File.join(File.dirname(__FILE__), '../message/stylesheet.css'),
-    # aux_stylesheets: nil,
-    # delivery_method: nil,
-    # delivery_params: nil,
-    # mail_from: nil,
-    # mail_to: nil,
+    aux_stylesheets: nil,
+    delivery_method: { converter: :to_sym },
+    delivery_params: { default: {} },
+    mail_from: nil,
+    mail_to: nil,
     mail_subject: '[<%= subscription_id %>] <%= item_title %>',
-    # uri: nil,
-    # title: nil,
-    # disabled: false,
-    # ignore_uris: nil,
-    # ignore_moved: false,
-    # root_folder: nil,
-    # consolidate: false,
+    uri: proc { |o| Addressable::URI.parse(o) },
+    title: nil,
+    disabled: false,
+    ignore_uris: { default: [], converter: proc { |o| [o].flatten.compact.map { |r| Regexp.new(r) } } },
+    ignore_moved: false,
+    root_folder: nil,
+    consolidate: false,
   )
 
 end

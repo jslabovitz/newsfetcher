@@ -6,7 +6,10 @@ module NewsFetcher
 
       def run(args)
         super
-        @profile.find_subscriptions(ids: args).each(&:remove)
+        @profile.find_subscriptions(ids: args).each do |subscription|
+          dir = subscription.dir or raise Error, "dir not set"
+          dir.rmtree
+        end
       end
 
     end

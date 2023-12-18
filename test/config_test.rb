@@ -11,8 +11,14 @@ module NewsFetcher
   class TestConfig < Minitest::Test
 
     def setup
-      @config1 = Config.new(a: 1, b: 2)
-      @config2 = @config1.make(b: 22, c: 3)
+      @base_config = Config.define(
+        a: { default: 1 },
+        b: { default: 2, converter: proc { |o| Integer(o) } },
+        c: nil,
+        d: nil,
+      )
+      @config1 = @base_config.make
+      @config2 = @config1.make(b: '22', c: 3)
       @config3 = @config2.make(d: 4)
     end
 
@@ -33,20 +39,11 @@ module NewsFetcher
       assert { @config3.d == 4 }
     end
 
-    def test_load_save
-      file = Path.new('test/tmp/config.json')
-      @config1.save(file)
-      assert { file.exist? }
-      config = Config.load(file)
-      assert { config.a == 1 }
-      assert { config.b == 2 }
-    end
-
-    def test_assign
-      @config3.a = 11
-      assert { @config1.a == 1 }
-      assert { @config2.a == 1 }
-      assert { @config3.a == 11 }
+    def test_load
+      file = Path.new('test/config.json')
+      config = @base_config.load(file)
+      assert { config.a == 11 }
+      assert { config.b == 22 }
     end
 
   end
