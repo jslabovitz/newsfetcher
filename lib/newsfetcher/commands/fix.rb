@@ -12,6 +12,7 @@ module NewsFetcher
         config = JSON.parse(config_file.read, symbolize_names: true)
         config[:delivery_method] = config.delete(:deliver_method)
         config[:delivery_params] = config.delete(:deliver_params)
+        config[:delivery_params][:dir] = config[:delivery_params].delete(:location)
         if (folder = config[:delivery_params].delete(:folder))
           config[:root_folder] = folder
         end
