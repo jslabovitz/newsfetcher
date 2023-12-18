@@ -61,7 +61,7 @@ module NewsFetcher
   DaySecs = 24 * 60 * 60
   BaseConfig = Config.define(
     max_threads: 100,
-    log_level: { default: :warn, converter: :to_sym },
+    log_level: { default: :warn, converter: proc { |o| o.downcase.to_sym } },
     max_age: 30 * DaySecs,
     main_stylesheet: File.join(File.dirname(__FILE__), '../message/stylesheet.css'),
     aux_stylesheets: nil,
