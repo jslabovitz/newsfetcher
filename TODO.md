@@ -5,11 +5,6 @@
   - change deliver_params -> delivery_params
   - change delivery_params.folder -> 'root_folder'
 
-- make sure Mailer.send_mail is threadsafe
-  - lock?
-  - or create queue, and have #send_mail add to queue if in threading mode
-    - separate thread to run Mailer#deliver?
-
 - save response status & timestamp
 
 - implement per-feed update interval
@@ -19,9 +14,11 @@
 - implement retry on error in fetching/parsing
   - only show error if > retry count
 
-- set Subscription ivars on init from @config, instead of referring to later
-
 - re-implement Subscription#enable/disable
+
+- add new Feed class to encapsulate title/items
+
+- save last fetch response to file (Marshaled?)
 
 
 ## BUGS
@@ -34,10 +31,6 @@
 - add per-subscription locks to avoid access by multiple processes/threads
 
 - move Config out to separate Simple::Config gem
-  - use instance methods instead of hash
-  - implement DSL to set fields, and do parsing
-
-- split mail delivery out to own class?
 
 
 ## FEATURES
