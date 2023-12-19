@@ -26,6 +26,7 @@ module NewsFetcher
 
   ConfigFileName = 'config.json'
   ItemHistoryFileName = 'item_history.jsonl'
+  ResponseHistoryFileName = 'response_history.jsonl'
   DefaultProfileDir = '~/.newsfetcher'
   SubscriptionsDirName = 'subscriptions'
   # see https://stackoverflow.com/questions/595616/what-is-the-correct-mime-type-to-use-for-an-rss-feed

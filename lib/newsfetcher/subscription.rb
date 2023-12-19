@@ -17,6 +17,7 @@ module NewsFetcher
       @items = []
       super
       load_item_history
+      load_response_history
     end
 
     def inspect
@@ -32,13 +33,27 @@ module NewsFetcher
         :status,
         { label: 'Age', value: (a = age) ? '%d days' % (a / DaySecs) : 'never' },
         { label: 'Disabled', value: @config.disabled },
+        { label: 'Last response', value: format_response_history_entry(@response_history.last_entry) },
         :items,
       ]
+    end
+
+    def format_response_history_entry(entry)
+      if entry
+        '%s (%s) at %s' % [entry.response_status, entry.response_reason, entry.time]
+      else
+        'none'
+      end
     end
 
     def item_history_file
       raise Error, "dir not set" unless @dir
       @dir / ItemHistoryFileName
+    end
+
+    def response_history_file
+      raise Error, "dir not set" unless @dir
+      @dir / ResponseHistoryFileName
     end
 
     def age
@@ -78,6 +93,13 @@ module NewsFetcher
       end
     end
 
+    def load_response_history
+      @response_history = History.new(file: response_history_file)
+      @response_history.prune(before: Time.now - @config.max_age).each do |entry|
+        $logger.info { "pruned response from #{entry.time}" }
+      end
+    end
+
     def update
       $logger.debug { "#{@id}: updating" }
       begin
@@ -96,6 +118,11 @@ module NewsFetcher
     def get
       fetcher = Fetcher.new(uri: @config.uri)
       feed = fetcher.parse_feed
+      @response_history << {
+        time: Time.now,
+        status: fetcher.response_status,
+        reason: fetcher.response_reason,
+      }
       if fetcher.moved && !@config.ignore_moved
         $logger.warn { "#{@id}: URI #{@config.uri} moved to #{fetcher.actual_uri}" }
       end
