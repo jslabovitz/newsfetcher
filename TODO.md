@@ -1,5 +1,10 @@
 # TODO
 
+## BUGS
+
+
+## IMPROVEMENTS
+
 - implement retry on error in fetching/parsing
   - eg, to handle timeouts, connection/read errors, bad data, etc.
   - only show error if > retry count
@@ -9,12 +14,6 @@
 - add new Feed class to encapsulate title/items
 
 - save last fetch response to file (Marshaled?)
-
-
-## BUGS
-
-
-## IMPROVEMENTS
 
 - rename 'path' to 'section'?
 
