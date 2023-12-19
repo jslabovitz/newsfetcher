@@ -40,7 +40,7 @@ module NewsFetcher
 
     def format_response_history_entry(entry)
       if entry
-        '%s (%s) at %s' % [entry.response_status, entry.response_reason, entry.time]
+        '%s (%s) at %s' % [entry.status, entry.reason, entry.time]
       else
         'none'
       end
