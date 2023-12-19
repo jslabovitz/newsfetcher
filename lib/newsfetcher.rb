@@ -74,6 +74,7 @@ module NewsFetcher
     uri: proc { |o| Addressable::URI.parse(o) },
     title: nil,
     disabled: false,
+    update_interval: 60 * 60,
     ignore_uris: { default: [], converter: proc { |o| [o].flatten.compact.map { |r| Regexp.new(r) } } },
     ignore_moved: false,
     root_folder: nil,

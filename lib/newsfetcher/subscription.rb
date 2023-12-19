@@ -103,9 +103,10 @@ module NewsFetcher
     def update
       $logger.debug { "#{@id}: updating" }
       begin
-        #FIXME: load response history
-        #FIXME: check response history against @update_interval
-        #FIXME: chain following methods so can break out? -- or just do 'or return'?
+        if recently_updated?
+          $logger.info { "#{@id}: to soon to update" }
+          return
+        end
         get
         reject_items
         update_item_history
@@ -113,6 +114,12 @@ module NewsFetcher
       rescue Error => e
         $logger.error { "#{@id}: #{e}" }
       end
+    end
+
+    def recently_updated?
+      (entry = @response_history.last_entry) &&
+        # (200...400).include?(entry.status) &&
+        Time.now - entry.time < @config.update_interval
     end
 
     def get
@@ -128,8 +135,6 @@ module NewsFetcher
       end
       @title = @config.title || feed[:title]
       @items = feed[:items]
-      #FIXME: save response in full (as JSON or Marshal?)
-      #FIXME: save response history (timestamp => [code, status])
     end
 
     def reject_items
