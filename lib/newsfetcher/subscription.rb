@@ -26,7 +26,7 @@ module NewsFetcher
     def printable
       [
         [:id, 'ID'],
-        [:uri, 'URI', @config.uri],
+        { label: 'URI', value: @config.uri },
         :dir,
         :title,
         :status,
