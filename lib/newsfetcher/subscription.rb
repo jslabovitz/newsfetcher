@@ -36,11 +36,6 @@ module NewsFetcher
       ]
     end
 
-    def old_history_file
-      raise Error, "dir not set" unless @dir
-      @dir / OldHistoryFileName
-    end
-
     def item_history_file
       raise Error, "dir not set" unless @dir
       @dir / ItemHistoryFileName
@@ -72,15 +67,6 @@ module NewsFetcher
 
     def load_item_history
       @item_history = History.new(file: item_history_file, index_key: :id)
-;;
-      if old_history_file.exist?
-        old_history = OldHistory.load(old_history_file)
-        old_history.entries.sort_by { |id, time| time }.each do |id, time|
-          @item_history << { time: Time.at(time), id: id }
-        end
-        old_history_file.unlink
-      end
-;;
       @item_history.prune(before: Time.now - @config.max_age).each do |entry|
         $logger.info { "pruned #{entry.id.inspect} (#{entry.time})"}
       end
