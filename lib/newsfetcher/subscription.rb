@@ -104,7 +104,7 @@ module NewsFetcher
       $logger.debug { "#{@id}: updating" }
       begin
         if recently_updated?
-          $logger.info { "#{@id}: to soon to update" }
+          $logger.info { "#{@id}: too soon to update" }
           return
         end
         get
