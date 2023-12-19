@@ -1,7 +1,7 @@
 # system
 
-require 'date'
 require 'logger'
+require 'ostruct'
 
 # gems
 
@@ -25,7 +25,8 @@ require 'simple-printer'
 module NewsFetcher
 
   ConfigFileName = 'config.json'
-  HistoryFileName = 'history.json'
+  OldHistoryFileName = 'history.json'
+  ItemHistoryFileName = 'item_history.jsonl'
   DefaultProfileDir = '~/.newsfetcher'
   SubscriptionsDirName = 'subscriptions'
   # see https://stackoverflow.com/questions/595616/what-is-the-correct-mime-type-to-use-for-an-rss-feed
@@ -50,6 +51,7 @@ require 'newsfetcher/extensions/addressable-uri'
 require 'newsfetcher/config'
 require 'newsfetcher/error'
 require 'newsfetcher/fetcher'
+require 'newsfetcher/old_history'
 require 'newsfetcher/history'
 require 'newsfetcher/item'
 require 'newsfetcher/profile'

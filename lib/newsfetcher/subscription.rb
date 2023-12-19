@@ -16,7 +16,7 @@ module NewsFetcher
       @title = nil
       @items = []
       super
-      load_history
+      load_item_history
     end
 
     def inspect
@@ -36,18 +36,19 @@ module NewsFetcher
       ]
     end
 
-    def history_file
+    def old_history_file
       raise Error, "dir not set" unless @dir
-      @dir / HistoryFileName
+      @dir / OldHistoryFileName
+    end
+
+    def item_history_file
+      raise Error, "dir not set" unless @dir
+      @dir / ItemHistoryFileName
     end
 
     def age
-      latest_key, latest_time = @history.latest_entry
-      if latest_time
-        Time.now - latest_time
-      else
-        nil
-      end
+      entry = @item_history.last_entry or return nil
+      Time.now - entry.time
     end
 
     def status
@@ -69,23 +70,26 @@ module NewsFetcher
       components.join('.')
     end
 
-    def load_history
-      if history_file.exist?
-        @history = History.load(history_file)
-        @history.prune(before: Time.now - @config.max_age) do |id, time|
-          $logger.info { "pruning #{id.inspect} (#{time})"}
+    def load_item_history
+      @item_history = History.new(file: item_history_file, index_key: :id)
+;;
+      if old_history_file.exist?
+        old_history = OldHistory.load(old_history_file)
+        old_history.entries.sort_by { |id, time| time }.each do |id, time|
+          @item_history << { time: Time.at(time), id: id }
         end
-        @history.save
-      else
-        @history = History.new(file: history_file)
+        old_history_file.unlink
+      end
+;;
+      @item_history.prune(before: Time.now - @config.max_age).each do |entry|
+        $logger.info { "pruned #{entry.id.inspect} (#{entry.time})"}
       end
     end
 
-    def update_history
+    def update_item_history
       @items.each do |item|
-        @history[item.id] = item.date
+        @item_history << { time: item.date, id: item.id }
       end
-      @history.save
     end
 
     def update
@@ -96,7 +100,7 @@ module NewsFetcher
         #FIXME: chain following methods so can break out? -- or just do 'or return'?
         get
         reject_items
-        update_history
+        update_item_history
         deliver
       rescue Error => e
         $logger.error { "#{@id}: #{e}" }
@@ -127,7 +131,7 @@ module NewsFetcher
     def reject_item?(item)
       if item.age > @config.max_age
         'outdated item'
-      elsif @history.include?(item.id)
+      elsif @item_history[item.id]
         'seen item'
       elsif @config.ignore_uris.find { |r| item.uri.to_s =~ r }
         'ignored item'
@@ -142,7 +146,7 @@ module NewsFetcher
     end
 
     def reset
-      @history.reset
+      @item_history.reset
     end
 
     def fix
