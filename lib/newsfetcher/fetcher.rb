@@ -29,7 +29,7 @@ module NewsFetcher
       @response&.status
     end
 
-    def response_reason_phrase
+    def response_reason
       @response&.reason_phrase
     end
 
@@ -87,7 +87,7 @@ module NewsFetcher
           @actual_uri = @actual_uri.join(Addressable::URI.parse(location))
           redirects += 1
         else
-          raise Error, "HTTP error: #{@response.reason_phrase} (#{@response.status})"
+          raise Error, "HTTP error: #{response_status} (#{response_reason})"
         end
       end
       raise Error, "Too many redirects"

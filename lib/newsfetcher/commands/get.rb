@@ -11,7 +11,7 @@ module NewsFetcher
           feed = fetcher.parse_feed
           puts
           puts "URI: #{fetcher.uri}"
-          puts "Status: #{fetcher.response_status} #{fetcher.response_reason_phrase}"
+          puts "Status: #{fetcher.response_status} #{fetcher.response_reason}"
           puts "Title: #{feed[:title]}"
           puts "Items:"
           feed[:items].each do |item|
