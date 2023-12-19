@@ -1,12 +1,7 @@
 # TODO
 
-- save response status & timestamp
-
-- implement per-feed update interval
-  - eg, run `update` every 15 minutes via cron, but only updating every 12 hours
-  - add `update_interval` to BaseConfig
-
 - implement retry on error in fetching/parsing
+  - eg, to handle timeouts, connection/read errors, bad data, etc.
   - only show error if > retry count
 
 - re-implement Subscription#enable/disable
@@ -26,6 +21,8 @@
 - add per-subscription locks to avoid access by multiple processes/threads
 
 - move Config out to separate Simple::Config gem
+
+- convert HTML document builder to ERB, for easier customization
 
 
 ## FEATURES
