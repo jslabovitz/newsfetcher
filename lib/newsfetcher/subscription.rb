@@ -30,8 +30,8 @@ module NewsFetcher
         :dir,
         :title,
         :status,
-        [:age, 'Age', (a = age) ? '%d days' % (a / DaySecs) : 'never'],
-        :disabled, 'Disabled', @config.disabled,
+        { label: 'Age', value: (a = age) ? '%d days' % (a / DaySecs) : 'never' },
+        { label: 'Disabled', value: @config.disabled },
         :items,
       ]
     end
