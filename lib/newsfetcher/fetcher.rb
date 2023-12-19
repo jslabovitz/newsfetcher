@@ -10,8 +10,8 @@ module NewsFetcher
 
     include SetParams
 
-    def self.find_feeds(uri)
-      new(uri: uri).find_feeds
+    def self.get(uri)
+      new(uri: uri).tap(&:get)
     end
 
     def initialize(**params)
@@ -23,6 +23,10 @@ module NewsFetcher
 
     def uri=(uri)
       @uri = Addressable::URI.parse(uri)
+    end
+
+    def success?
+      @response.success?
     end
 
     def response_status
@@ -38,7 +42,8 @@ module NewsFetcher
     end
 
     def parse_feed
-      get unless @response
+      raise Error, "No response yet" unless @response
+      raise Error, "Can't parse feed in failed response" unless @response.success?
       Feedjira.configure { |c| c.strip_whitespace = true }
       begin
         feedjira = Feedjira.parse(content)
@@ -52,7 +57,8 @@ module NewsFetcher
     end
 
     def find_feeds
-      get unless @response
+      raise Error, "No response yet" unless @response
+      raise Error, "Can't find feeds in failed response" unless @response.success?
       html = Nokogiri::HTML::Document.parse(content)
       html.xpath('//link[@rel="alternate"]').select { |link| FeedTypes.include?(link['type']) }.map do |link|
         {
@@ -61,8 +67,6 @@ module NewsFetcher
         }
       end
     end
-
-    private
 
     def get
       @actual_uri = @uri
@@ -78,17 +82,14 @@ module NewsFetcher
         rescue Faraday::Error => e
           raise Error, "Error: #{e.message} (#{e.class})"
         end
-        case @response.status
-        when 200...300
-          return
-        when 300...400
+        if (300...400).include?(@response.status)
           @moved = (@response.status == 302)
           location = @response.headers[:location] or raise Error, "No Location header found in redirect"
           @actual_uri = @actual_uri.join(Addressable::URI.parse(location))
           redirects += 1
-        else
-          raise Error, "HTTP error: #{response_status} (#{response_reason})"
+          next
         end
+        return @response.success?
       end
       raise Error, "Too many redirects"
     end

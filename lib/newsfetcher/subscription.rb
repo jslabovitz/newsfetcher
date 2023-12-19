@@ -123,18 +123,22 @@ module NewsFetcher
     end
 
     def get
-      fetcher = Fetcher.new(uri: @config.uri)
-      feed = fetcher.parse_feed
+      fetcher = Fetcher.get(@config.uri)
       @response_history << {
         time: Time.now,
         status: fetcher.response_status,
         reason: fetcher.response_reason,
       }
-      if fetcher.moved && !@config.ignore_moved
-        $logger.warn { "#{@id}: URI #{@config.uri} moved to #{fetcher.actual_uri}" }
+      if fetcher.success?
+        if fetcher.moved && !@config.ignore_moved
+          $logger.warn { "#{@id}: URI #{@config.uri} moved to #{fetcher.actual_uri}" }
+        end
+        feed = fetcher.parse_feed
+        @title = @config.title || feed[:title]
+        @items = feed[:items]
+      else
+        $logger.warn { "#{@id}: HTTP error #{fetcher.response_status} (#{fetcher.response_reason})" }
       end
-      @title = @config.title || feed[:title]
-      @items = feed[:items]
     end
 
     def reject_items
