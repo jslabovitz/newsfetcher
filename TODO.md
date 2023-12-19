@@ -1,10 +1,5 @@
 # TODO
 
-*** do fixup:
-  - change Subscription's disable' -> 'disabled'
-  - change deliver_params -> delivery_params
-  - change delivery_params.folder -> 'root_folder'
-
 - save response status & timestamp
 
 - implement per-feed update interval
