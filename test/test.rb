@@ -42,7 +42,7 @@ module NewsFetcher
         ['http://nytimes.com', 'world'],
         ['http://elpais.com', 'world', 'elpais'],
       ].map do |uri, path, id|
-        feeds = Fetcher.find_feeds(uri)
+        feeds = Fetcher.get(uri).find_feeds
         assert { feeds.count == 1 }
         feed = feeds.first
         assert { feed }
