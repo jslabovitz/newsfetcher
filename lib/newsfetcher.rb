@@ -20,6 +20,7 @@ require 'sassc'
 require 'set_params'
 require 'simple-builder'
 require 'simple-command'
+require 'simple-config'
 require 'simple-printer'
 
 module NewsFetcher
@@ -48,7 +49,6 @@ require 'newsfetcher/extensions/string'
 require 'newsfetcher/extensions/mail'
 require 'newsfetcher/extensions/addressable-uri'
 
-require 'newsfetcher/config'
 require 'newsfetcher/error'
 require 'newsfetcher/fetcher'
 require 'newsfetcher/history'
@@ -60,7 +60,7 @@ require 'newsfetcher/subscription'
 module NewsFetcher
 
   DaySecs = 24 * 60 * 60
-  BaseConfig = Config.define(
+  BaseConfig = Simple::Config.define(
     max_threads: 100,
     log_level: { default: :warn, converter: proc { |o| o.downcase.to_sym } },
     max_age: 30 * DaySecs,

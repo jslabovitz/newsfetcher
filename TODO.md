@@ -19,8 +19,6 @@
 
 - add per-subscription locks to avoid access by multiple processes/threads
 
-- move Config out to separate Simple::Config gem
-
 - convert HTML document builder to ERB, for easier customization
 
 
