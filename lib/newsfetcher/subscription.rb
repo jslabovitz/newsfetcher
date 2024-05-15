@@ -189,7 +189,7 @@ module NewsFetcher
       mail.content_type = 'text/html'
       mail.charset =      'utf-8'
       mail.body =         build_item_html(item)
-      delivery_method = @config.delivery_method
+      delivery_method = @config.delivery_method&.to_sym
       delivery_params = @config.delivery_params
       $logger.info {
         "#{@id}: Sending item to %s in folder %s via %s: %p" % [
