@@ -16,8 +16,8 @@ module NewsFetcher
       @title = nil
       @items = []
       super
-      load_item_history
-      load_response_history
+      @item_history = History.new(file: item_history_file, index_key: :id)
+      @response_history = History.new(file: response_history_file)
     end
 
     def inspect
@@ -80,21 +80,19 @@ module NewsFetcher
       components.join('.')
     end
 
-    def load_item_history
-      @item_history = History.new(file: item_history_file, index_key: :id)
-      @item_history.prune(before: Time.now - @config.max_age).each do |entry|
-        $logger.info { "pruned #{entry.id.inspect} (#{entry.time})"}
-      end
-    end
-
     def update_item_history
       @items.each do |item|
         @item_history << { time: item.date, id: item.id }
       end
     end
 
-    def load_response_history
-      @response_history = History.new(file: response_history_file)
+    def prune_item_history
+      @item_history.prune(before: Time.now - @config.max_age).each do |entry|
+        $logger.info { "pruned #{entry.id.inspect} (#{entry.time})"}
+      end
+    end
+
+    def prune_response_history
       @response_history.prune(before: Time.now - @config.max_age).each do |entry|
         $logger.info { "pruned response from #{entry.time}" }
       end
@@ -103,6 +101,8 @@ module NewsFetcher
     def update
       $logger.debug { "#{@id}: updating" }
       begin
+        prune_item_history
+        prune_response_history
         if recently_updated?
           $logger.info { "#{@id}: too soon to update" }
           return
