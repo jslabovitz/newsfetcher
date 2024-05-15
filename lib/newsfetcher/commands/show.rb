@@ -4,6 +4,9 @@ module NewsFetcher
 
     class Show < Command
 
+      attr_accessor :status
+      attr_accessor :sort
+
       def run(args)
         super
         @profile.find_subscriptions(

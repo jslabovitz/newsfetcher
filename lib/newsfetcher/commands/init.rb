@@ -4,6 +4,9 @@ module NewsFetcher
 
     class Init < Command
 
+      attr_accessor :mail_from
+      attr_accessor :mail_to
+
       def run(args)
         super
         raise Error, "Must specify mail_from" unless @mail_from

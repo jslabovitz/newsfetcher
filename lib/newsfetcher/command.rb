@@ -1,6 +1,10 @@
 module NewsFetcher
 
-  class Command < SimpleCommand::Command
+  class Command < Simple::CommandParser::Command
+
+    attr_accessor :dir
+    attr_accessor :log_level
+    attr_accessor :max_threads
 
     def run(args)
       dir = Path.new(@dir || DefaultProfileDir)

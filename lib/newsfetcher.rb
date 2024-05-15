@@ -19,7 +19,7 @@ require 'rubypants'
 require 'sassc'
 require 'set_params'
 require 'simple-builder'
-require 'simple-command'
+require 'simple-command-parser'
 require 'simple-config'
 require 'simple-printer'
 

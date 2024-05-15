@@ -2,4 +2,4 @@
 
 require 'newsfetcher'
 
-SimpleCommand::Commander.new.run(ARGV)
+Simple::CommandParser.run(ARGV)
