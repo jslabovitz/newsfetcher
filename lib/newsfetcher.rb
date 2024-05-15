@@ -44,7 +44,6 @@ module NewsFetcher
   ]
 end
 
-require 'newsfetcher/extensions/kernel'
 require 'newsfetcher/extensions/string'
 require 'newsfetcher/extensions/mail'
 require 'newsfetcher/extensions/addressable-uri'
