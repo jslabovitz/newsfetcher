@@ -5,6 +5,9 @@
 
 ## IMPROVEMENTS
 
+- keep original web address in config
+  - to solve problems when feed disappears
+
 - implement retry on error in fetching/parsing
   - eg, to handle timeouts, connection/read errors, bad data, etc.
   - only show error if > retry count
