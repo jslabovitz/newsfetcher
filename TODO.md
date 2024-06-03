@@ -5,6 +5,11 @@
 
 ## IMPROVEMENTS
 
+- add 'audit' command
+  - interactively modify subscriptions
+    - show activity, dormancy, errors
+    - enable/disable, delete, rename
+
 - keep original web address in config
   - to solve problems when feed disappears
 
