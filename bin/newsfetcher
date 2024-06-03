@@ -2,4 +2,9 @@
 
 require 'newsfetcher'
 
-Simple::CommandParser.run(ARGV)
+begin
+  Simple::CommandParser.run(ARGV)
+rescue Simple::CommandParser::UsageError => error
+  warn error
+  exit(1)
+end
