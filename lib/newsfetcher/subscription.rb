@@ -73,6 +73,10 @@ module NewsFetcher
       end
     end
 
+    def disabled?
+      !!@config.disabled
+    end
+
     def make_dotted_folder
       components = @id.split('/')
       components.pop if @config.consolidate && components.length > 1

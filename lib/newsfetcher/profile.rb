@@ -65,7 +65,6 @@ module NewsFetcher
         Subscription.new(id: id, dir: subscription_dir, config: subscription_config, styles: @styles)
       end
       subscriptions.
-        reject { |s| s.config.disabled }.
         select { |s| status.nil? || status.include?(s.status) }.
         sort_by { |s| s.send(sort).to_s }
     end

@@ -6,7 +6,7 @@ module NewsFetcher
 
       def run(args)
         super
-        subscriptions = @profile.find_subscriptions(ids: args)
+        subscriptions = @profile.find_subscriptions(ids: args).reject(&:disabled?)
         if @profile.config.max_threads == 0
           subscriptions.each(&:update)
         else
