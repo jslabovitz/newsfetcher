@@ -46,6 +46,11 @@ module NewsFetcher
       end
     end
 
+    def config_file
+      raise Error, "dir not set" unless @dir
+      @dir / ConfigFileName
+    end
+
     def item_history_file
       raise Error, "dir not set" unless @dir
       @dir / ItemHistoryFileName
@@ -173,6 +178,16 @@ module NewsFetcher
 
     def reset
       @item_history.reset
+    end
+
+    def enable
+      @config.disabled = false
+      @config.save(config_file)
+    end
+
+    def disable
+      @config.disabled = true
+      @config.save(config_file)
     end
 
     def fix

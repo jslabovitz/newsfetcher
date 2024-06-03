@@ -7,8 +7,7 @@ module NewsFetcher
       def run(args)
         super
         @profile.find_subscriptions(ids: args).each do |subscription|
-          subscription.disabled = false
-          subscription.save
+          subscription.enable
         end
       end
 

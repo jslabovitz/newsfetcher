@@ -12,8 +12,6 @@
   - eg, to handle timeouts, connection/read errors, bad data, etc.
   - only show error if > retry count
 
-- re-implement Subscription#enable/disable
-
 - add new Feed class to encapsulate title/items
 
 - save last fetch response to file (Marshaled?)
