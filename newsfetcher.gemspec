@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'loofah', '~> 2.22'
   s.add_dependency 'mail', '~> 2.8'
   s.add_dependency 'maildir', '~> 2.2'
+  s.add_dependency 'ostruct'
   s.add_dependency 'path', '~> 2.1'
   s.add_dependency 'rubypants', '~> 0.7'
   s.add_dependency 'sassc', '~> 2.4'
