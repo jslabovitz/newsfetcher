@@ -16,6 +16,7 @@ module NewsFetcher
             puts "Items:"
             feed[:items].each do |item|
               item.print
+              puts
             end
           else
             warn "#{uri}: HTTP error #{fetcher.response_status} (#{fetcher.response_reason})"
