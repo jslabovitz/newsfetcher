@@ -1,39 +1,123 @@
 # NewsFetcher
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/newsfetcher`. To experiment with that code, run `bin/console` for an interactive prompt.
+NewsFetcher monitors RSS and Atom feeds and delivers new items as individual HTML emails. It tracks which feed items have already been delivered, so you only receive new content.
 
-TODO: Delete this and the text above, and describe your gem
+
+## Features
+
+- Monitors multiple RSS/Atom feeds organized into subscriptions
+- Delivers each new feed item as a separate HTML email with custom styling
+- Tracks item history to avoid re-delivering the same content
+- Supports multiple delivery methods (SMTP, Maildir, etc.)
+- Configurable update intervals and age limits per subscription
+- Multi-threaded updating for efficiency
+- Feed discovery from web pages
+- Per-subscription and global configuration
+
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'newsfetcher'
+```
+gem install newsfetcher
 ```
 
-And then execute:
 
-    $ bundle
+## Quick Start
 
-Or install it yourself as:
+Initialize a profile with your email settings:
 
-    $ gem install newsfetcher
+```
+newsfetcher init --mail-from feeds@example.com --mail-to you@example.com
+```
+
+Discover a feed for a website:
+
+```
+newsfetcher discover https://example.com/
+```
+
+Add a feed subscription:
+
+```
+newsfetcher add https://example.com/feed.xml
+```
+
+Update all subscriptions and deliver new items:
+
+```
+newsfetcher update
+```
+
 
 ## Usage
 
-TODO: Write usage instructions here
+NewsFetcher organizes feeds into subscriptions stored in `~/.newsfetcher` by default. Each subscription has its own configuration and tracks which items have been delivered.
 
-## Development
+### Commands
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+- `init` — Initialize a new profile with email settings
+- `add URI [PATH] [ID]` — Add a new feed subscription
+- `update [IDs...]` — Update subscriptions and deliver new items
+- `show [IDs...]` — Display subscription details
+- `enable ID` — Enable a disabled subscription
+- `disable ID` — Disable a subscription
+- `remove ID` — Remove a subscription
+- `reset ID` — Clear item history (next update will re-deliver all items)
+- `edit ID` — Edit subscription configuration
+- `dir` — Show the profile directory path
+- `discover URI` — Find feeds in a web page
+- `get URI` — Fetch and display a feed without saving
+- `uniq` — Remove duplicate items from history
+- `fix` — Fix subscription issues
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+### Configuration
 
-## Contributing
+Configuration lives in JSON files at the profile and subscription levels. Profile-level settings in `~/.newsfetcher/config.json` serve as defaults for all subscriptions.
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/jslabovitz/newsfetcher.
+Key configuration options:
+
+- `mail_from`, `mail_to` — Email sender and recipient
+- `mail_subject` — Subject line template (supports ERB)
+- `delivery_method` — How to deliver mail (`:smtp`, `:maildir`, etc.)
+- `delivery_params` — Parameters for the delivery method
+- `update_interval` — Minimum time between updates (default: 1 hour)
+- `max_age` — How long to track items (default: 30 days)
+- `max_threads` — Number of concurrent subscription updates (default: 100)
+- `disabled` — Whether to skip this subscription during updates
+- `ignore_uris` — Array of regex patterns to ignore items
+- `root_folder` — Prefix for maildir folders or mail subject
+- `consolidate` — Use shorter folder names
+
+Subscription-specific settings override profile defaults.
+
+### Styling
+
+Email messages use HTML with embedded CSS compiled from SCSS. The default stylesheet is included, but you can specify additional stylesheets:
+
+```json
+{
+  "aux_stylesheets": ["~/.newsfetcher/custom.scss"]
+}
+```
+
+
+## Automation
+
+Run newsfetcher update periodically using cron, launchd, or your preferred scheduler to automatically check feeds and deliver new items.
+
+
+## How It Works
+
+NewsFetcher fetches each feed, parses it with Feedjira, and compares items against the subscription’s history. New items (not previously seen and within the configured age limit) are formatted as HTML emails and delivered using Ruby’s Mail gem.
+
+Each subscription maintains two history files: one tracking delivered items, one tracking HTTP responses. These histories are automatically pruned based on the `max_age` setting.
+
+
+## Requirements
+
+Ruby 2.7 or later.
+
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+MIT

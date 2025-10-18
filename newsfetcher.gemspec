@@ -3,11 +3,12 @@ require_relative 'lib/newsfetcher/version'
 Gem::Specification.new do |s|
   s.name          = 'newsfetcher'
   s.version       = NewsFetcher::VERSION
-  s.summary       = 'Handles feeds'
+  s.summary       = 'Monitor RSS/Atom feeds and deliver new items by email'
   s.author        = 'John Labovitz'
   s.email         = 'johnl@johnlabovitz.com'
   s.description   = %q{
-    NewsFetcher handles feeds
+    NewsFetcher monitors RSS and Atom feeds, tracking which items have been delivered,
+    and sends new feed items as individual HTML emails using configurable mail delivery methods.
   }
   s.license       = 'MIT'
   s.homepage      = 'http://github.com/jslabovitz/newsfetcher'
