@@ -12,7 +12,7 @@ require 'newsfetcher'
 
 module NewsFetcher
 
-  class Test < Minitest::Test
+  class MainTest < Minitest::Test
 
     def setup
       @tmp_dir = Path.new('test/tmp')
