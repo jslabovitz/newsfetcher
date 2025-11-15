@@ -2,9 +2,4 @@
 
 require_relative '../lib/newsfetcher'
 
-begin
-  Simple::CommandParser.run(ARGV)
-rescue Simple::CommandParser::UsageError => error
-  warn error
-  exit(1)
-end
+Simple::CommandParser.run!(ARGV)
