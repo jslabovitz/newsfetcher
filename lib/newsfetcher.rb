@@ -82,5 +82,5 @@ module NewsFetcher
 
 end
 
-require 'newsfetcher/command'
-Path.new(__FILE__).dirname.glob('newsfetcher/commands/*.rb').each { |p| require p }
+require_relative 'newsfetcher/command'
+Path.new(__FILE__).dirname.glob('newsfetcher/commands/*.rb').each { |p| require_relative p }

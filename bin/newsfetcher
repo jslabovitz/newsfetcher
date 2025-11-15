@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'newsfetcher'
+require_relative '../lib/newsfetcher'
 
 begin
   Simple::CommandParser.run(ARGV)
