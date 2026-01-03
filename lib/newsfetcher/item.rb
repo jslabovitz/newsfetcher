@@ -8,6 +8,7 @@ module NewsFetcher
     attr_accessor :uri
     attr_accessor :author
     attr_accessor :content
+    attr_accessor :links
 
     include SetParams
     include Simple::Printer::Printable
@@ -23,13 +24,20 @@ module NewsFetcher
         uri = nil
       end
       id = entry.entry_id || uri or raise Error, "Can't determine ID or URL for entry"
+      content = (entry.content || entry.summary)&.to_s
+      if entry.respond_to?(:links)
+        links = (entry.links.map { |l| Addressable::URI.parse(l) rescue nil } - [uri]).compact
+      else
+        links = nil
+      end
       super(
         id: id.to_s,
-        uri: uri,
+        uri:,
         date: entry.published || Time.now,
         title: entry.title,
         author: entry.respond_to?(:author) ? entry.author&.sub(/^by\s+/i, '') : nil,
-        content: (entry.content || entry.summary)&.to_s,
+        content:,
+        links:,
       )
     end
 
@@ -40,6 +48,7 @@ module NewsFetcher
         :title,
         :uri,
         :author,
+        :links,
       ]
     end
 

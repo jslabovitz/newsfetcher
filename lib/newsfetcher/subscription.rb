@@ -264,6 +264,13 @@ module NewsFetcher
                 html << Scrubber.text_to_html(item.content)
               end
             end
+            if item.links
+              item.links.each do |link|
+                html.ul do
+                  html.a(link.prettify, href: link)
+                end
+              end
+            end
           end
         end
       end.to_html
