@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'newsfetcher'
-  s.version       = '0.85'
+  s.version       = '0.86'
   s.summary       = 'Monitor RSS/Atom feeds and deliver new items by email'
   s.author        = 'John Labovitz'
   s.email         = 'johnl@johnlabovitz.com'
