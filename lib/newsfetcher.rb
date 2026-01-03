@@ -44,17 +44,17 @@ module NewsFetcher
   ]
 end
 
-require 'newsfetcher/extensions/string'
-require 'newsfetcher/extensions/mail'
-require 'newsfetcher/extensions/addressable-uri'
+require_relative 'newsfetcher/extensions/string'
+require_relative 'newsfetcher/extensions/mail'
+require_relative 'newsfetcher/extensions/addressable-uri'
 
-require 'newsfetcher/error'
-require 'newsfetcher/fetcher'
-require 'newsfetcher/history'
-require 'newsfetcher/item'
-require 'newsfetcher/profile'
-require 'newsfetcher/scrubber'
-require 'newsfetcher/subscription'
+require_relative 'newsfetcher/error'
+require_relative 'newsfetcher/fetcher'
+require_relative 'newsfetcher/history'
+require_relative 'newsfetcher/item'
+require_relative 'newsfetcher/profile'
+require_relative 'newsfetcher/scrubber'
+require_relative 'newsfetcher/subscription'
 
 module NewsFetcher
 
